@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebSocket.Shared;
-using WebSocket.Shared.DataAcess.Local.Services;
+using WebSocket.Shared.DataAcess;
 using WebSocket.Shared.DataAcess.Models;
 using Wpf.Core;
 using Wpf.Core.Models;

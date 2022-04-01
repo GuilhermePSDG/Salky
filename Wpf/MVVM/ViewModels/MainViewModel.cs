@@ -18,6 +18,7 @@ namespace Wpf.MVVM.ViewModels
     public class MainViewModel : BaseEntityVM
     {
         public string AnonymousImageSource = "https://cdn-icons-png.flaticon.com/512/634/634741.png";
+        private Login loginWindow;
         private AudioAdapter audioAdapter;
 
         public Command SendCommand { get; set; }
@@ -35,6 +36,24 @@ namespace Wpf.MVVM.ViewModels
         public SalkyWebSocketClient SalkyWebSocket { get; set; }
         private const string SALKY_WEB_URL = "ws://localhost:5281";//"ws://salky-websocket.herokuapp.com"; 
         private record Audio(byte[] buffer, int lenght);
+        
+        private bool IsSendingFile { get; set; } = false;
+        public MainViewModel(Login loginWindow)
+        {
+            this.loginWindow = loginWindow;
+            this.audioAdapter = new AudioAdapter();
+            this.audioAdapter.StartMicrofoneListener();
+            this.audioAdapter.StartHeadPhoneListener();
+            this.audioAdapter.SelfListerner();
+            MakeLogin();
+            StartSocketClient().ContinueWith(async x =>
+            {
+                this.SalkyWebSocket = await x;
+                StartRoutes();
+
+            });
+            StartCommands();
+        }
         private async Task<SalkyWebSocketClient> StartSocketClient()
         {
             return await SalkyWebSocketClient.StartNewAsync
@@ -54,26 +73,8 @@ namespace Wpf.MVVM.ViewModels
                      },
                      new Uri(SALKY_WEB_URL)
                  );
-        }
-        private bool IsSendingFile { get; set; } = false;
-        public MainViewModel()
-        {
-            this.audioAdapter = new AudioAdapter();
-            this.audioAdapter.StartMicrofoneListener();
-            this.audioAdapter.StartHeadPhoneListener();
-            this.audioAdapter.SelfListerner();
-            MakeLogin();
-            StartSocketClient().ContinueWith(async x =>
-            {
-                this.SalkyWebSocket = await x;
-                StartRoutes();
-
-            });
-            StartCommands();
-            StartSocketClient();
-        }
-
-        private Action<Task, object?> StartRoutes()
+        }s
+        private void StartRoutes()
         {
             //Iniciar as rotas client - client
             SalkyWebSocket.On("route/message", (message) =>
@@ -88,13 +89,16 @@ namespace Wpf.MVVM.ViewModels
             SalkyWebSocket.On("route/audio", (msg) =>
             {
                 var audio = JsonSerializer.Deserialize<Audio>(msg.Json);
-                this.audioAdapter.ReproduceAudio(audio.buffer, audio.lenght);
+                if(audio != null)
+                    this.audioAdapter.ReproduceAudio(audio.buffer, audio.lenght);
             });
         }
 
         private void MakeLogin()
         {
-            throw new NotImplementedException();
+            loginWindow.ShowDialog();
+            this.LoggedUser = loginWindow.GetLoggedUser();
+            loginWindow.Hide();
         }
 
         private void StartCommands()
@@ -103,7 +107,7 @@ namespace Wpf.MVVM.ViewModels
             this.ChangeVisibilityCommand = new Command(ChangeVisibility, () => SalkyWebSocket != null && SalkyWebSocket.IsConnected && this.LoggedUser != null);
             this.ConfigCommand = new Command(StartNewConfigView);
             this.SearchCommand = new Command(BuscarUsuario, () => SearchUserText != null && SearchUserText.Length > 0 && SalkyWebSocket != null && SalkyWebSocket.IsConnected && this.LoggedUser != null);
-            this.LoginUserCommand = new Command(StartSocketClient);
+            this.LoginUserCommand = new Command(MakeLogin);
         }
 
 
@@ -222,7 +226,7 @@ namespace Wpf.MVVM.ViewModels
 
         private void RecoveryUserFileThenSet()
         {
-            this.LoggedUser = this.userFileManager.GetLastLogged();
+           // this.LoggedUser = this.userFileManager.GetLastLogged();
         }
 
         private async void BuscarUsuario()
@@ -240,7 +244,7 @@ namespace Wpf.MVVM.ViewModels
                 else
                     new MessageBoxC($"Você já possui o {contato.ExibitionName} como amigo.").ShowDialog();
 
-                MessageBox.Show(, "Aviso");
+                MessageBox.Show("", "Aviso");
             }
         }
         private bool TentaAdicionarContato(ContatoVM? contato)
@@ -260,7 +264,7 @@ namespace Wpf.MVVM.ViewModels
         public async void StartNewConfigView()
         {
             new ConfigWindow().ShowDialog();
-            this.LoggedUser = this.userFileManager.ObterUsuarios().First();
+            //this.LoggedUser = this.userFileManager.ObterUsuarios().First();
             await this.SalkyWebSocket.SendThenSetUser();
         }
         public async void ChangeVisibility()

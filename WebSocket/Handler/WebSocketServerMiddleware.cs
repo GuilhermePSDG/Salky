@@ -91,18 +91,15 @@ public partial class WebServerSocketMiddleware
     private async Task SendUser(SalkyWebSocketServer websocket, MessageServer msg)
     {
         var user = _connectionManager.FindByUniqueName(msg.Json)?.user;
-        if (user == null)
+        ///Pode causar problemas, porém não deve ser enviado . . .
+        string? userJson = null;
+        if(user != null)
         {
-            await SendError(websocket, "User notfound");
-        }
-        else
-        {
-            ///Pode causar problemas, porém não deve ser enviado . . .
             user.ConnectionKey = "";
             var userjson = JsonSerializer.Serialize(user);
-            var message = new MessageServer(websocket.user?.Apelido ?? "Unknow user", "server", "getuser",userjson);
-            await websocket.SendAsync(message);
         }
+        var message = new MessageServer(websocket.user?.Apelido ?? "Unknow user", "server", "getuser", userJson);
+        await websocket.SendAsync(message);
     }
     public async Task EnviarMensagemRoteada(SalkyWebSocketServer ws, MessageServer message)
     {

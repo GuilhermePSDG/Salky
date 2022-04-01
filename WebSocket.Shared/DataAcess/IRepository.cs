@@ -6,15 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using WebSocket.Shared.DataAcess.Models;
 
-namespace WebSocket.Shared.DataAcess.Local.Services
+namespace WebSocket.Shared.DataAcess
 {
     public interface IRepository<T> where T : BaseEntity
     {
         //
         public T? GetById(int id);
         public List<T>? GetAll();
-        public T? Find(Func<T,bool> expression);
-        public List<T>? FindAll(Func<T,bool> expression);
+        public T? Find(Func<T, bool> expression);
+        public List<T>? FindAll(Func<T, bool> expression);
         //
         public void Update(T entity);
         //
