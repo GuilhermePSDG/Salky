@@ -1,0 +1,31 @@
+﻿
+--TO DO--
+	1 - Dar uma refatorada e retiras as logicas que não deveriam estar da View.
+	2 - Habilitar transferencia de arquivos, usando o protocolo abaixo
+		1 - Então eu criptografo o arquivo usando a uma senha AES
+		2 - Depois eu criptografo a senha AES e o Hash Verificador com a chave publica do destinatario
+		3 - O destinatario recebe, descriptografa a chave e usa ela pra descriptografar o arquivo
+	3 - Caso nessesario usar o 7zp para compressão de arquivos
+	4 - Habilitar o RSA nas mensagens
+	5 - Pesquiser como fazer pra receber os inputs do Microfone / Webcam / Captura de tela e depois aplicar essas funcionalidades
+	6 - Criar opções de salvamento de dados, Local / Cloud
+
+
+Regras
+	Input / OutPut
+		- PlusData no UserServer deve ser objeto ContatoVM
+		Porém NÃO DEVERA INCLUIR MENSAGENS
+		- Todos na rota "message" deverão ser encryptados usando RSA.
+		- Todos os demais dados deveram passar por um sha512 ou 256, levar em consideração a performance.
+		e descriptografados no server, ainda NÃO IMPLEMENTADO.
+	
+
+PATH
+	"contact" :
+		Nessa rota será enviado / recebido objetos do tipo Wpf.MVVM.Models.ContatoVM
+		Que estara dentro do WebSocket.Shared.Models.UserServer.PlusData
+		NOT IMPLEMENTED
+	"message" :
+		Nessa rota será enviado / recebido objetos do tipo Wpf.MVVM.Models.MessageVM
+		A mensagem estara no WebSocket.Shared.Models.MessageServer.Json
+		Indetificador contido MessageServer.Sender

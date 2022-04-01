@@ -1,0 +1,27 @@
+﻿Regras
+	Input
+		- Tudo que for enviado deve ser enviado dentro de um
+		WebSocket.Shared.MessageServer
+		- Para usuario devera ser enviado um WebSocket.Shared.UserServer
+		Dados adicionais deverão ficar em WebSocket.Shared.UserServer.Json
+
+PATH
+	RULE
+		Path = "name/name"
+		Index 0 = O caminho utilizado pelo servidor.
+	"route"
+		Envia uma mensagem para um destinatario
+	"setuser"
+		Recebe um usuario
+		seta este usuarios no servidor
+		depois retorna o usuario com a id da conexão e o nome modificiado caso tenha sido nescessario
+	"getuser" 
+		Tenta retornar o usuario pedido
+	"getusers"
+		Retorna todos os usuarios visiveis
+	"error"
+		Caso acontece qualquer erro
+	"error,{route.name}"
+		Não implementado
+	"notification,{route.name}":
+		Não implementado
