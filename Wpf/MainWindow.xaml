@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Wpf" xmlns:viewmodelss="clr-namespace:Wpf.MVVM.ViewModels"
+        xmlns:local="clr-namespace:Wpf" xmlns:viewmodelss="clr-namespace:Wpf.MVVM.ViewModels" 
+        d:DataContext="{d:DesignInstance Type=viewmodelss:MainViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="650" Width="1200"
         Background="#36393f"
@@ -11,10 +12,6 @@
         AllowsTransparency="True"
         ResizeMode="CanResizeWithGrip"
         >
-    <Window.DataContext>
-        <viewmodelss:MainViewModel/>
-    </Window.DataContext>
-   
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -32,7 +29,7 @@
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Click="MinimazineButtonClick" Height="35" Width="35" Content="⎯" Background="Transparent" BorderThickness="0" Foreground="Gray" FontWeight="Bold"/>
                     <Button Click="MaximazeButtonClick"   Height="35" Width="35" Content="☐" Background="Transparent" BorderThickness="0" Foreground="Gray" FontWeight="Bold"/>
-                    <Button Command="{Binding CloseCommand}" Click="CloseButtonClick" Height="35" Width="35" Content="🗙" Background="Transparent" BorderThickness="0" Foreground="Gray" FontWeight="Bold"/>
+                    <Button Click="CloseButtonClick" Height="35" Width="35" Content="🗙" Background="Transparent" BorderThickness="0" Foreground="Gray" FontWeight="Bold"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -44,7 +41,7 @@
                 <RowDefinition Height="60"/>
             </Grid.RowDefinitions>
 
-            <TextBox   Style="{StaticResource Search}" Grid.Row="0"></TextBox>
+            <TextBox Style="{StaticResource Search}" Grid.Row="0"></TextBox>
             <Border  BorderBrush="#393b40" BorderThickness="0 0 0 1.5" />
 
             <Label Content="Contatos" Grid.Row="1" VerticalAlignment="Center" FontWeight="Medium" Foreground="Gray" Margin="8 0 0 0"/>
@@ -52,20 +49,20 @@
                       Background="Transparent" 
                       BorderThickness="0" 
                       Grid.Row="2" 
-                      ItemsSource="{Binding LoggedUser.Contatos}" 
+                      ItemsSource="{Binding LoggedUserVM.Contatos}" 
                       ItemContainerStyle="{StaticResource ContactCard}"/>
             <StackPanel Grid.Row="3" Orientation="Horizontal" Background="#292b2f">
                 <Button Command="{Binding LoginUserCommand}" Style="{StaticResource ButtonReset}">
                     <Ellipse Width="30" Height="30" Margin="10 0 0 -5">
                         <Ellipse.Fill>
-                            <ImageBrush ImageSource="{Binding LoggedUser.PictureSource}" RenderOptions.BitmapScalingMode="Fant"/>
+                            <ImageBrush ImageSource="{Binding LoggedUserVM.PictureSource}" RenderOptions.BitmapScalingMode="Fant"/>
                         </Ellipse.Fill>
                     </Ellipse>
                 </Button>
 
 
                 <StackPanel VerticalAlignment="Center">
-                    <Label Content="{Binding LoggedUser.ExibitionName}" Foreground="White" FontWeight="SemiBold" Margin="0 -5 0 -5 "/>
+                    <Label Content="{Binding LoggedUserVM.ExibitionName}" Foreground="White" FontWeight="SemiBold" Margin="0 -5 0 -5 "/>
 
                     <Button 
                         Style="{StaticResource ButtonReset}"
@@ -75,7 +72,7 @@
                         HorizontalAlignment="Left"
                         Command="{Binding ChangeVisibilityCommand}"
                         >
-                        <Label Foreground="Gray" Content="{Binding LoggedUser.Status}" />
+                        <Label Foreground="Gray" Content="{Binding LoggedUserVM.Status}" />
                     </Button>
 
                 </StackPanel>

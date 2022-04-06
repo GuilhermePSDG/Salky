@@ -8,23 +8,25 @@ using WebSocket.Shared.DataAcess.Models;
 
 namespace WebSocket.Shared.DataAcess
 {
-    public interface IRepository<T> where T : BaseEntity
+    public interface IRepository<T> : IDisposable  where T : BaseEntity
     {
+        //
+        public IRepository<T> AsTracking();
+        public IRepository<T> AsNoTracking();
         //
         public T? GetById(int id);
         public List<T>? GetAll();
         public T? Find(Func<T, bool> expression);
-        public List<T>? FindAll(Func<T, bool> expression);
         //
         public void Update(T entity);
         //
         public void Remove(T entity);
         public void Remove(int id);
         //
-        public void Add(T entity);
+        public T Add(T entity);
         //
-        public void SaveChanges();
-        public Task SaveChangesAsync();
+        public int SaveChanges();
+        public Task<int> SaveChangesAsync();
 
     }
 }

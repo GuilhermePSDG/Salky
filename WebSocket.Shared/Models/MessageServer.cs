@@ -2,18 +2,17 @@
 
 public class MessageServer
 {
-    public MessageServer() { }
-    public MessageServer(string receiver, string sender, string PathString, string json)
+    public MessageServer(byte[] ReceiverPublicKey, byte[] SenderPublicKey, string PathString, byte[] data)
     {
-        this.Receiver = receiver;
-        this.Sender = sender;
+        this.ReceiverPublicKey = ReceiverPublicKey;
+        this.SenderPublicKey = SenderPublicKey;
         this.PathString = PathString;
-        this.Json = json;
+        this.Data = data;
     }
 
-    public string Receiver { get; set; }
-    public string Sender { get; set; }
+    public byte[] ReceiverPublicKey { get; set; }
+    public byte[] SenderPublicKey { get; set; }
     public string[] PathArray => PathString.Split('/');
     public string PathString { get; set; }
-    public string Json { get; set; }
+    public byte[] Data { get; set; }
 }

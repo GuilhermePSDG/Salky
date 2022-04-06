@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Wpf.MVVM.Models;
+using WebSocket.Shared.DataAcess.Models;
 using Wpf.MVVM.ViewModels;
 
 namespace Wpf.MVVM.Views
@@ -27,10 +17,10 @@ namespace Wpf.MVVM.Views
         {
             InitializeComponent();
             this.loginViewModel = loginViewModel;
-            loginViewModel.Close = this.Hide;
             this.DataContext = this.loginViewModel;
         }
-        public UsuarioVM GetLoggedUser() => loginViewModel.SelectedAccount ?? throw new Exception("Nenhuma conta logada");
+
+        public UsuarioVM GetLoggedUserVM() => loginViewModel.SelectedAccount ?? throw new Exception("Nenhuma conta logada");
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -58,7 +48,7 @@ namespace Wpf.MVVM.Views
         }
         private void CloseButtonClick(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            this.Hide();
         }
     }
 }

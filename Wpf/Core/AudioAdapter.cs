@@ -25,7 +25,6 @@ namespace Wpf.Core
         public List<WaveInCapabilities> GetMicrofoneAvaibles => Enumerable.Range(0, WaveIn.DeviceCount).Select(index => WaveIn.GetCapabilities(index)).ToList();
         public List<WaveOutCapabilities> GetHeadPhoneAvailables => Enumerable.Range(0, WaveOut.DeviceCount).Select(index => WaveOut.GetCapabilities(index)).ToList();
         public void AddMicrofoneAudioHandler(Action<WaveInEventArgs> MicroFoneHandler) => waveIn.DataAvailable += (sender, e) => MicroFoneHandler(e);
-        public void SelfListerner() => AddMicrofoneAudioHandler((e) => provider.AddSamples(e.Buffer, 0, e.BytesRecorded));
         public void ChangeMicrofoneIndex(int index) => waveIn.DeviceNumber = index;
         public void ChangeHeadPhoneIndex(int index) => waveOut.DeviceNumber = index;
         public void StartMicrofoneListener() => waveIn.StartRecording();

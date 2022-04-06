@@ -3,24 +3,44 @@
 		- Tudo que for enviado deve ser enviado dentro de um
 		WebSocket.Shared.MessageServer
 		- Para usuario devera ser enviado um WebSocket.Shared.UserServer
-		Dados adicionais deverão ficar em WebSocket.Shared.UserServer.Json
-
+	HandShake
+		1 - Primeiro de tudo o client deve enviar um UserServer na rota "setuser"
+			Depois deve aguardar o usuario na rota "setuser"
+			E setar o nome do usuario igual o usuario recebido do servidor
+		2 - Deve aguardar na rota "proveowner"
+			E irá receber um dado criptografado com sua chave publica
+			Terá que devolver o dado descriptografado
+			Caso o dado retornado, sejá invalido a conexão será fechada
+			Se não ok.
 PATH
-	RULE
-		Path = "name/name"
-		Index 0 = O caminho utilizado pelo servidor.
+	Regras
+		PathArray = ["{ServerRouteName}","{ClientRouteName}"..]
+		PathString = "{ServerRouteName}/{ClientRouteName}.."
+		Index 0 é o caminho utilizado pelo servidor.
+	"setuser" (SÓ ESTA DISPOINIVEL DURANTE O HANDSHAKE)
+		Recebe um usuario
+		modifica o nome caso já tenha alguém
+		Retorna o usuario
+	"proveowner" (SÓ ESTA DISPOINIVEL DURANTE O HANDSHAKE)
+		Envia uma mensagem criptografada com a chave publica de quem enviou,
+		E espera uma respota,
+		Caso a resposta não seja satisfatoria, fecha a conexão
 	"route"
 		Envia uma mensagem para um destinatario
-	"setuser"
-		Recebe um usuario
-		seta este usuarios no servidor
-		depois retorna o usuario com a id da conexão e o nome modificiado caso tenha sido nescessario
+		Utilizando a public key da rota
+	"changename"
+		recebe uma string
+		modifica o nome caso já tenha alguém
+		retorna uma string
+	"changevisibility"
+		recebe um bollean
 	"getuser" 
 		Tenta retornar o usuario pedido
+		Com base no apelido
 	"getusers"
 		Retorna todos os usuarios visiveis
 	"error"
-		Caso acontece qualquer erro
+		Caso aconteça qualquer erro
 	"error,{route.name}"
 		Não implementado
 	"notification,{route.name}":

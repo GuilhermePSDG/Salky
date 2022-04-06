@@ -9,62 +9,59 @@ namespace WebSocket.Shared
 {
     public partial class RsaService : IDisposable
     {
-
-
-
-        private RSACryptoServiceProvider cryptoService;
         public string Id = Guid.NewGuid().ToString();
-        public string GetPublicKey()
+        private RSACryptoServiceProvider cryptoService;
+        private RsaService(RSACryptoServiceProvider cryptoService) => this.cryptoService = cryptoService;
+        public byte[] GetPublicKey() => cryptoService.ExportRSAPublicKey();
+        public byte[] GetPrivateKey() => cryptoService.ExportRSAPrivateKey();
+        public static RsaService FromPrivateKey(byte[] privateKey)
         {
-            var pvks = cryptoService.ExportRSAPublicKey();
-            var pvksStr = Convert.ToBase64String(pvks);
-            return pvksStr;
+            var csp = new RSACryptoServiceProvider();
+            csp.ImportRSAPrivateKey(privateKey, out int total);
+            return new RsaService(csp);
         }
-        public string GetPrivateKey()
+        public static RsaService FromPublicKey(byte[] publickey)
         {
-            var pvks = cryptoService.ExportRSAPrivateKey();
-            var pvksStr = Convert.ToBase64String(pvks);
-            return pvksStr;
+            var csp = new RSACryptoServiceProvider();
+            csp.ImportRSAPublicKey(publickey, out int total);
+            return new RsaService(csp);
         }
-
-        private RsaService(RSACryptoServiceProvider cryptoServiceProvider)
-        {
-            cryptoService = cryptoServiceProvider;
-        }
-
         public static RsaService GenereteNewKeys(int size = 10240)
         {
             var cryptoService = new RSACryptoServiceProvider(size);
             return new RsaService(cryptoService);
         }
-        public static RsaService FromPublicKey(string pubKeyString)
+        /// <summary>
+        /// USE UTF8
+        /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <returns></returns>
+        public string Decrypt(byte[] encryptedData)
         {
-            var csp = new RSACryptoServiceProvider();
-            csp.ImportRSAPublicKey(Convert.FromBase64String(pubKeyString), out int total);
-            return new RsaService(csp);
-        }
-        public static RsaService FromPrivateKey(string privateKey)
-        {
-            var csp = new RSACryptoServiceProvider();
-            csp.ImportRSAPrivateKey(Convert.FromBase64String(privateKey), out int total);
-            return new RsaService(csp);
-        }
-
-        public string Decrypt(string data)
-        {
-            var bytesCypherText = Convert.FromBase64String(data);
-            var bytesPlainTextData = cryptoService.Decrypt(bytesCypherText, false);
-            var plainTextData = Encoding.Unicode.GetString(bytesPlainTextData);
+            var decryptedData = cryptoService.Decrypt(encryptedData, false);
+            var plainTextData = Encoding.UTF8.GetString(decryptedData);
             return plainTextData;
         }
-
-        public string Encrypt(string text)
+        public byte[] DecryptToBytes(byte[] encryptedData)
         {
-            var bytesPlainTextData = Encoding.Unicode.GetBytes(text);
-            var bytesCypherText = cryptoService.Encrypt(bytesPlainTextData, false);
-            return Convert.ToBase64String(bytesCypherText);
+            return cryptoService.Decrypt(encryptedData, false);
         }
-
+        /// <summary>
+        /// USE UTF8
+        /// </summary>
+        /// <param name="plainText"></param>
+        /// <returns></returns>
+        public byte[] Encrypt(string plainText)
+        {
+            var plainTextData = Encoding.UTF8.GetBytes(plainText);
+            var textEncryptedData = cryptoService.Encrypt(plainTextData, false);
+            return textEncryptedData;
+        }
+        public byte[] Encrypt(byte[] plainTextData)
+        {
+            var textEncryptedData = cryptoService.Encrypt(plainTextData, false);
+            return textEncryptedData;
+        }
         public void Dispose()
         {
             cryptoService.Dispose();

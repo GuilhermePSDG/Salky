@@ -8,9 +8,13 @@ namespace WebSocket.Shared.DataAcess.Models
         {
             Date = DateTime.Now;
         }
-        public Contato Sender { get; set; }
+        public bool IsOwner { get; set; }
+        public bool IsSended { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
+
     }
+
+
 
 }

@@ -2,14 +2,14 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app 
 #
 # copy csproj and restore as distinct layers
-COPY WebSocket.Shared/*.csproj ./WebSoc.Shared/
+COPY WebSocket.Shared/*.csproj ./WebSocket.Shared/
 COPY WebSocket/*.csproj ./WebSoc/
 #
 WORKDIR /app/WebSoc
 RUN dotnet restore 
 #
 # copy everything else and build app
-COPY WebSocket.Shared/. ./WebSoc.Shared/
+COPY WebSocket.Shared/. ./WebSocket.Shared/
 COPY WebSocket/. ./WebSoc/
 #
 WORKDIR /app/WebSoc/

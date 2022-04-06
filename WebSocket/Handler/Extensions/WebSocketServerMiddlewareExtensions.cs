@@ -20,10 +20,12 @@ public static class WebServerSocketMiddlewareExtensions
 
     public static async Task SendAsync<T>(this System.Net.WebSockets.WebSocket socket, T data)
     {
+        Console.WriteLine("MESSAGE SENDED");
         await socket.SendAsync(JsonSerializer.Serialize(data));
     }
     public static async Task SendAsync(this System.Net.WebSockets.WebSocket socket, string data)
     {
+        Console.WriteLine("MESSAGE SENDED");
         var buffer = Encoding.UTF8.GetBytes(data);
         await socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
     }

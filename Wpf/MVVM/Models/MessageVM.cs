@@ -1,22 +1,40 @@
 ﻿using System;
-using Wpf.Core.Models;
+using Wpf;
+using Wpf.MVVM.ViewModels;
 
-namespace Wpf.MVVM.Models
+namespace WebSocket.Shared.DataAcess.Models
 {
     public class MessageVM : BaseEntityVM
     {
         public MessageVM()
         {
-            this.Date = DateTime.Now;
+            Date = DateTime.Now;
         }
-        public string ImageSource { get; set; }
-        public string SenderName { get; set; }
-        public string UsernameColor = "#4440000";
-        public string SenderPublicKey { get; set; }
-        public bool IsOwnerMessage { get; set; }
-        public bool IsSequencialMessage { get; set; }
+        public bool IsOwner { get; set; }
+        public bool IsSended { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
+        public bool IsSequencialMessage { get; set; } = false;
+
+
+        public string picture
+        {
+            get 
+            {
+                foreach(var window in App.Current.Windows)
+                {
+                    if (window.GetType().Equals(typeof(MainWindow)))
+                    {
+                        var dataContext = (MainViewModel)((MainWindow)window).DataContext;
+                        return IsOwner ? dataContext.LoggedUserVM.PictureSource : dataContext.SelectedContact?.PictureSource ?? "";
+                    }
+                }
+                return "";
+            }
+        }
+
     }
+
+
 
 }

@@ -1,10 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebSocket.Shared.DataAcess.Models;
 
 namespace WebSocket.Shared.DataAcess.Local
@@ -23,12 +17,16 @@ namespace WebSocket.Shared.DataAcess.Local
             this.FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Salky");
             this.DbName = "SalkyDb.db";
             Directory.CreateDirectory(FolderPath);
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
+            this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"DataSource={Path.Combine(FolderPath,DbName)};");
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.UseSqlite($"DataSource={Path.Combine(FolderPath,DbName)};")
+                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            ;
         }
     }
 

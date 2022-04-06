@@ -5,14 +5,19 @@ namespace WebSocket.Handler;
 
 public class SalkyWebSocketServer : System.Net.WebSockets.WebSocket
 {
+    public string GUIDID = Guid.NewGuid().ToString();
     private System.Net.WebSockets.WebSocket webSocket { get; set; }
-    public UserServer? user { get; set; }
-    public string Id { get; internal set; }
-
-    public SalkyWebSocketServer(System.Net.WebSockets.WebSocket webSocket)
+    public UserServer user { get; set; }
+    public SalkyWebSocketServer(System.Net.WebSockets.WebSocket webSocket , UserServer userServer)
     {
+        if (userServer == null || !userServer.IsValid())
+        {
+            var msg = $"The parrameter {nameof(user)} cannot be null or invalid";
+            webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, msg, CancellationToken.None);
+            throw new Exception(msg);
+        }
         this.webSocket = webSocket;
-        this.Id = Guid.NewGuid().ToString();
+        this.user = userServer;
     }
 
     public override WebSocketCloseStatus? CloseStatus => webSocket.CloseStatus;
@@ -40,7 +45,6 @@ public class SalkyWebSocketServer : System.Net.WebSockets.WebSocket
         webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData,"Server WebSocket Disposed",CancellationToken.None).Wait();
         webSocket.Dispose();
         webSocket = null;
-        Id = null;
         user = null;
     }
 
