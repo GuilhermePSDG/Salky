@@ -35,7 +35,7 @@ namespace Salky.Test.App.Services
             var contato2 = await contactService.AddContactByUserNameAsync(users[1].Id, users[0].UserName);
 
             var ok = await messageService.AdicionarMensagemParaAmbos(users[0].Id, contato1.ContactId, "Olá contato 2");
-            Assert.IsTrue(ok, "Não foi possivel enviar a mensagem");
+            Assert.IsTrue(ok != null, "Não foi possivel enviar a mensagem");
         }
         [TestMethod]
         public async Task TesteObterMensagems()
