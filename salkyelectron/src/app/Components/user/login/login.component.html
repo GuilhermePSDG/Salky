@@ -1,0 +1,9 @@
+
+
+<div class="loginMain">
+  <form class="loginBox" (ngSubmit)="login()">
+    <input [(ngModel)]="this.userModel.username" name="username" id="username"   type="text" placeholder="Digite seu usuario" />
+    <input [(ngModel)]="this.userModel.password" name="password" id="password" type="password"  placeholder="Digite sua senha" />
+    <button type="submit" id="loginBtn">Entrar</button>
+  </form>
+</div>

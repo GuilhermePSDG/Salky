@@ -1,0 +1,107 @@
+.chat-main-container{
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.chatboxContainer{
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  z-index: 1000;
+  color:white;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 0px solid transparent;
+  border-radius: 50px;
+  margin-bottom: 20px;
+}
+.chatBoxMessage{
+  flex-grow: 1;
+  max-height: 100%;
+  height: 300px;
+  overflow-y: scroll;
+}
+
+.chatboxHistoricalChat{
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding-left: 40px;
+  margin-bottom: 40px;
+}
+.label,.chatBoxImage{
+  margin-right : 10px;
+}
+.label{
+  font-size: 1.2rem;
+  margin-left: 10px;
+}
+.sendDate{
+  font-size : 0.7rem;
+  margin-top: 3px;
+}
+
+.userchatContainer{
+  margin-top: 27px;
+  flex-direction: column;
+}
+.messagesContainer{
+  margin-top: -25px;
+  top: 26px;
+  flex-direction:column;
+  display: flex;
+  margin-left: 65px;
+}
+.messageContent{
+  margin-top: 4px;
+}
+
+.scrol {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+//---Top bar
+
+#userNickName{
+  display: flex;
+  align-items: center;
+}
+#userNickName:nth-child(1){
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin-left: 50px;
+}
+.chatboxTopBar,.chatboxTopBar div{
+  height: 60px;
+  width: 100%;
+  border: 0px solid transparent;
+  border-radius: 50px 50px 0 0;
+}
+.chatboxTopBarIn{
+  display: flex;
+}
+.chatboxTopBar{
+  background-color: rgba(0, 0, 0, 0.3);
+
+}
+
+.buttons{
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 50px;
+}
+.buttons button{
+  margin-left: 20px;
+  border-radius: 50%;
+  padding: 0px 20px 0 20px;
+  transition: all 0.6s;
+}
+#phone{
+  height: 20px;
+}
+#camera{
+  height :15px;
+}
+

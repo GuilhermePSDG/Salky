@@ -1,0 +1,21 @@
+
+.ImageContainer-Circle{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: white;
+  /* commented for demo
+  float: left;
+  margin-left: 125px;
+  margin-top: 20px;
+  */
+  /*for demo*/
+  display:inline-block;
+  vertical-align:middle;
+}
+.ImageContainer-Circle img{
+  min-width: 45px;
+  min-height: 45px;
+  height: 100%;
+}

@@ -1,0 +1,159 @@
+<div class="userListC">
+  <div class="listing">
+    <div
+      *ngFor="let contact of contacts"
+
+      [routerLink]="['contact', contact.contactId]"
+      class="imgContainer"
+      >
+
+      <app-rounded-picture
+        source="{{ contact.pictureSource }}"
+      ></app-rounded-picture>
+      <span _ngcontent-fka-c49="" class="userName">{{ contact.userName }}</span>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <app-rounded-picture style="cursor:pointer;" routerLink="/user/logout" source="{{this.currentUser?.pictureSource}}"></app-rounded-picture>
+
+    <div class="buttons">
+      <button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="21px"
+          height="21px"
+        >
+          <defs>
+            <filter id="Filter_0">
+              <feFlood
+                flood-color="rgb(255, 255, 255)"
+                flood-opacity="1"
+                result="floodOut"
+              />
+              <feComposite
+                operator="atop"
+                in="floodOut"
+                in2="SourceGraphic"
+                result="compOut"
+              />
+              <feBlend mode="normal" in="compOut" in2="SourceGraphic" />
+            </filter>
+          </defs>
+          <g filter="url(#Filter_0)">
+            <path
+              fill-rule="evenodd"
+              fill="rgb(255, 255, 255)"
+              d="M20.258,12.814 L19.323,12.814 C18.892,12.814 18.509,13.091 18.370,13.503 C18.261,13.828 18.128,14.149 17.976,14.457 C17.788,14.836 17.861,15.290 18.157,15.586 L18.831,16.260 C19.123,16.553 19.123,17.028 18.831,17.321 L17.321,18.831 C17.028,19.123 16.553,19.124 16.260,18.831 L15.595,18.166 C15.297,17.868 14.842,17.797 14.462,17.986 C14.154,18.140 13.833,18.274 13.508,18.385 C13.093,18.527 12.814,18.914 12.814,19.348 L12.814,20.258 C12.814,20.672 12.477,21.009 12.063,21.009 L9.928,21.009 C9.514,21.009 9.178,20.672 9.178,20.258 L9.178,19.348 C9.178,18.914 8.898,18.527 8.483,18.385 C8.158,18.274 7.837,18.140 7.530,17.986 C7.149,17.797 6.694,17.868 6.396,18.166 L5.731,18.831 C5.448,19.115 4.953,19.114 4.670,18.831 L3.160,17.321 C2.868,17.028 2.868,16.553 3.160,16.260 L3.834,15.587 C4.130,15.290 4.203,14.836 4.015,14.457 C3.863,14.149 3.731,13.828 3.621,13.503 C3.482,13.091 3.099,12.814 2.668,12.814 L1.733,12.814 C1.319,12.814 0.983,12.477 0.983,12.063 L0.983,9.928 C0.983,9.514 1.319,9.178 1.733,9.178 L2.686,9.178 C3.114,9.178 3.496,8.903 3.637,8.493 C3.747,8.175 3.879,7.859 4.030,7.556 C4.220,7.175 4.148,6.719 3.850,6.421 L3.160,5.731 C3.019,5.590 2.940,5.401 2.940,5.201 C2.940,5.000 3.019,4.812 3.160,4.670 L4.670,3.160 C4.953,2.877 5.448,2.877 5.731,3.160 L6.430,3.859 C6.726,4.155 7.181,4.228 7.561,4.041 C7.864,3.891 8.180,3.760 8.499,3.652 C8.905,3.514 9.178,3.136 9.178,2.712 L9.178,1.733 C9.178,1.319 9.514,0.983 9.928,0.983 L12.063,0.983 C12.477,0.983 12.814,1.319 12.814,1.733 L12.814,2.712 C12.814,3.136 13.086,3.514 13.493,3.652 C13.812,3.760 14.127,3.891 14.430,4.040 C14.811,4.228 15.265,4.155 15.561,3.859 L16.260,3.160 C16.552,2.868 17.028,2.868 17.321,3.160 L18.831,4.670 C18.973,4.812 19.051,5.000 19.051,5.201 C19.051,5.401 18.973,5.590 18.831,5.731 L18.141,6.422 C17.843,6.719 17.771,7.175 17.961,7.556 C18.112,7.859 18.244,8.174 18.354,8.493 C18.495,8.903 18.877,9.178 19.305,9.178 L20.258,9.178 C20.672,9.178 21.009,9.514 21.009,9.928 L21.009,12.063 C21.009,12.477 20.672,12.814 20.258,12.814 ZM20.449,9.928 C20.449,9.823 20.364,9.737 20.258,9.737 L19.305,9.737 C18.638,9.737 18.043,9.310 17.825,8.675 C17.723,8.379 17.600,8.087 17.460,7.806 C17.163,7.209 17.278,6.494 17.745,6.026 L18.435,5.336 C18.471,5.300 18.491,5.252 18.491,5.201 C18.491,5.150 18.471,5.102 18.435,5.066 L16.925,3.556 C16.851,3.481 16.729,3.481 16.655,3.556 L15.957,4.255 C15.491,4.721 14.778,4.836 14.183,4.542 C13.901,4.403 13.609,4.282 13.313,4.181 C12.680,3.967 12.254,3.376 12.254,2.712 L12.254,1.733 C12.254,1.628 12.168,1.542 12.063,1.542 L9.928,1.542 C9.823,1.542 9.737,1.628 9.737,1.733 L9.737,2.712 C9.737,3.376 9.312,3.967 8.679,4.181 C8.383,4.282 8.090,4.403 7.808,4.542 C7.214,4.836 6.500,4.721 6.034,4.255 L5.336,3.556 C5.263,3.484 5.138,3.484 5.066,3.556 L3.556,5.066 C3.520,5.102 3.500,5.150 3.500,5.201 C3.500,5.252 3.520,5.300 3.556,5.336 L4.246,6.026 C4.714,6.494 4.828,7.209 4.531,7.806 C4.391,8.087 4.268,8.380 4.166,8.675 C3.948,9.310 3.353,9.737 2.686,9.737 L1.733,9.737 C1.627,9.737 1.542,9.823 1.542,9.928 L1.542,12.063 C1.542,12.169 1.627,12.254 1.733,12.254 L2.668,12.254 C3.339,12.254 3.935,12.684 4.151,13.324 C4.253,13.625 4.376,13.923 4.517,14.209 C4.811,14.803 4.695,15.516 4.229,15.982 L3.556,16.655 C3.520,16.692 3.500,16.739 3.500,16.790 C3.500,16.841 3.520,16.889 3.556,16.925 L5.066,18.435 C5.138,18.507 5.264,18.508 5.336,18.435 L6.001,17.771 C6.295,17.476 6.687,17.322 7.086,17.322 C7.321,17.322 7.558,17.375 7.779,17.486 C8.065,17.628 8.363,17.753 8.664,17.855 C9.306,18.075 9.737,18.675 9.737,19.348 L9.737,20.258 C9.737,20.364 9.823,20.449 9.928,20.449 L12.063,20.449 C12.168,20.449 12.254,20.364 12.254,20.258 L12.254,19.348 C12.254,18.675 12.685,18.075 13.328,17.855 C13.629,17.753 13.926,17.628 14.212,17.486 C14.808,17.188 15.522,17.302 15.991,17.771 L16.655,18.435 C16.730,18.510 16.851,18.509 16.925,18.435 L18.435,16.925 C18.471,16.889 18.491,16.841 18.491,16.790 C18.491,16.739 18.471,16.692 18.435,16.655 L17.762,15.982 C17.296,15.516 17.180,14.803 17.474,14.209 C17.615,13.923 17.738,13.626 17.840,13.324 C18.056,12.684 18.652,12.254 19.323,12.254 L20.258,12.254 C20.364,12.254 20.449,12.169 20.449,12.063 L20.449,9.928 ZM10.996,16.585 C7.914,16.585 5.407,14.078 5.407,10.996 C5.407,7.914 7.914,5.407 10.996,5.407 C14.077,5.407 16.585,7.914 16.585,10.996 C16.585,14.078 14.077,16.585 10.996,16.585 ZM10.996,5.966 C8.222,5.966 5.966,8.222 5.966,10.996 C5.966,13.769 8.222,16.025 10.996,16.025 C13.769,16.025 16.025,13.769 16.025,10.996 C16.025,8.222 13.769,5.966 10.996,5.966 Z"
+            />
+          </g>
+        </svg>
+      </button>
+
+      <button
+        (click)="this.audioService.ChangeMicrofoneState()"
+        id="microfoneMuteBtn"
+        class="poRela"
+      >
+        <svg
+          [style.opacity]="this.audioService.microfoneMuted ? 1 : 0"
+          class="poAbso"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="14px"
+          height="21px"
+        >
+          <image
+            x="0px"
+            y="0px"
+            width="14px"
+            height="21px"
+            xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAVCAMAAABBhy+7AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABEVBMVEX/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD///8sT7IdAAAAWnRSTlMABRgZAUTJeh0Jat7KUAM/r+qTIwtv29BYNqbrnSkIZ9bZXQcunqkvBF7SJpW0Vcvicw8ei+i9PEvD5oEVgMVFQrvpjBoSdcw7sJciDWvc01ozpe5+Dk5/OQIvO10PAAAAAWJLR0RaA7ulogAAAAd0SU1FB+YEEA8NNUERXjMAAACeSURBVBjTY2BgZGJmYYADRlY2dg4El5OLm4eXD8HnFxAUEobzWERExcQlGBHSklLSMrIIaTl5BUUlZYS0iqq0mjpCWkNTi1teBCGtrSOoK4ngsujpGxgaIfjGJqZm5ggug4WllbUNgstka2VnjyTt4Ojk7IIwzNXNwJ0XSdrDU9rLG8H18fXzD9BA8AODgkNCkcIhLDwCKRgY5PgiGQDVthE+Lyn1DgAAAABJRU5ErkJggg=="
+          />
+        </svg>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="12px"
+          height="21px"
+        >
+          <defs>
+            <filter id="Filter_0">
+              <feFlood
+                flood-color="rgb(255, 255, 255)"
+                flood-opacity="1"
+                result="floodOut"
+              />
+              <feComposite
+                operator="atop"
+                in="floodOut"
+                in2="SourceGraphic"
+                result="compOut"
+              />
+              <feBlend mode="normal" in="compOut" in2="SourceGraphic" />
+            </filter>
+          </defs>
+          <g filter="url(#Filter_0)">
+            <path
+              fill-rule="evenodd"
+              fill="rgb(255, 255, 255)"
+              d="M6.282,15.643 L6.282,20.450 L9.874,20.450 C10.033,20.450 10.161,20.575 10.161,20.729 C10.161,20.884 10.033,21.009 9.874,21.009 L2.116,21.009 C1.957,21.009 1.829,20.884 1.829,20.729 C1.829,20.575 1.957,20.450 2.116,20.450 L5.708,20.450 L5.708,15.643 C2.541,15.496 0.009,12.949 0.009,9.830 C0.009,9.676 0.138,9.551 0.296,9.551 C0.455,9.551 0.584,9.676 0.584,9.830 C0.584,12.735 3.011,15.098 5.995,15.098 C8.979,15.098 11.407,12.735 11.407,9.830 C11.407,9.676 11.535,9.551 11.694,9.551 C11.853,9.551 11.981,9.676 11.981,9.830 C11.981,12.949 9.449,15.496 6.282,15.643 ZM5.995,13.175 C4.015,13.175 2.403,11.607 2.403,9.679 L2.403,4.479 C2.403,2.551 4.015,0.983 5.995,0.983 C7.976,0.983 9.587,2.551 9.587,4.479 L9.587,9.679 C9.587,11.607 7.976,13.175 5.995,13.175 ZM5.995,1.542 C4.331,1.542 2.978,2.859 2.978,4.479 L2.978,5.521 L9.012,5.521 L9.012,4.479 C9.012,2.859 7.659,1.542 5.995,1.542 ZM9.012,6.080 L2.978,6.080 L2.978,9.679 C2.978,11.298 4.331,12.616 5.995,12.616 C7.659,12.616 9.012,11.298 9.012,9.679 L9.012,6.080 Z"
+            />
+          </g>
+        </svg>
+      </button>
+
+      <button class="poRela" (click)="this.audioService.ChangeHeadPhoneState()">
+        <svg
+          [style.opacity]="this.audioService.headPhoneMuted ? 1 : 0"
+          class="poAbso"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="18px"
+          height="18px"
+        >
+          <image
+            x="0px"
+            y="0px"
+            width="18px"
+            height="18px"
+            xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABAlBMVEX/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD///8W97bBAAAAVXRSTlMADEgzBAdS4aE9A1bJ7DwIH2/U6Jg0Ahx92OOSKwEjgNrkiyiK3eWFLpDcfAY2k+fWchuadRk5p+rSaw9Gqe3MXQ0JSqvEELTwwVu87klcwml3LwUO8MTuGgAAAAFiS0dEVZMEuDMAAAAHdElNRQfmBBAPHiKjLZpmAAAAm0lEQVQY02NgYGRiZmFAAaxs7BycXChCXNw8vBx8/ChiAoJCwiKiYshCYuISklLSMijKZOXkFRSVlFHNU1ZRVVMXkEXRq6GpqKUtgKJMR1dP38DQCNU8ZmNhAxNTVCebmVtYWlmj6rWxtbN3cEQRc3J2sXN1cEMVs3H38PRCFXNk8/bx9pVFFfPzFw5gRbXWjTswKBhViCEEKAAAVOQSOV8VkE4AAAAASUVORK5CYII="
+          />
+        </svg>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="21px"
+          height="21px"
+        >
+          <defs>
+            <filter id="Filter_0">
+              <feFlood
+                flood-color="rgb(255, 255, 255)"
+                flood-opacity="1"
+                result="floodOut"
+              />
+              <feComposite
+                operator="atop"
+                in="floodOut"
+                in2="SourceGraphic"
+                result="compOut"
+              />
+              <feBlend mode="normal" in="compOut" in2="SourceGraphic" />
+            </filter>
+          </defs>
+          <g filter="url(#Filter_0)">
+            <path
+              fill-rule="evenodd"
+              fill="rgb(255, 255, 255)"
+              d="M20.998,16.237 C20.998,18.209 19.417,19.811 17.438,19.917 C17.257,20.541 16.697,21.009 16.006,21.009 C15.171,21.009 14.493,20.341 14.493,19.520 L14.493,12.857 C14.493,12.036 15.171,11.368 16.006,11.368 C16.733,11.368 17.313,11.885 17.458,12.558 C17.730,12.574 17.993,12.624 18.247,12.694 L18.247,9.617 C18.247,5.165 14.772,1.544 10.502,1.544 C6.231,1.544 2.757,5.165 2.757,9.617 L2.757,12.694 C3.011,12.624 3.273,12.574 3.545,12.558 C3.690,11.885 4.271,11.368 4.997,11.368 C5.832,11.368 6.511,12.036 6.511,12.857 L6.511,19.520 C6.511,20.341 5.832,21.009 4.997,21.009 C4.306,21.009 3.746,20.541 3.566,19.917 C1.587,19.811 0.006,18.209 0.006,16.237 C0.006,14.753 0.902,13.482 2.188,12.896 L2.188,9.617 C2.188,4.856 5.917,0.984 10.502,0.984 C15.086,0.984 18.816,4.856 18.816,9.617 L18.816,12.896 C20.102,13.482 20.998,14.753 20.998,16.237 ZM16.950,12.857 C16.950,12.345 16.527,11.928 16.006,11.928 C15.485,11.928 15.062,12.345 15.062,12.857 L15.062,19.520 C15.062,20.032 15.485,20.449 16.006,20.449 C16.527,20.449 16.950,20.032 16.950,19.520 L16.950,12.857 ZM4.053,19.520 C4.053,20.032 4.477,20.449 4.997,20.449 C5.518,20.449 5.942,20.032 5.942,19.520 L5.942,12.857 C5.942,12.345 5.518,11.928 4.997,11.928 C4.477,11.928 4.053,12.345 4.053,12.857 L4.053,19.520 ZM0.575,16.237 C0.575,17.873 1.858,19.205 3.484,19.350 L3.484,13.124 C1.858,13.268 0.575,14.601 0.575,16.237 ZM17.519,13.124 L17.519,19.350 C19.145,19.205 20.428,17.873 20.428,16.237 C20.428,14.601 19.145,13.268 17.519,13.124 Z"
+            />
+          </g>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="sendMessageContainer">
+  <button id="btnSendFile" class="btnBase">
+    <img
+      id="sendFile"
+      src="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAqCAQAAAB46JEZAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQfmBA8VLCS+9QpNAAABJUlEQVRIx+2VsUrDUBSGv5OUipWAilAcAnZw6ODs4Oxj+GC+giA4Obt1KyIuOomIoFIKgmmk2N/BNLTEer0JmqXnLje593w5+e9/uPaaRANKxyiyN52RlEwPOcIG2rTyFTwqCMpnAw2q5cMSsAT8C+BY16oE6BBXq2CMq1X/WgNVBaw4AY3iq56mXx6zzxoXamYrG3TtF4Ab0mw2osM7fVoAGEa3uH0osXic6/LH9Sc5NLDaj7F+QNPpBBtqvcLN9Ow6hfo1cMXHd1ZeHCc6zPtTpERsu6w8P67Un9l9KunWT8SA+5mnAx7YNa9fgDCfJQppW3kRNWDLAD8Rp5HqhTiznydAfLkvzt0bTDzSJ+xwJ2XFZ4BVD0CLPYz2fO8k8olewTWfl8m4GJJBUhEAAAAASUVORK5CYII="
+      class="imageHoverInverter"
+    />
+  </button>
+  <input
+    (keypress)="onKeyPres($event)"
+    [(ngModel)]="inputText"
+    placeholder="Sua mensagem" class="inputMessage" />
+
+  <button
+    (click)="sendMessage()"
+  id="btnSendMessage" class="btnBase">
+    <img
+      id="sendMessage"
+      src="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAACr0lEQVRoge2au4pUQRCGvz4z47oIouiK6AaCIAbiJTHQNxBNTYz0FXwq8QnE0NBIEAMTEQMR0cQ1WHd3SmroGsqmu3e9jFgHC5Y9c7rPmfqn//qrL5VEhECWgCkwAHvArrk+DQRiHTgHXAaOAm+AF8AnYI6OSIC/NRG5KSKPRWRLRHZE5LWIPBSRDfV/+Ad+6YPYSeAOcBs4kpl0HngAXAMmEYBoXJwArgKH3X31fRO4qMCiANH42Ki0KbDj2icCEJXVGXCo0qb+r9lFFGvliUmUEUn5f81XyblEolCLxogYyFDUatkQiVrif/2ibT4Gai0BRqFW6qhWGoNqEZFa3fb/CfEvmlGrplrkBVYYavUCnShA6KiWZGoN0ROijVYYarX8TNES4r5xMoa5lqpWCCC9hLhsi5wQJU9PFhiiUCtVJDhl/xVMGGpJJ04WNoa51hAljyRHo5rNI+1rsU8uCZUQqcSIRFwhttpCzbV6a/YwecSsN/sNQ63UmWuFolZXsRjBlmlI1apRa4hGLRrUGsU03u4tduPLc/apO5AXP3Ruymw7F1L0mTfu/+71NJ8V1moClj5Zo57PnQauABeAY7nT4LbuS0sVgDa523PO4/htYOfOEQ/W+iz3q/L1Zj7ZrY1IshGY5YqC+8Bd4FQ+YGxlUx985TqhHBXfzwdruUCi0r98dtIAsqSWHsDfAO4BZ1cYN92F0S/aDwc967mK4MyKg/9Pg1D7BnxQMEM+Ff3iK20C2VvglcakAtkCngPPgJ2fwHCQ+qhV1VDpe98Dj4CXCkTrtVJWqevALeBS/jxzD5YBWVpNACiel8Z7WsFde4faNvAOeAo8yaOya4VnVu+hEqeVOKZafhum/EI1k0oLOi+hpZyWKufzS/lr27P++1TSVbk0Lj4DH4Gvi/vAd5QSXZuptUi3AAAAAElFTkSuQmCC"
+    />
+  </button>
+</div>

@@ -1,0 +1,44 @@
+.imgContainer {
+  cursor: pointer;
+  margin-top: 14px;
+  transition: all 0.2s;
+}
+app-img-circle {
+  border-radius: 30px;
+}
+.imgContainer:hover {
+  #userName {
+    opacity: .5;
+  }
+  app-img-circle {
+    outline: 1px solid white;
+  }
+}
+#userName {
+  color: white;
+  font-weight: 100;
+  font-size: 8px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: all 0.4s;
+}
+.userListC {
+  background-color: rgba(0, 0, 0, 0.3);
+  min-width: 125px;
+  border: 0 solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.imgContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+}
