@@ -1,0 +1,53 @@
+<div
+  (click)="modal.show(); this.mode = 'SearchUsers'"
+  class="plussGroup"
+  matTooltip="Adicionar amigo ou criar grupo"
+  matTooltipPosition="after"
+>
+  <svg
+    version="1.0"
+    xmlns="http://www.w3.org/2000/svg"
+    width="25px"
+    height="25px"
+    viewBox="0 0 512.000000 512.000000"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <g
+      transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+      fill="#fff"
+      stroke="none"
+    >
+      <path
+        d="M2426 5104 c-148 -33 -256 -94 -359 -203 -75 -80 -115 -147 -154
+  -256 l-28 -80 -3 -662 -3 -662 -657 -4 c-594 -3 -663 -5 -717 -21 -234 -69
+  -406 -237 -477 -466 -33 -107 -33 -273 0 -380 71 -229 243 -397 477 -466 54
+  -16 123 -18 717 -21 l657 -4 3 -662 3 -662 28 -80 c42 -119 81 -181 171 -271
+  91 -90 153 -130 271 -170 71 -25 94 -28 205 -28 108 1 136 4 205 27 186 61
+  327 185 411 362 63 130 64 142 64 847 l0 637 658 3 c587 3 663 6 717 21 139
+  40 265 124 356 237 60 75 89 131 121 230 33 106 33 273 0 380 -71 229 -243
+  397 -477 466 -54 16 -123 18 -717 21 l-658 4 0 637 c0 705 -1 717 -64 847
+  -112 235 -327 379 -586 390 -64 3 -118 0 -164 -11z"
+      />
+    </g>
+  </svg>
+</div>
+
+<app-modal [Enabled]="enabled" styles="max-width:500px;" #modal>
+  <div [ngSwitch]="mode">
+    <app-search-user
+      *ngSwitchCase="'SearchUsers'"
+      (OnComplete)="modal.hide()"
+    ></app-search-user>
+    <app-add-group-form
+      *ngSwitchCase="'CreateGroup'"
+      (OnComplete)="modal.hide()"
+    ></app-add-group-form>
+  </div>
+  <button
+    *ngIf="mode !== 'CreateGroup'"
+    (click)="mode = 'CreateGroup'"
+    class="btn"
+  >
+    Criar novo grupo
+  </button>
+</app-modal>

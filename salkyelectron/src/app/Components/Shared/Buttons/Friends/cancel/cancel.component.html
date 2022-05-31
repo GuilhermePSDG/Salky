@@ -1,0 +1,10 @@
+<button
+  *ngIf="Friend && canCancelFriendRequest(Friend)"
+  (click)="CancelFriendRequest(Friend)"
+  [style]="ButtonStyle"
+  matTooltip="Cancelar pedido de amizade"
+  matTooltipPosition="left"
+  [class]="'btn-delete'"
+>
+
+</button>

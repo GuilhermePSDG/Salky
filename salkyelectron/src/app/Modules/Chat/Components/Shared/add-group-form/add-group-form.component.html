@@ -1,0 +1,8 @@
+<div class="main">
+  <span>Criar grupo</span>
+  <input
+  [(ngModel)]="this.value"
+  #inpu class="input" placeholder="Digite o nome do grupo" />
+</div>
+
+<button [disabled]="!isValid" (click)="CreateGroup()" class="btn btn-success">Criar</button>

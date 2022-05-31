@@ -1,0 +1,29 @@
+<!-- <app-modal #modal>
+  <h1>Modal teste</h1>
+  <span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo, veniam quasi tempora recusandae quo incidunt. Quia recusandae vero enim animi est consectetur quas libero praesentium, culpa et quis tempore neque!</span>
+  <button (click)="modal.changeState()" >Ir</button>
+</app-modal> -->
+
+<app-show-info></app-show-info>
+
+<div id="loader-main" menu style="display: none" class="loader-box">
+  <div class="loader">
+    <svg viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <circle class="load one" cx="60" cy="60" r="40" />
+      <circle class="load two" cx="60" cy="60" r="40" />
+      <circle class="load three" cx="60" cy="60" r="40" />
+      <g>
+        <circle class="point one" cx="45" cy="70" r="5" />
+        <circle class="point two" cx="60" cy="70" r="5" />
+        <circle class="point three" cx="75" cy="70" r="5" />
+      </g>
+    </svg>
+  </div>
+</div>
+<div style="display: none" id="overlay-main-loadding" class="overlay"></div>
+
+<div class="main">
+  <div class="centredBox">
+    <router-outlet></router-outlet>
+  </div>
+</div>

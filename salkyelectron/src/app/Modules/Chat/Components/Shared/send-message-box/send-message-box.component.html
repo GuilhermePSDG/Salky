@@ -1,0 +1,114 @@
+<div *ngIf="this.imagesToSend.length > 0" class="filesToSend">
+  <div class="fileToSend" *ngFor="let item of this.imagesToSend; let i = index">
+    <div class="btnBox poRela">
+      <button
+        matTooltip="Cancelar envio da imagem."
+        class="btn-delete"
+        (click)="removeImage(i)"
+      ></button>
+    </div>
+    <img [src]="this.sanitizer.bypassSecurityTrustUrl(item)" />
+  </div>
+</div>
+
+<div class="sendMessageContainer">
+  <button matTooltip="Enviar arquivo." id="btnSendFile" class="btnBase">
+    <svg
+      (click)="file.click()"
+      version="1.0"
+      xmlns="http://www.w3.org/2000/svg"
+      width="27px"
+      height="27px"
+      viewBox="0 0 512.000000 512.000000"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <g
+        transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+        fill="#d5d5d5"
+        stroke="none"
+      >
+        <path
+          d="M815 4946 c-37 -16 -70 -52 -84 -89 -8 -20 -11 -715 -11 -2299 0
+-2528 -6 -2309 68 -2366 l35 -27 1737 0 1737 0 35 27 c74 56 68 -80 68 1650 0
+1460 -1 1555 -17 1586 -10 18 -294 363 -631 768 -467 560 -622 739 -647 750
+-49 20 -2244 20 -2290 0z m2067 -975 c3 -658 3 -670 24 -697 11 -15 33 -37 48
+-48 27 -21 40 -21 577 -24 l549 -2 0 -1360 0 -1360 -1520 0 -1520 0 0 2080 0
+2080 920 0 920 0 2 -669z m682 -48 c179 -216 326 -395 326 -398 0 -3 -155 -5
+-345 -5 l-345 0 0 417 c0 408 0 417 19 398 10 -11 165 -197 345 -412z"
+        />
+        <path
+          d="M2493 2704 c-85 -42 -92 -73 -93 -391 l0 -262 -277 -3 c-259 -3 -280
+-4 -313 -24 -109 -63 -109 -215 0 -278 33 -20 54 -21 312 -24 l277 -4 3 -276
+c3 -258 4 -279 24 -312 60 -102 204 -108 270 -11 l24 36 0 282 0 281 283 4
+284 3 40 27 c100 66 95 218 -10 276 -28 15 -69 17 -314 20 l-283 3 0 282 0
+282 -24 36 c-44 64 -133 87 -203 53z"
+        />
+      </g>
+    </svg>
+  </button>
+  <input
+    (contextmenu)="contentMenu.show($event)"
+    #inputMSG
+    (keypress)="onKeyPres($event)"
+    [(ngModel)]="inputText"
+    placeholder="Sua mensagem"
+    class="inputMessage"
+  />
+  <button
+    [matTooltip]="emojiIsOpen ? 'Fechar emojis' : 'Abrir emojis'"
+    id="btnEmoji"
+    (click)="emojiIsOpen = !emojiIsOpen"
+    class="btnBase"
+  >
+    🙂
+  </button>
+  <div class="gifContainer">
+    <button
+      [matTooltip]="gifIsOpen ? 'Fechar gifs' : 'Abrir gifs'"
+      (click)="gifIsOpen = !gifIsOpen"
+      id="btnGIF"
+    >
+      GIF
+    </button>
+    <div class="gif" style.display="{{ this.gifIsOpen ? 'block' : 'none' }}">
+      <app-gif
+        #gifC
+        [IsHide]="!this.gifIsOpen"
+        (sendGifRequest)="this.sendGif($event)"
+      ></app-gif>
+    </div>
+  </div>
+
+  <button
+    matTooltip="Enviar mensagem."
+    (click)="sendMessage()"
+    id="btnSendMessage"
+    class="btnBase"
+  >
+    <img
+      rotate="45"
+      id="sendMessage"
+      src="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAACr0lEQVRoge2au4pUQRCGvz4z47oIouiK6AaCIAbiJTHQNxBNTYz0FXwq8QnE0NBIEAMTEQMR0cQ1WHd3SmroGsqmu3e9jFgHC5Y9c7rPmfqn//qrL5VEhECWgCkwAHvArrk+DQRiHTgHXAaOAm+AF8AnYI6OSIC/NRG5KSKPRWRLRHZE5LWIPBSRDfV/+Ad+6YPYSeAOcBs4kpl0HngAXAMmEYBoXJwArgKH3X31fRO4qMCiANH42Ki0KbDj2icCEJXVGXCo0qb+r9lFFGvliUmUEUn5f81XyblEolCLxogYyFDUatkQiVrif/2ibT4Gai0BRqFW6qhWGoNqEZFa3fb/CfEvmlGrplrkBVYYavUCnShA6KiWZGoN0ROijVYYarX8TNES4r5xMoa5lqpWCCC9hLhsi5wQJU9PFhiiUCtVJDhl/xVMGGpJJ04WNoa51hAljyRHo5rNI+1rsU8uCZUQqcSIRFwhttpCzbV6a/YwecSsN/sNQ63UmWuFolZXsRjBlmlI1apRa4hGLRrUGsU03u4tduPLc/apO5AXP3Ruymw7F1L0mTfu/+71NJ8V1moClj5Zo57PnQauABeAY7nT4LbuS0sVgDa523PO4/htYOfOEQ/W+iz3q/L1Zj7ZrY1IshGY5YqC+8Bd4FQ+YGxlUx985TqhHBXfzwdruUCi0r98dtIAsqSWHsDfAO4BZ1cYN92F0S/aDwc967mK4MyKg/9Pg1D7BnxQMEM+Ff3iK20C2VvglcakAtkCngPPgJ2fwHCQ+qhV1VDpe98Dj4CXCkTrtVJWqevALeBS/jxzD5YBWVpNACiel8Z7WsFde4faNvAOeAo8yaOya4VnVu+hEqeVOKZafhum/EI1k0oLOi+hpZyWKufzS/lr27P++1TSVbk0Lj4DH4Gvi/vAd5QSXZuptUi3AAAAAElFTkSuQmCC"
+    />
+  </button>
+
+  <input
+    (paste)="this.onFilePaste($event)"
+    type="file"
+    #file
+    (change)="onFileChange($event)"
+    style="display: none"
+  />
+</div>
+<div [ngClass]="{ 'aba-emoji-active': emojiIsOpen }" id="aba-emoji">
+  <app-emojis (onEmojiCliked)="sendEmoji($event)"></app-emojis>
+</div>
+
+<app-context-menu #contentMenu>
+  <button
+    (click)="appendClipBoardContent(); contentMenu.hide()"
+    class="context-menu-item"
+  >
+    Colar
+  </button>
+</app-context-menu>

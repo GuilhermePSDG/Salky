@@ -1,0 +1,15 @@
+
+@import "../../../../../../color.scss";
+
+.modal {
+  background-color:$high;
+  border-radius: 8px;
+  box-shadow: 0px 0px 23px -8px rgba(0,0,0,0.81);
+  width: 100%;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+}
+

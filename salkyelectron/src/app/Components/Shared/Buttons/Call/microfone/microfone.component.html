@@ -1,0 +1,58 @@
+<button
+  [matTooltip]="
+    this.callService.getAudioState.microFoneMuted
+      ? 'Desilenciar microfone.'
+      : 'Silenciar microfone.'
+  "
+  (click)="this.callService.ChangeMicrofoneState()"
+  id="microfoneMuteBtn"
+  class="poRela"
+>
+  <svg
+    [style.opacity]="this.callService.getAudioState.microFoneMuted ? 1 : 0"
+    class="poAbso"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="14px"
+    height="21px"
+  >
+    <image
+      x="0px"
+      y="0px"
+      width="14px"
+      height="21px"
+      xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAVCAMAAABBhy+7AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABEVBMVEX/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD///8sT7IdAAAAWnRSTlMABRgZAUTJeh0Jat7KUAM/r+qTIwtv29BYNqbrnSkIZ9bZXQcunqkvBF7SJpW0Vcvicw8ei+i9PEvD5oEVgMVFQrvpjBoSdcw7sJciDWvc01ozpe5+Dk5/OQIvO10PAAAAAWJLR0RaA7ulogAAAAd0SU1FB+YEEA8NNUERXjMAAACeSURBVBjTY2BgZGJmYYADRlY2dg4El5OLm4eXD8HnFxAUEobzWERExcQlGBHSklLSMrIIaTl5BUUlZYS0iqq0mjpCWkNTi1teBCGtrSOoK4ngsujpGxgaIfjGJqZm5ggug4WllbUNgstka2VnjyTt4Ojk7IIwzNXNwJ0XSdrDU9rLG8H18fXzD9BA8AODgkNCkcIhLDwCKRgY5PgiGQDVthE+Lyn1DgAAAABJRU5ErkJggg=="
+    />
+  </svg>
+
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="12px"
+    height="21px"
+  >
+    <defs>
+      <filter id="Filter_0">
+        <feFlood
+          flood-color="rgb(255, 255, 255)"
+          flood-opacity="1"
+          result="floodOut"
+        />
+        <feComposite
+          operator="atop"
+          in="floodOut"
+          in2="SourceGraphic"
+          result="compOut"
+        />
+        <feBlend mode="normal" in="compOut" in2="SourceGraphic" />
+      </filter>
+    </defs>
+    <g filter="url(#Filter_0)">
+      <path
+        fill-rule="evenodd"
+        fill="rgb(255, 255, 255)"
+        d="M6.282,15.643 L6.282,20.450 L9.874,20.450 C10.033,20.450 10.161,20.575 10.161,20.729 C10.161,20.884 10.033,21.009 9.874,21.009 L2.116,21.009 C1.957,21.009 1.829,20.884 1.829,20.729 C1.829,20.575 1.957,20.450 2.116,20.450 L5.708,20.450 L5.708,15.643 C2.541,15.496 0.009,12.949 0.009,9.830 C0.009,9.676 0.138,9.551 0.296,9.551 C0.455,9.551 0.584,9.676 0.584,9.830 C0.584,12.735 3.011,15.098 5.995,15.098 C8.979,15.098 11.407,12.735 11.407,9.830 C11.407,9.676 11.535,9.551 11.694,9.551 C11.853,9.551 11.981,9.676 11.981,9.830 C11.981,12.949 9.449,15.496 6.282,15.643 ZM5.995,13.175 C4.015,13.175 2.403,11.607 2.403,9.679 L2.403,4.479 C2.403,2.551 4.015,0.983 5.995,0.983 C7.976,0.983 9.587,2.551 9.587,4.479 L9.587,9.679 C9.587,11.607 7.976,13.175 5.995,13.175 ZM5.995,1.542 C4.331,1.542 2.978,2.859 2.978,4.479 L2.978,5.521 L9.012,5.521 L9.012,4.479 C9.012,2.859 7.659,1.542 5.995,1.542 ZM9.012,6.080 L2.978,6.080 L2.978,9.679 C2.978,11.298 4.331,12.616 5.995,12.616 C7.659,12.616 9.012,11.298 9.012,9.679 L9.012,6.080 Z"
+      />
+    </g>
+  </svg>
+</button>

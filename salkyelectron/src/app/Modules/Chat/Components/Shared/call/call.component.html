@@ -1,0 +1,90 @@
+<div *ngIf="hasMembersInCall" class="call-main">
+  <div class="user-in-call">
+    <div *ngFor="let member of callMembers" class="item ">
+      <div >
+        <app-rounded-picture
+          [source]="getMember(member)?.pictureSource"
+          [Size]="80"
+        ></app-rounded-picture>
+
+        <p class="userName">
+          {{ getMember(member)?.userName }}
+        </p>
+
+        <div class="svgMicMutedMain" *ngIf="member.audioState.microFoneMuted">
+          <svg
+            class="svgMicMuted"
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20px"
+            height="20px"
+            viewBox="0 0 90.000000 120.000000"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <g
+              transform="translate(0.000000,120.000000) scale(0.100000,-0.100000)"
+              fill="white"
+              stroke="none"
+            >
+              <path
+                d="M368 1190 c-46 -14 -90 -51 -109 -94 -16 -36 -19 -68 -19 -277 0
+         -144 4 -248 11 -267 9 -28 7 -35 -17 -66 -15 -19 -32 -32 -36 -30 -23 14 -42
+         77 -47 149 l-6 80 -45 0 -45 0 -3 -48 c-4 -64 22 -160 58 -214 l31 -45 -71
+         -83 c-38 -45 -70 -87 -70 -92 0 -15 45 -53 62 -53 9 0 46 36 84 80 37 44 69
+         80 72 80 3 0 31 -10 63 -21 l59 -22 0 -88 0 -89 -95 0 -95 0 0 -45 0 -45 280
+         0 280 0 0 45 0 45 -92 0 -93 0 2 86 c1 48 5 90 10 93 4 4 29 16 56 25 64 24
+         150 104 183 172 22 45 27 70 28 137 l1 82 -45 0 -45 0 -6 -80 c-3 -45 -12 -94
+         -22 -111 -26 -49 -77 -95 -135 -122 -47 -21 -65 -24 -136 -20 -44 2 -93 11
+         -108 19 l-27 14 28 34 c27 33 28 33 66 21 82 -27 186 14 225 90 16 32 20 59
+         20 145 l0 106 135 156 c74 85 135 164 135 174 0 20 -36 49 -60 49 -8 0 -58
+         -50 -110 -111 l-95 -111 -5 75 c-5 62 -11 81 -34 112 -48 62 -138 89 -218 65z"
+              />
+            </g>
+          </svg>
+        </div>
+
+        <div class="svgMicMutedMain" *ngIf="member.audioState.headPhoneMuted">
+          <svg
+            version="1.0"
+            class="svgMicMuted"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20px"
+            height="20px"
+            viewBox="0 0 124.000000 105.000000"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <g
+              transform="translate(0.000000,105.000000) scale(0.100000,-0.100000)"
+              fill="white"
+              stroke="none"
+            >
+              <path
+                d="M492 1030 c-102 -27 -165 -64 -242 -140 -80 -80 -126 -170 -148 -286
+-13 -68 -20 -84 -39 -93 -13 -6 -32 -25 -43 -43 -18 -29 -20 -51 -20 -196 0
+-177 6 -201 56 -241 22 -17 41 -21 108 -21 49 0 87 5 94 12 8 8 15 8 26 -1 8
+-7 27 -11 43 -9 27 3 28 5 33 70 4 49 11 73 26 90 12 13 135 155 273 316 l253
+293 19 -25 c11 -14 32 -51 47 -83 l27 -58 3 -302 3 -303 76 0 c74 0 76 1 114
+39 l39 39 0 173 c0 156 -2 177 -20 207 -11 18 -30 37 -43 43 -19 8 -25 23 -34
+83 -14 87 -50 172 -102 241 l-38 51 28 34 c35 41 36 64 7 84 -34 24 -53 19
+-82 -19 l-27 -35 -43 25 c-117 68 -268 90 -394 55z m281 -153 c31 -14 57 -29
+57 -32 0 -9 -450 -529 -461 -533 -5 -2 -9 39 -9 90 0 60 -4 98 -12 106 -18 18
+-56 14 -68 -7 -5 -11 -10 -85 -10 -169 0 -138 -2 -150 -21 -168 l-20 -18 3
+235 3 235 32 64 c50 103 140 182 246 216 67 22 190 13 260 -19z"
+              />
+              <path
+                d="M892 508 c-17 -17 -17 -469 0 -486 15 -15 51 -15 66 0 9 9 12 77 12
+243 0 243 -2 255 -45 255 -12 0 -26 -5 -33 -12z"
+              />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="call-bottom">
+    <app-buttons-call-microfone></app-buttons-call-microfone>
+    <app-buttons-call-headset></app-buttons-call-headset>
+    <app-buttons-call-leave *ngIf="loggedUserIsInCall"></app-buttons-call-leave>
+  </div>
+</div>

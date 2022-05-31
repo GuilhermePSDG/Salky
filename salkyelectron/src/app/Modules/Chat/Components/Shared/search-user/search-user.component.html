@@ -1,0 +1,34 @@
+<div class="serachUser">
+  <span
+    style="
+      text-align: center;
+      font-size: 24px;
+      display: block;
+      margin-bottom: 40px;
+      font-weight: 900;
+    "
+  >
+  Buscar usuario
+</span>
+  <div class="searchUserBox">
+    <input
+      [(ngModel)]="this.searchText"
+      (keyup)="this.onInputUserKeyChanged($event)"
+      class="searchFriends input"
+      placeholder="Nome do usuario"
+    />
+    <div
+      class="overlay customOverlay"
+    ></div>
+  </div>
+  <div class="usersfound">
+    <div *ngFor="let user of this.SearchUserResult ?? []" class="user-modal">
+      <app-rounded-picture
+        [Size]="30"
+        [source]="user.pictureSource"
+      ></app-rounded-picture>
+      <span>{{ user.userName }} </span>
+      <button (click)="this.addContact(user)" class="btnAdd">+</button>
+    </div>
+  </div>
+</div>

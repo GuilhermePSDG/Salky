@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "public": "dist/salkyelectron",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "redirects": [ {
+      "source": "/api/:path*",
+      "destination": "https://salky-websocket.herokuapp.com/api/:path",
+      "type": 301
+    } ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

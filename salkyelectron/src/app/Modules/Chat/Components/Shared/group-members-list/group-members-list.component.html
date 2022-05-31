@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="listing">
+    <div
+      #me
+      *ngFor="let member of groupMembers"
+      class="userInfo"
+      (contextmenu)="
+        SelectedContextMember = member;
+        CanShowContextMenu ? contentMenu.show($event) : contentMenu.hide()
+      "
+    >
+      <div class="imgContainer">
+        <app-rounded-picture [Size]="40" [source]="member.pictureSource">
+          <div class="userStatus"></div>
+        </app-rounded-picture>
+      </div>
+      <p class="userName">{{ member.userName }}</p>
+    </div>
+  </div>
+</div>
+
+<app-context-menu #contentMenu>
+  <button
+    class="context-menu-item"
+    style="color: red"
+    *ngIf="UserCanRemoveSelectedContextMember"
+    (click)="RemoveSelectedContextMember(); contentMenu.hide()"
+  >
+    Remover membro
+  </button>
+</app-context-menu>

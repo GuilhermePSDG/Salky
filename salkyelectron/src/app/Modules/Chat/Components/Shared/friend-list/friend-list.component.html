@@ -1,0 +1,29 @@
+<div [style]="ContainerStyle" class="friendList">
+  <div
+    (click)="this.onFriendClicked.emit(friend)"
+    *ngFor="let friend of friends"
+    class="friend"
+  >
+    <app-rounded-picture
+      [Size]="35"
+      [source]="friend.pictureSource"
+    ></app-rounded-picture>
+    <span class="userName">{{ friend.userName }}</span>
+
+    <!-- [ButtonStyle]="'margin-right:30px;max-width: 80px;'" -->
+    <div *ngIf="CanShowCrudButtons" class="buttons">
+      <app-buttons-friends-accept
+        [Friend]="friend"
+      ></app-buttons-friends-accept>
+      <app-buttons-friends-denie [Friend]="friend"></app-buttons-friends-denie>
+      <app-buttons-friends-cancel
+        [Friend]="friend"
+      ></app-buttons-friends-cancel>
+      <app-buttons-friends-delete
+        [Friend]="friend"
+      ></app-buttons-friends-delete>
+    </div>
+
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<div *ngIf="isOpen" class="listcontainer">
+  <div class="listmain">
+    <div class="serachbox">
+      <input type="text" placeholder="Buscar emoji favorito" value="" />
+    </div>
+    <div class="listitems">
+      <div *ngFor="let emoji of emojis" class="listitem" (click)="onEmojiCliked.emit(emoji.Emoji)" >{{emoji.Emoji.includes(" ") ? '' : emoji.Emoji}}</div>
+    </div>
+  </div>
+</div>

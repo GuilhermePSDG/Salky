@@ -1,0 +1,58 @@
+<div class="loginMain">
+  <form
+    class="loginBox"
+    [formGroup]="form"
+    (ngSubmit)="this.mode === 'register' ? register() : login()"
+  >
+    <input
+      required="true"
+      class="input"
+      (keypress)="geralError = undefined"
+      [ngClass]="touchedAndError('username', '*') ? 'alert' : ''"
+      formControlName="username"
+      name="username"
+      id="username"
+      type="text"
+      placeholder="Digite seu usuario"
+    />
+    <span
+      [style]="
+        this.touchedAndError('username', '*') ? 'opacity:1;' : 'opacity:0;'
+      "
+      class="spanAlert"
+      >Usuario invalido.</span
+    >
+    <input
+      required="true"
+      class="input"
+      (keypress)="geralError = undefined"
+      [ngClass]="touchedAndError('password', '*') ? 'alert' : ''"
+      formControlName="password"
+      name="password"
+      id="password"
+      type="password"
+      placeholder="Digite sua senha"
+    />
+    <span
+      [style]="
+        this.touchedAndError('password', '*') ? 'opacity:1;' : 'opacity:0;'
+      "
+      class="spanAlert"
+      >Senha invalida.</span
+    >
+    <span class="spanAlert" *ngIf="geralError">{{ geralError }}</span>
+    <button
+      class="btn btn-rounded"
+      [disabled]="!this.form.valid || geralError"
+    >
+      {{ mode === "register" ? "Cadastrar" : "Entrar" }}
+    </button>
+    <a
+      class="link"
+      [routerLink]="mode === 'register' ? '/auth/login' : '/auth/register'"
+      >{{
+        mode === "register" ? "Já tenho um conta" : "Ainda não sou cadastrado"
+      }}</a
+    >
+  </form>
+</div>

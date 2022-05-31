@@ -1,0 +1,8 @@
+<button
+  *ngIf="Friend && canRejectFriendRequest(Friend)"
+  (click)="RejectFriendRequest(Friend)"
+  [style]="ButtonStyle"
+  class="btn-delete"
+  matTooltip="Rejeitar amigo"
+>
+</button>

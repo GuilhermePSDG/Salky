@@ -1,0 +1,22 @@
+<div *ngIf="!IsHide" class="gif-container">
+  <input
+    [(ngModel)]="searchText"
+    (keypress)="this.keyPress($event);"
+    id="searchGif"
+    placeholder="Busque o seu gif"
+  />
+  <div class="gif-list" #gifList>
+    <img
+      ngfor
+      *ngFor="let item of this.gifs.results"
+      class="gifbox"
+      (click)="this.sendGifRequest.emit(item.imageSource)"
+      [src]="item.imageSource"
+    />
+  </div>
+  <div
+
+  *ngIf="(gifList.scrollTop / gifList.scrollHeight >= .7) && canShowMoreIsEnabled" (click)="goNext()" id="show-more">
+    Mostrar mais..
+  </div>
+</div>

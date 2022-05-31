@@ -1,0 +1,15 @@
+<div class="friendsContainer">
+  <div class="friendOptions">
+    <button
+      [ngClass]="{ active: flag.active }"
+      class="btn"
+      (click)="changeTo(flag)"
+      *ngFor="let flag of flags"
+    >
+      {{ flag.text }}
+    </button>
+  </div>
+
+  <app-friend-list [friends]="friends" [CanShowCrudButtons]="true">
+  </app-friend-list>
+</div>

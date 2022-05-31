@@ -1,0 +1,7 @@
+<ng-container *ngIf="Enabled">
+  <div @modal [style]="this.styles" class="modal">
+    <ng-content></ng-content>
+  </div>
+</ng-container>
+
+<div @overlay *ngIf="Enabled" (click)="changeState()" class="overlay"></div>

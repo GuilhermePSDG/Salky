@@ -1,0 +1,56 @@
+<button
+  [matTooltip]="
+    this.callService.getAudioState.headPhoneMuted
+     ? 'Desilenciar fone.' : 'Silenciar fone.'
+  "
+  class="poRela"
+  (click)="this.callService.ChangeHeadPhoneState()"
+>
+  <svg
+    [style.opacity]="this.callService.getAudioState.headPhoneMuted ? 1 : 0"
+    class="poAbso"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="18px"
+    height="18px"
+  >
+    <image
+      x="0px"
+      y="0px"
+      width="18px"
+      height="18px"
+      xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABAlBMVEX/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD/AAD///8W97bBAAAAVXRSTlMADEgzBAdS4aE9A1bJ7DwIH2/U6Jg0Ahx92OOSKwEjgNrkiyiK3eWFLpDcfAY2k+fWchuadRk5p+rSaw9Gqe3MXQ0JSqvEELTwwVu87klcwml3LwUO8MTuGgAAAAFiS0dEVZMEuDMAAAAHdElNRQfmBBAPHiKjLZpmAAAAm0lEQVQY02NgYGRiZmFAAaxs7BycXChCXNw8vBx8/ChiAoJCwiKiYshCYuISklLSMijKZOXkFRSVlFHNU1ZRVVMXkEXRq6GpqKUtgKJMR1dP38DQCNU8ZmNhAxNTVCebmVtYWlmj6rWxtbN3cEQRc3J2sXN1cEMVs3H38PRCFXNk8/bx9pVFFfPzFw5gRbXWjTswKBhViCEEKAAAVOQSOV8VkE4AAAAASUVORK5CYII="
+    />
+  </svg>
+
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="21px"
+    height="21px"
+  >
+    <defs>
+      <filter id="Filter_0">
+        <feFlood
+          flood-color="rgb(255, 255, 255)"
+          flood-opacity="1"
+          result="floodOut"
+        />
+        <feComposite
+          operator="atop"
+          in="floodOut"
+          in2="SourceGraphic"
+          result="compOut"
+        />
+        <feBlend mode="normal" in="compOut" in2="SourceGraphic" />
+      </filter>
+    </defs>
+    <g filter="url(#Filter_0)">
+      <path
+        fill-rule="evenodd"
+        fill="rgb(255, 255, 255)"
+        d="M20.998,16.237 C20.998,18.209 19.417,19.811 17.438,19.917 C17.257,20.541 16.697,21.009 16.006,21.009 C15.171,21.009 14.493,20.341 14.493,19.520 L14.493,12.857 C14.493,12.036 15.171,11.368 16.006,11.368 C16.733,11.368 17.313,11.885 17.458,12.558 C17.730,12.574 17.993,12.624 18.247,12.694 L18.247,9.617 C18.247,5.165 14.772,1.544 10.502,1.544 C6.231,1.544 2.757,5.165 2.757,9.617 L2.757,12.694 C3.011,12.624 3.273,12.574 3.545,12.558 C3.690,11.885 4.271,11.368 4.997,11.368 C5.832,11.368 6.511,12.036 6.511,12.857 L6.511,19.520 C6.511,20.341 5.832,21.009 4.997,21.009 C4.306,21.009 3.746,20.541 3.566,19.917 C1.587,19.811 0.006,18.209 0.006,16.237 C0.006,14.753 0.902,13.482 2.188,12.896 L2.188,9.617 C2.188,4.856 5.917,0.984 10.502,0.984 C15.086,0.984 18.816,4.856 18.816,9.617 L18.816,12.896 C20.102,13.482 20.998,14.753 20.998,16.237 ZM16.950,12.857 C16.950,12.345 16.527,11.928 16.006,11.928 C15.485,11.928 15.062,12.345 15.062,12.857 L15.062,19.520 C15.062,20.032 15.485,20.449 16.006,20.449 C16.527,20.449 16.950,20.032 16.950,19.520 L16.950,12.857 ZM4.053,19.520 C4.053,20.032 4.477,20.449 4.997,20.449 C5.518,20.449 5.942,20.032 5.942,19.520 L5.942,12.857 C5.942,12.345 5.518,11.928 4.997,11.928 C4.477,11.928 4.053,12.345 4.053,12.857 L4.053,19.520 ZM0.575,16.237 C0.575,17.873 1.858,19.205 3.484,19.350 L3.484,13.124 C1.858,13.268 0.575,14.601 0.575,16.237 ZM17.519,13.124 L17.519,19.350 C19.145,19.205 20.428,17.873 20.428,16.237 C20.428,14.601 19.145,13.268 17.519,13.124 Z"
+      />
+    </g>
+  </svg>
+</button>

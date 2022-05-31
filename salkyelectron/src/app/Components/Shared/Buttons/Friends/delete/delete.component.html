@@ -1,0 +1,10 @@
+<button
+  *ngIf="Friend && canDeleteFriend(Friend)"
+  (click)="deleteFriend(Friend)"
+  [style]="ButtonStyle"
+  class="btn-delete"
+  #tooltip="matTooltip"
+  matTooltip="Remover amigo"
+  matTooltipPosition="right"
+
+></button>

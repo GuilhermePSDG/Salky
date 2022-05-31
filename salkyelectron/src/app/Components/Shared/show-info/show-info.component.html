@@ -1,0 +1,21 @@
+<div @container class="si-container" *ngIf="!this.isHide">
+  <div>
+    <div id="si-title">
+      <span *ngIf="Title">{{ Title }}</span>
+    </div>
+    <p class="content">
+      {{ Message }}
+    </p>
+    <div class="buttons">
+      <button
+        (click)="button.ClickHandle($event)"
+        *ngFor="let button of Buttons"
+        [style]="button.Style"
+        [class]="button.Class ?? ''"
+        >
+        {{ button.Text }}
+      </button>
+    </div>
+  </div>
+</div>
+<div @overlay *ngIf="!this.isHide" class="backgroundOverlay"></div>

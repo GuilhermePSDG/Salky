@@ -1,0 +1,156 @@
+<div class="main">
+  <div [ngClass]="{ userListCHide: isHide }" class="userListC">
+    <div
+      routerLink="friends"
+      routerLinkActive="active"
+      class="btn btn-dark friends"
+      style="font-size: 22px; font-weight: 900; height: auto"
+    >
+      <svg
+        class="svg-dancing"
+        style="padding: 10px 0"
+        version="1.0"
+        xmlns="http://www.w3.org/2000/svg"
+        width="34px"
+        height="34px"
+        viewBox="0 0 512.000000 512.000000"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <g
+          transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+          stroke="none"
+        >
+          <path
+            d="M1227 5106 c-98 -37 -160 -129 -159 -239 0 -78 32 -250 71 -387 113
+   -397 289 -702 557 -967 l124 -123 0 -573 0 -573 -54 -165 c-100 -305 -138
+   -529 -138 -819 1 -349 63 -622 211 -925 130 -265 201 -330 356 -330 60 0 78 5
+   125 31 68 38 115 97 136 171 26 90 16 128 -84 325 -197 383 -251 716 -182
+   1117 20 115 29 141 64 179 73 82 214 66 270 -30 19 -33 37 -107 75 -309 28
+   -146 57 -287 65 -312 46 -154 171 -251 326 -252 89 0 130 14 285 98 277 150
+   596 357 698 452 146 138 84 403 -109 461 -98 29 -155 10 -304 -102 -129 -97
+   -316 -224 -402 -273 l-57 -32 -11 38 c-10 38 -36 164 -87 433 -25 131 -28 170
+   -30 405 -2 143 0 413 4 600 l8 339 425 58 c248 33 440 64 461 74 82 36 119 96
+   119 193 0 50 -22 124 -145 483 -80 232 -157 456 -172 497 -49 139 -123 201
+   -238 201 -150 0 -247 -102 -232 -244 3 -29 55 -204 117 -390 61 -186 109 -340
+   106 -344 -4 -3 -128 -22 -277 -43 l-271 -36 -431 93 c-238 51 -441 95 -452 98
+   -47 12 -210 234 -289 393 -66 132 -106 255 -145 447 -35 172 -59 222 -127 262
+   -55 32 -150 42 -207 20z"
+          />
+          <path
+            d="M2400 4866 c-188 -53 -320 -224 -320 -416 0 -111 47 -224 127 -303
+   169 -170 447 -167 612 8 227 240 116 626 -204 711 -61 17 -155 16 -215 0z"
+          />
+        </g>
+      </svg>
+    </div>
+    <div class="listing">
+      <div
+        (contextmenu)="
+          ContextMenuSelectedGroup = group; contentMenu.show($event)
+        "
+        *ngFor="let group of this.groupService.groupsObservable | async"
+        [routerLink]="['group', group.id]"
+        routerLinkActive="active"
+        [state]="group"
+        class="imgContainer"
+      >
+        <app-rounded-picture source="{{ group.pictureSource }}">
+          <svg
+            *ngIf="!group.config.isPrivate"
+            class="groupIcon"
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 512.000000 512.000000"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <g
+              transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+              fill="white"
+              stroke="none"
+            >
+              <path
+                d="M2474 3930 c-357 -55 -593 -394 -519 -745 37 -178 160 -336 327 -421
+256 -130 571 -62 759 163 227 273 164 697 -133 899 -124 85 -296 126 -434 104z"
+              />
+              <path
+                d="M1292 3372 c-202 -72 -319 -282 -268 -481 43 -170 163 -281 336 -313
+110 -21 246 21 334 102 217 201 165 548 -102 673 -87 41 -216 49 -300 19z"
+              />
+              <path
+                d="M3585 3376 c-189 -60 -308 -234 -292 -427 19 -232 247 -412 467 -371
+311 57 450 400 266 651 -44 59 -138 125 -209 146 -61 18 -177 19 -232 1z"
+              />
+              <path
+                d="M2050 2631 c-411 -116 -667 -315 -735 -571 -11 -41 -15 -120 -15
+-313 0 -279 2 -294 56 -336 54 -42 405 -140 646 -180 200 -33 330 -43 558 -43
+228 0 357 10 560 43 240 39 589 137 644 180 53 42 56 57 56 328 0 279 -6 323
+-57 429 -89 182 -299 333 -607 436 -156 52 -171 54 -242 18 -121 -61 -194 -77
+-354 -77 -163 0 -242 18 -355 79 l-61 33 -94 -26z"
+              />
+              <path
+                d="M1040 2473 c-164 -47 -319 -136 -388 -222 -18 -23 -45 -67 -60 -99
+-26 -55 -27 -65 -30 -250 l-4 -192 29 -28 c20 -21 58 -37 141 -61 129 -38 331
+-81 380 -81 l32 0 0 238 c0 205 3 250 20 316 27 105 65 189 122 263 l47 63
+-27 6 c-43 9 -115 35 -148 54 -30 17 -33 17 -114 -7z"
+              />
+              <path
+                d="M3965 2479 c-16 -10 -62 -28 -101 -41 l-71 -22 40 -50 c22 -28 57
+-87 78 -131 60 -129 69 -190 69 -459 l0 -236 33 0 c48 0 250 43 379 81 83 24
+121 40 141 61 l29 28 -4 193 c-3 174 -5 197 -26 242 -70 153 -231 268 -467
+333 -68 18 -71 18 -100 1z"
+              />
+            </g>
+          </svg>
+        </app-rounded-picture>
+        <span class="userName">{{ group.name.toUpperCase() }}</span>
+      </div>
+    </div>
+    <app-add-group></app-add-group>
+
+    <div class="bottom">
+      <app-rounded-picture
+        (click)="file.click()"
+        matTooltip="Alterar foto."
+        class="userImage"
+        style="cursor: pointer"
+        source="{{ this.currentUser?.pictureSource }}"
+        (change)="changeUserPicture(file)"
+      >
+        <input style="display: none" type="file" #file />
+      </app-rounded-picture>
+
+      <span>{{ this.currentUser?.userName }}</span>
+      <div class="buttons">
+        <app-buttons-config-open></app-buttons-config-open>
+        <app-buttons-call-microfone></app-buttons-call-microfone>
+        <app-buttons-call-headset></app-buttons-call-headset>
+      </div>
+      <app-buttons-user-leave></app-buttons-user-leave>
+    </div>
+  </div>
+  <div
+    class="btn-hide {{ isHide ? 'btn-hide-active' : '' }}"
+    (click)="this.change()"
+  ></div>
+</div>
+
+<app-context-menu #contentMenu>
+  <button
+    *ngIf="CanDeleteGroup"
+    (click)="DeleteGroup(); contentMenu.hide()"
+    class="context-menu-item"
+    style="color: red"
+  >
+    Deletar grupo
+  </button>
+  <button
+    *ngIf="!CanDeleteGroup"
+    (click)="LeaveGroup(); contentMenu.hide()"
+    class="context-menu-item"
+    style="color: red"
+  >
+    Sair do grupo
+  </button>
+</app-context-menu>

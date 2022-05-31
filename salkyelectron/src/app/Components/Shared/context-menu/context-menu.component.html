@@ -1,0 +1,12 @@
+<ng-container>
+  <div
+
+    [style.top.px]="getY"
+    [style.left.px]="getX"
+    *ngIf="IsOpen"
+    #contextMenu
+    class="context-menu"
+  >
+    <ng-content></ng-content>
+  </div>
+</ng-container>

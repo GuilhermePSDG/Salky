@@ -1,0 +1,12 @@
+#call-quit {
+  g {
+    fill: rgb(255, 117, 117);
+    transition: all 0.3s;
+  }
+}
+
+#call-quit:hover {
+  g {
+    fill: rgb(255, 42, 42);
+  }
+}

@@ -1,0 +1,17 @@
+*{
+  overflow-wrap: anywhere;
+}
+
+.anyrendermain{
+  display: flex;
+  flex-wrap: wrap;
+  word-wrap: break-word;
+}
+
+.high-ligh{
+  background-color: rgba(0, 0, 0, 0.188);
+  padding: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.161);
+  border-radius: 6px;
+  margin-right: 37px;
+}

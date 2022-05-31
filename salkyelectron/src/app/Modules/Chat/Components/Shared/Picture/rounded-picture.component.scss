@@ -1,0 +1,25 @@
+
+.ImageContainer-Circle{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: transparent;
+  vertical-align:middle;
+  transition: all 0.3s;
+}
+.content{
+  position: relative;
+}
+.ImageContainer-Circle img{
+  object-fit: cover;
+  height: 100%;
+}
+
+* {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -o-user-select: none;
+}

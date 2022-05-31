@@ -1,0 +1,9 @@
+<button
+  *ngIf="Friend && canAcceptFriendRequest(Friend)"
+  (click)="AcceptFriendRequest(Friend)"
+  [style]="ButtonStyle"
+  matTooltip="Aceitar pedido de amizade"
+  [class]="'btn-confirm'"
+>
+
+</button>
