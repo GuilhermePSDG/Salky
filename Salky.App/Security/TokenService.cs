@@ -3,14 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Salky.App.Interfaces;
 using Salky.Domain.Models.UserModels;
-using Salky.WebSocket.Infra.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Salky.App.Security
 {
-    public class TokenService : ITokenService, IValidateToken
+    public class TokenService : ITokenService
     {
         public static readonly TimeSpan TokenExpiresTime = TimeSpan.FromHours(24);
         public readonly SymmetricSecurityKey _key;
@@ -33,8 +32,6 @@ namespace Salky.App.Security
                     .ToList())
                 );
         }
-
-
         public List<Claim> ValidateToken(string token)
         {
             if (string.IsNullOrEmpty(token)) return null;
@@ -52,15 +49,6 @@ namespace Salky.App.Security
             return jwtToken.Claims.ToList();
         }
 
-        public List<Claim> ValidateJwtTokenOrThrow(string token, out string Key)
-        {
-            var claims = ValidateToken(token);
-            if (claims == null || claims.Count == 0) throw new NullReferenceException("Invalid Token");
-            var key = claims.SingleOrDefault(f => f.Type.Equals("nameid"));
-            if (key == null) throw new NullReferenceException("Invalid Token");
-            Key = key.Value;
-            return claims;
-        }
         private Token CreateToken(List<Claim> Claims)
         {
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -83,6 +71,5 @@ namespace Salky.App.Security
                 new Claim(ClaimTypes.Name, user.UserName)
             };
         }
-
     }
 }

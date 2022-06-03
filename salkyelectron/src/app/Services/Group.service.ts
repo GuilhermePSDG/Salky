@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { Injectable, OnInit } from '@angular/core';
-import { map, Observable, ReplaySubject, take } from 'rxjs';
+import { map, Observable, ReplaySubject, Subscription, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Group } from '../Models/GroupModels/Group';
 import { GroupMember } from '../Models/Users/UserGroup';
@@ -25,25 +25,35 @@ export class GroupService {
     private http: HttpClient,
     private ws: SalkyWebSocket
   ) {
-    this.setEvents();
     this.setGroups().subscribe();
   }
-  setEvents() {
-    this.onGroupNameChanged((x) =>
+
+  eventsStarted = false;
+  SubscribeEvents() {
+    if(this.eventsStarted) return;
+    this.eventsStarted = true;
+
+    var sub1 = this.onGroupNameChanged((x) =>
       this.ChangeFieldOfGroup(x.groupId, 'name', x.newGroupName)
     );
-    this.onGroupDeleted((groupId) => {
+    var sub2 = this.onGroupDeleted((groupId) => {
       this.removeGroup(groupId);
       if (this.router.url.includes(groupId)) {
         this.router.navigateByUrl('');
       }
     });
 
-    this.onGroupCreated((x) => this.addOrUpdateGroup(x));
-    this.onUserAddedInGroup((x) => this.addOrUpdateGroup(x));
-    this.OnPictureChanged((q) =>
+    var sub3 = this.onGroupCreated((x) => this.addOrUpdateGroup(x));
+    var sub4 = this.onUserAddedInGroup((x) => this.addOrUpdateGroup(x));
+    var sub5 = this.onPictureChanged((q) =>
       this.ChangeFieldOfGroup(q.id, 'pictureSource', this.setImageUrl(q.value))
     );
+    this.subs.push(sub1,sub2,sub3,sub4,sub5);
+  }
+  subs : Subscription[] = [];
+  UnsubscribeEvents(){
+    this.eventsStarted = false;
+    this.subs.forEach(x => x.unsubscribe());
   }
 
   deleteGroup(GroupId: string) {
@@ -54,10 +64,9 @@ export class GroupService {
     });
   }
 
-
-  public findGroup(Id : string) : Group | null{
-    var i = this.groups.findIndex(x => x.id === Id);
-    return i===-1 ? null : this.groups[i];
+  public findGroup(Id: string): Group | null {
+    var i = this.groups.findIndex((x) => x.id === Id);
+    return i === -1 ? null : this.groups[i];
   }
 
   public createGroup(name: string): void {
@@ -81,6 +90,7 @@ export class GroupService {
         })
       );
   }
+
   public changeGroupName(groupId: string, name: string) {
     this.ws.sendMessageServer({
       data: { groupId: groupId, newGroupName: name },
@@ -97,13 +107,6 @@ export class GroupService {
     return `${environment.apiImageurl}/${relativePath}`.replace('\\', '/');
   }
 
-  private onUserAddedInGroup(handler: (group: Group) => void) {
-    this.ws.On('group/member/added', 'post').Do((x) =>{
-      console.log("HERE HERE")
-      handler(x.data)
-    });
-  }
-
   private ChangeFieldOfGroup(
     GroupId: string,
     Field: keyof Group,
@@ -115,21 +118,6 @@ export class GroupService {
         this.groups[i][Field] = NewValue;
       }
     }
-  }
-
-  private onGroupNameChanged(
-    handler: (newName: { groupId: string; newGroupName: string }) => void
-  ) {
-    this.ws.On('group/change/name', 'put').Do((msg) => handler(msg.data));
-  }
-
-  private OnPictureChanged(
-    handler: (Data: { id: string; value: string }) => void
-  ) {
-    this.ws.On('group/change/picture', 'put').Do((x) => {
-      x.data.imageSource = this.setImageUrl(x.data.imageSource);
-      handler(x.data);
-    });
   }
 
   private addOrUpdateGroup(Group: Group): void {
@@ -145,19 +133,10 @@ export class GroupService {
   }
 
   private removeGroup(id: string) {
-    console.log('private removeGroup(id: string)');
     var i = this.groups.findIndex((x) => x.id === id);
     if (i !== -1) {
       this.groups.splice(i, 1);
     }
-  }
-
-  public onGroupCreated(handler: (group: Group) => void) {
-    this.ws.On('group/create', 'post').Do((x) => handler(x.data));
-  }
-
-  private onGroupDeleted(handler: (groupId: string) => void) {
-    this.ws.On('group', 'delete').Do((x) => handler(x.data));
   }
 
   private setGroups(): Observable<void> {
@@ -170,4 +149,37 @@ export class GroupService {
       })
     );
   }
+
+  //#region Events
+
+  private onUserAddedInGroup(handler: (group: Group) => void) : Subscription {
+    return this.ws.On('group/member/added', 'post').Build<any>((x) => {
+      handler(x);
+    });
+  }
+
+  private onGroupNameChanged(
+    handler: (newName: { groupId: string; newGroupName: string }) => void
+  ): Subscription {
+    return this.ws
+      .On('group/change/name', 'put')
+      .Build<any>((msg) => handler(msg));
+  }
+
+  private onPictureChanged(
+    handler: (Data: { id: string; value: string }) => void
+  ): Subscription {
+    return this.ws.On('group/change/picture', 'put').Build<any>((x) => {
+      x.data.imageSource = this.setImageUrl(x.data.imageSource);
+      handler(x);
+    });
+  }
+
+  public onGroupCreated(handler: (group: Group) => void): Subscription {
+    return this.ws.On('group/create', 'post').Build<Group>((x) => handler(x));
+  }
+  private onGroupDeleted(handler: (groupId: string) => void): Subscription {
+    return this.ws.On('group', 'delete').Build<string>((x) => handler(x));
+  }
+  //#endregion
 }

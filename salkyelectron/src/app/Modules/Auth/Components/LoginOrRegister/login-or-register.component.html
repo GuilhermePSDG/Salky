@@ -5,6 +5,7 @@
     (ngSubmit)="this.mode === 'register' ? register() : login()"
   >
     <input
+      autocomplete="off"
       required="true"
       class="input"
       (keypress)="geralError = undefined"
@@ -23,6 +24,7 @@
       >Usuario invalido.</span
     >
     <input
+      autocomplete="off"
       required="true"
       class="input"
       (keypress)="geralError = undefined"
@@ -41,10 +43,7 @@
       >Senha invalida.</span
     >
     <span class="spanAlert" *ngIf="geralError">{{ geralError }}</span>
-    <button
-      class="btn btn-rounded"
-      [disabled]="!this.form.valid || geralError"
-    >
+    <button class="btn btn-rounded" [disabled]="!this.form.valid || geralError">
       {{ mode === "register" ? "Cadastrar" : "Entrar" }}
     </button>
     <a

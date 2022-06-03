@@ -53,7 +53,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     if (RootConnectionMannager.TryGetSocket(userId.ToString(), out var socket))
                     {
                         var friend2 = await this.friendService.GetById(userId, friend.Id) ?? throw new InvalidOperationException();
-                        await socket.SendMessageServer(new MessageServer(friend2, CurrentPath, Method.POST));
+                        await socket.SendMessageServer(new MessageServer(CurrentPath, Method.POST, Status.Success,friend2));
                     }
                 }
                 else

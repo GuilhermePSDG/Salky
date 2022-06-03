@@ -228,14 +228,14 @@ button {
 }
 
 
-app-user-list .imgContainer {
+app-left-bar .imgContainer {
   &:hover,.active {
     .ImageContainer-Circle{
       border-radius: 40% !important;
     }
   }
 }
-app-user-list .imgContainer.active {
+app-left-bar .imgContainer.active {
     .ImageContainer-Circle{
       border-radius: 40% !important;
     }

@@ -4,7 +4,7 @@ import { ShowInfoService } from 'src/app/Services/show-info.service';
 export interface ShowInfoControl{
   Hide : () => void,
   ChangeState : () => void,
-  Show : (message:string,Title : string, buttons? : ShowInfoButton[]) => void,
+  Show : (message:string,Title : string, buttons : ShowInfoButton[],CanClickOutToClose : boolean) => void,
 }
 export interface ShowInfoButton{
   Text : string;
@@ -47,6 +47,7 @@ export class ShowInfoComponent implements OnInit,AfterViewInit {
   @Input() Buttons : ShowInfoButton[] = [];
   @Input() isHide : boolean = true;
   @Input() Title : string ='';
+  @Input() CanClickOutToClose: boolean = true;
   constructor(private showInfoService : ShowInfoService) {
     this.showInfoService.createBind({
       ChangeState : this.ChangeState.bind(this),
@@ -58,23 +59,15 @@ export class ShowInfoComponent implements OnInit,AfterViewInit {
   ngAfterViewInit(): void {
   }
 
-  public Show(message:string, Title:string, buttons? : ShowInfoButton[]){
+  public Show(message:string, Title:string, buttons : ShowInfoButton[],CanClickOutToClose : boolean){
     console.log("show")
     if(buttons)this.Buttons = buttons
-    else this.setButtonsAsDefault();
     this.Message = message;
     this.isHide = false;
     this.Title = Title;
+    this.CanClickOutToClose = CanClickOutToClose;
   }
-  private setButtonsAsDefault(){
-    this.Buttons = [
-      {
-        ClickHandle : () =>  this.Hide(),
-        Style : "background-color:red;",
-        Text : 'Fechar'
-      }
-    ]
-  }
+
   public Hide(){
     this.isHide = true;
   }

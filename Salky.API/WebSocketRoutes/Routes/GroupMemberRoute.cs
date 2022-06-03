@@ -37,7 +37,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     {
                         this.AddInPool(groupId.ToString(),newMember.Id.ToString() , usrSocket);
                         var groupDto = await this.groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
-                        await usrSocket.SendMessageServer(new(groupDto, "group/create", Method.POST));
+                        await usrSocket.SendMessageServer(new("group/create",Method.POST, Status.Success,groupDto));
                     }
                 }
                 else
@@ -67,12 +67,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     var pool = GetPool(removedMember.GroupId.ToString());
                     if(pool.TryRemoveSocket(removedMember.Id.ToString(), out var removedsock))
                     {
-                        await removedsock.SendMessageServer(new MessageServer()
-                        {
-                            Path = $"group",
-                            Method = Method.DELETE,
-                            Data = data.GroupId,
-                        });
+                        await removedsock.SendMessageServer(new MessageServer("group", Method.DELETE, Status.Success));
                     }
                     await GetPool(removedMember.GroupId.ToString()).SendToAll(CurrentPath, Method.DELETE, data);
                 }

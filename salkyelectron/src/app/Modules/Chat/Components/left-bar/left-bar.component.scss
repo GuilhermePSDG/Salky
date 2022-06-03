@@ -1,0 +1,176 @@
+@import "../../../../../color.scss";
+
+
+.main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.buttons {
+  display: flex;
+}
+.userImage {
+  transition: all 0.5s;
+  &:hover {
+    box-shadow: 0px 0px 30px -2px #000000;
+    transform: scale(1.1) translateY(-7px);
+  }
+}
+.btn-hide-active {
+  transform: rotate(180deg) !important;
+  right: -10px !important;
+}
+.btn-hide {
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  cursor: pointer;
+  display: none;
+  transition: all 0.4s;
+  opacity: 0.4;
+}
+
+.btn-hide:before {
+  border-left: 2px solid white;
+  border-top: 2px solid white;
+  width: 11px;
+  content: "";
+  height: 11px;
+  float: right;
+}
+.btn-hide::before {
+  transform: rotate(-45deg);
+}
+
+app-img-circle {
+  border-radius: 30px;
+}
+span {
+  color: rgba(255, 255, 255, 0.515);
+}
+
+.userListCHide {
+  width: 0px !important;
+}
+.userListC {
+  background-color:$medium;
+  border: 0 solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  justify-content: space-between;
+  max-height: 100vh;
+  overflow: hidden;
+  max-width: 120px;
+  width: 120px;
+  transition: all 0.4s;
+}
+
+.listing {
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.bottom {
+  margin-top: 5px;
+  height: 150px;
+  width: 100%;
+  background-color: $high;
+  border-radius: 30px 30px 0px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.listing {
+  width: 100%;
+}
+
+.imgContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  margin: 5px 0;
+  padding: 15px 0;
+  transition: all 0.2s;
+  * img {
+    border-radius: 0 !important;
+  }
+  .userName {
+    color: white;
+    font-size: 10px;
+    margin-top: 4px;
+    font-weight: bold;
+    opacity: 0;
+    transition: all 0.4s;
+  }
+
+  &:hover,
+  &.active {
+    .groupIcon{
+      background-color: $high;
+      border-color: $high;
+    }
+    background-color: $high;
+    .userName {
+      opacity: 0.5;
+    }
+    app-img-circle {
+      outline: 1px solid white;
+    }
+  }
+}
+
+* {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -o-user-select: none;
+}
+
+.groupIcon {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: $medium;
+  border: 2px solid $medium;
+  border-radius: 50%;
+}
+
+.friends {
+  .svg-dancing {
+    g {
+      fill: #e0e0e0;
+      transition: all 0.4s;
+    }
+  }
+  &:hover {
+    .svg-dancing {
+      g {
+        fill: rgb(255, 255, 255);
+      }
+    }
+  }
+}
+.friends.active {
+  .svg-dancing {
+    g {
+      fill: rgb(255, 255, 255);
+    }
+  }
+}
+@media (max-width: 800px) {
+  .btn-hide {
+    display: block;
+  }
+}
+@media (min-width:801px){
+  .userListC{
+    width: 120px !important;
+  }
+}

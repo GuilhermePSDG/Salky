@@ -25,6 +25,7 @@ import { GroupMemberService } from 'src/app/Services/GroupMember.service';
 import { ScrollEventListener } from 'src/app/Helpers/ScrollListener';
 import { Friend } from 'src/app/Models/Users/Friend';
 import { Converter } from 'src/app/Helpers/Converter';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-box',
@@ -78,25 +79,24 @@ export class ChatBoxComponent
     this.scroll.onIncress = () => this.scrollToBottom();
   }
 
+  subscribes : Subscription[] = [];
   async ngOnInit() {
-    this.messageService.onMessageReceived((msg) => this.receiveMessage(msg));
-    this.messageService.onMessageDeleted((r) =>
+    var sub1 = this.messageService.onMessageReceived((msg) => this.receiveMessage(msg));
+    var sub2 = this.messageService.onMessageDeleted((r) =>
       this.deleteMessage(r.groupId, r.messageId)
     );
-
-    this.memberService.$CurrentMember.subscribe({
+    var sub3 = this.memberService.$CurrentMember.subscribe({
       next: (member) => (this.currentGroupMember = member),
     });
-    this.memberService.$CurrentMembers.subscribe({
+    var sub4 = this.memberService.$CurrentMembers.subscribe({
       next: (members) => (this.groupMembers = members),
     });
 
-    this.activeRouter.params.subscribe((value) => {
+    var sub5 = this.activeRouter.params.subscribe((value) => {
       const id = value['id'];
       if (id) {
         var group = this.groupService.findGroup(id);
         if (group) {
-          this.groupService.setEvents()
           this.memberService.ChangeGroup(id);
           this.group = group;
           this.viewGroupname = group.name;
@@ -107,16 +107,19 @@ export class ChatBoxComponent
       }
     });
     this.LoggedUser = this.localStorageService.CurrentUser;
+    this.subscribes.push(sub1,sub2,sub3,sub4,sub5);
   }
+
+  ngOnDestroy(): void {
+    this.scroll.Dispose();
+    this.subscribes.forEach(sub => sub.unsubscribe());
+  }
+
   ngAfterViewChecked() {}
   ngAfterContentChecked(): void {}
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
-  }
-
-  ngOnDestroy(): void {
-    this.scroll.Dispose();
   }
 
   scrollToBottom(): void {

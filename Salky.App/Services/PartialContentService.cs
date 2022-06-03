@@ -11,8 +11,8 @@ namespace Salky.App.Services
 
     public struct PartialContent
     {
-        public string Content { get; set; }
-        public RenderType RenderType { get; set; }
+        public string Content { get;  }
+        public RenderType RenderType { get; }
 
         public PartialContent(string content, RenderType RenderType)
         {
@@ -38,7 +38,6 @@ namespace Salky.App.Services
         public string? Description{get;set;}
         public string? Picture{get;set;}
         public string? Href { get; set; }
-       
     }
     
     public static class PartialContentService

@@ -1,4 +1,5 @@
 ﻿using Salky.App.Dtos.Group;
+using Salky.Domain.Models.GroupModels;
 
 namespace Salky.API.WebSocketRoutes.Models
 {
@@ -15,7 +16,7 @@ namespace Salky.API.WebSocketRoutes.Models
 
 
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
-        public GroupRoleDto? Roles { get; private set; }
+        public GroupRole? Roles { get; private set; }
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public string? CurrentCallPath { get; private set; } = null;
 
@@ -30,7 +31,7 @@ namespace Salky.API.WebSocketRoutes.Models
             this.MemberId = null;
             this.Roles = null;
         }
-        public void FillCallProperties(string currentCallGroupId, string currentCallPath, string CurrentCallMemberId,GroupRoleDto roles)
+        public void FillCallProperties(string currentCallGroupId, string currentCallPath, string CurrentCallMemberId,GroupRole roles)
         {
             this.IsInCall = true;
             this.CurrentCallPath = currentCallPath;

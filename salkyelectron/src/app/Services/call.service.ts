@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subscription } from 'rxjs';
 import { Group } from '../Models/GroupModels/Group';
 import { UserCall as CallMember } from '../Models/Users/UserCall';
 import { AudioState } from '../Models/AudioState';
@@ -18,7 +18,7 @@ export class CallService {
   public UserCall: CallMember;
   public UserLogged: UserLogged = {} as any;
 
-  private BasePath = "group/call";
+  private BasePath = 'group/call';
 
   constructor(
     private audioService: AudioService,
@@ -26,7 +26,7 @@ export class CallService {
     private ws: SalkyWebSocket,
     private storageService: StorageService
   ) {
-    usrService.currentUser$.subscribe({
+    var sub1 = usrService.currentUser$.subscribe({
       next: (usr) => {
         this.UserLogged = usr;
       },
@@ -35,17 +35,22 @@ export class CallService {
       audioState: this.AudioState,
       isInCall: false,
       groupId: '',
-      memberId : '',
+      memberId: '',
     } as CallMember;
-    this.audioState$.subscribe({
+    var sub2 = this.audioState$.subscribe({
       next: (x) => (this.UserCall.audioState = x),
     });
-    this.audioService.onMicrofoneOutPut = (blob) => {
+    var sub3 = this.audioService.onMicrofoneOutPut = (blob) => {
       blob.arrayBuffer().then((buff) => this.sendAudioToCall(buff));
     };
-    this.onAudioReceived((sender, blob) =>
-      this.audioService.ReproduceAudio(blob)
-    );
+    var sub4 = this.onAudioReceived((base64) => {
+      if (this.canReproduceAudio) {
+        var buffer = Converter.stringToArrayBuffer(atob(base64));
+        var blob = new Blob([new Uint8Array(buffer, 0, buffer.byteLength)]);
+        this.audioService.ReproduceAudio(blob);
+      }
+    });
+    console.warn("A lot of subscriptions without finish");
   }
 
   public entryInCall(groupId: string): void {
@@ -70,31 +75,12 @@ export class CallService {
     this.UserCall.isInCall = false;
   }
 
-  public onUserQuitCall(handler: (UserCall: CallMember) => void) {
-    this.onUserAny(handler,'delete');
-  }
-  public onUserEntryCall(handler: (UserCall: CallMember) => void) {
-    this.onUserAny(handler, 'post');
-  }
-  public onPutUserCall(handler: (UserCall: CallMember) => void) {
-    this.onUserAny(handler, 'put');
-  }
-  private onUserAny(handler: (UserCall: CallMember) => void, method: string) {
-    this.ws.On(this.BasePath, method).Do((x) => {
-      var data = x.data as CallMember;
-      handler(data);
-    });
-  }
-
-  public onAllUsersInCallReceived(handler: (users: CallMember[]) => void) {
-    this.ws.On(`${this.BasePath}/all`, 'get_response').Do((f) => {
-      var users = f.data as CallMember[];
-      handler(users);
-    });
-  }
-
   public getUsersInCallOfGroup(groupId: string) {
-    this.ws.send(`${this.BasePath}/all`, 'get', groupId);
+    this.ws.sendMessageServer({
+      path:`${this.BasePath}/all`,
+      method:'get',
+      data : groupId,
+    })
   }
 
   private get canSendAudio(): boolean {
@@ -119,16 +105,6 @@ export class CallService {
         path: this.BasePath,
       });
     }
-  }
-
-  private onAudioReceived(handler: (senderName: string, blob: Blob) => void) {
-    this.ws.On(this.BasePath, 'redirect').Do((x) => {
-      if (this.canReproduceAudio) {
-        var buffer = Converter.stringToArrayBuffer(atob(x.data));
-        var blob = new Blob([new Uint8Array(buffer, 0, buffer.byteLength)]);
-        handler(x.data.senderIndentifier, blob);
-      }
-    });
   }
 
   private audioStateReplaySubjet = new ReplaySubject<AudioState>(1);
@@ -167,11 +143,29 @@ export class CallService {
     this.audioStateReplaySubjet.next(this.AudioState);
   }
 
-  private setImageUrl(relativePath: string) {
-    if (!relativePath.includes('http')) {
-      return `${environment.apiImageurl}/${relativePath}`;
-    } else {
-      return relativePath;
-    }
+  //#region Events
+  private onAudioReceived(
+    handler: (Base64: string) => void,
+    error?: (err: any) => void
+  ) {
+    this.ws.On(this.BasePath, 'redirect').Build(handler, error);
   }
+  public onUserQuitCall(handler: (UserCall: CallMember) => void): Subscription {
+    return this.ws.On(this.BasePath, 'delete').Build(handler);
+  }
+  public onUserEntryCall(
+    handler: (UserCall: CallMember) => void
+  ): Subscription {
+    return this.ws.On(this.BasePath, 'post').Build(handler);
+  }
+  public onPutUserCall(handler: (UserCall: CallMember) => void): Subscription {
+    return this.ws.On(this.BasePath, 'put').Build(handler);
+  }
+
+  public onAllUsersInCallReceived(
+    handler: (users: CallMember[]) => void
+  ): Subscription {
+    return this.ws.On(`${this.BasePath}/all`, 'get_response').Build(handler);
+  }
+  //#endregion
 }

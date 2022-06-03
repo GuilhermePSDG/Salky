@@ -29,38 +29,22 @@ public partial class WebServerSocketMiddleware
         logger.Log(LogLevel.Information, "WebSocket MiddleWare Started");
     }
 
-    private void ValidateJwtToken(HttpContext context, IValidateToken tokenValidator,out List<Claim> Claims,out string socketKey)
-    {
-        var token = HttpUtility.ParseQueryString(context.Request.QueryString.Value).Get("token");
-        if (string.IsNullOrEmpty(token)) throw new NullReferenceException("Jwt Token Not Found");
-        Claims= tokenValidator.ValidateJwtTokenOrThrow(token, out socketKey);
-    }
-    private void MakeHttpHandshake(HttpContext context, IServiceProvider serviceProvider)
+
+    private void MakeHttpHandshake(HttpContext context, IServiceProvider serviceProvider, out List<Claim> Claims, out string SocketKey)
     {
         var httpHandShaker = serviceProvider.GetService(typeof(IDoHttpHandshake));
-        if (httpHandShaker != null) ((IDoHttpHandshake)httpHandShaker).MakeOrThrow(context);
+        if(httpHandShaker == null)throw new InvalidOperationException($"You must provide a class that inherits from {nameof(IDoHttpHandshake)}");
+        ((IDoHttpHandshake)httpHandShaker).MakeOrThrow(context, out Claims, out SocketKey);
     }
     private void MakeWsHandShake(IServiceProvider serviceProvider,SalkyWebSocket ws)
     {
         var wsHandShaker = serviceProvider.GetService(typeof(IDoWebSocketHandShake));
         if (wsHandShaker != null) ((IDoWebSocketHandShake)wsHandShaker).MakeOrThrow(ws);
     }
-    public async Task InvokeAsync(HttpContext context, IValidateToken tokenValidator)
+    public async Task InvokeAsync(HttpContext context)
     {
         if (context.WebSockets.IsWebSocketRequest)
         {
-
-            var value = context.Request.Cookies["teste"];
-            if (value != null)
-            {
-                logger.LogInformation("Cookkie found, value : " + value);
-            }
-            else
-            {
-                logger.LogInformation("Cookkie not found" + value);
-                context.Response.Cookies.Append("teste", "Hello");
-            }
-
             this.logger.Log(LogLevel.Information, "WebSocket Connection Received");
             var serviceProvider = this.scopeFactory.CreateScope().ServiceProvider;
             string? key = null;
@@ -69,24 +53,14 @@ public partial class WebServerSocketMiddleware
             try
             {
                 List<Claim> claims;
-                try
-                {
-                    ValidateJwtToken(context, tokenValidator, out claims, out key);
-
-                }
-                catch(Exception e)
-                {
-                    this.logger.LogInformation(e,"WebSocket HandShake Failed");
-                    return;
-                }
                     
                 try
                 {
-                    MakeHttpHandshake(context,serviceProvider);
+                    MakeHttpHandshake(context,serviceProvider, out claims, out key);
                 }
                 catch(Exception ex)
                 {
-                    this.logger.LogInformation(ex, "WebSocket HandShake Failed");
+                    this.logger.LogInformation(ex, "Http HandShake Failed");
                     return;
                 }
                 salkySocket = new SalkyWebSocket(await context.WebSockets.AcceptWebSocketAsync(), claims);
@@ -116,6 +90,7 @@ public partial class WebServerSocketMiddleware
                 addedToPool = true;
                 salkySocket.Storage.Add(serviceProvider);
                 await serviceProvider.GetRequiredService<IRouterResolver>().AfterOpen(salkySocket);
+                (_connectionManager as ConnectionMannager).PrintDeep();
                 await ReceiveMessage(salkySocket, key);
             }
             catch (Exception ex)
@@ -141,6 +116,7 @@ public partial class WebServerSocketMiddleware
                     }
                 }
             }
+            (_connectionManager as ConnectionMannager).PrintDeep();
         }
         else
         {
@@ -157,8 +133,9 @@ public partial class WebServerSocketMiddleware
                 WebSocketReceiveResult? result = await webSocket.ReceiveAsync(buffer,CancellationToken.None);
                 if (!result.EndOfMessage)
                 {
-                    await webSocket.SendErrorAsync("Too large message,not implemented");
-                    this.logger.LogWarning("Message Too large received");
+                    await webSocket.SendErrorAsync("Too large message","error");
+                    this.logger.LogWarning("Message Too large to receive");
+                    buffer = new byte[51200];
                 }
                 else
                 {
@@ -171,7 +148,7 @@ public partial class WebServerSocketMiddleware
                             await MessageCloseHandler(webSocket, result, id);
                             break;
                         case WebSocketMessageType.Binary:
-                            await webSocket.SendErrorAsync("Binary Message Not Implemented");
+                            await webSocket.SendErrorAsync("Binary Message Not Implemented","error");
                             this.logger.LogWarning("Binary Message Not Implemented");
                             break;
                     }
@@ -196,7 +173,7 @@ public partial class WebServerSocketMiddleware
         catch
         {
             this.logger.LogWarning("Error while receiving message");
-            await websocket.SendErrorAsync("You must send a object like this, and here a object of any type");
+            await websocket.SendErrorAsync("You must send a object like this, and here a object of any type","error");
         }
     }
 

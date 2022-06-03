@@ -40,17 +40,13 @@ namespace Salky.App.Mapping
                 .ForMember(x => x.PictureSource,q => q.MapFrom(x => x.User.PictureSource))
                 .ReverseMap();
             CreateMap<GroupMember, GroupMemberRolesDto>()
+                .ForMember(x => x.GroupRole,q => q.MapFrom(n=>n.Role))
                 .ForMember(x => x.GroupRole, q => q.MapFrom(x => x.Role))
                 .ForMember(x => x.RoleName, q => q.MapFrom(x => x.Role.RoleName))
                 .ForMember(x => x.UserName, q => q.MapFrom(x => x.User.UserName))
                 .ForMember(x => x.PictureSource, q => q.MapFrom(x => x.User.PictureSource))
                 .ReverseMap();
-
-            CreateMap<GroupRoleDto,GroupRole>().ReverseMap();
-            CreateMap<GroupPermissionsDto, GroupPermissions>().ReverseMap();
-            CreateMap<ChatPermissionsDto, ChatPermissions>().ReverseMap();
-            CreateMap<CallPermisionsDto, CallPermisions>().ReverseMap();
-           
+          
 
         }
 

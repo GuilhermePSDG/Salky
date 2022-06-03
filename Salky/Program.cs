@@ -20,6 +20,7 @@ using Salky.Domain.Models.GroupModels;
 using System.Security.Cryptography;
 using Salky.Domain.Models.UserModels;
 using StackExchange.Redis;
+using Salky.WebSocket.Infra.Models;
 
 Console.WriteLine("Hello");
 

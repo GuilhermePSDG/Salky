@@ -1,6 +1,6 @@
 import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LogoutComponent } from './Modules/Chat/Components/Shared/user/logout/logout.component';
+import { LogoutComponent } from './Modules/Chat/Components/logout/logout.component';
 import { AuthGuard } from './routeGuards/auth.guard';
 
 const routes: Routes = [

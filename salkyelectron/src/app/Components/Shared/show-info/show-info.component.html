@@ -1,12 +1,12 @@
 <div @container class="si-container" *ngIf="!this.isHide">
   <div>
-    <div id="si-title">
-      <span *ngIf="Title">{{ Title }}</span>
+    <div *ngIf="Title && Title.length > 0" id="si-title">
+      <span >{{ Title }}</span>
     </div>
-    <p class="content">
+    <p *ngIf="Title && Title.length > 0" class="content">
       {{ Message }}
     </p>
-    <div class="buttons">
+    <div *ngIf="Buttons.length > 0" class="buttons">
       <button
         (click)="button.ClickHandle($event)"
         *ngFor="let button of Buttons"
@@ -18,4 +18,4 @@
     </div>
   </div>
 </div>
-<div @overlay *ngIf="!this.isHide" class="backgroundOverlay"></div>
+<div (click)="CanClickOutToClose ? Hide() : ''" @overlay *ngIf="!this.isHide" class="backgroundOverlay"></div>

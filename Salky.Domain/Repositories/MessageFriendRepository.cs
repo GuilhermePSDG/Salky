@@ -29,9 +29,9 @@ namespace Salky.Domain.Repositories
                 pageSize);
         }
 
-        public Task<FriendMessage?> GetById(Guid id)
+        public async Task<FriendMessage?> GetById(Guid id)
         {
-            return GetBaseQuery(true).SingleOrDefaultAsync(x => x.Id == id);
+            return await GetBaseQuery(true).FirstOrDefaultAsync(x => x.Id == id);
         }
         private IQueryable<FriendMessage> GetBaseQuery(bool includeAll)
             => includeAll ?

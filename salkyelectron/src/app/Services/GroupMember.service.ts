@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, ReplaySubject, take } from 'rxjs';
+import { map, Observable, ReplaySubject, Subscription, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ListHelper } from '../Helpers/ListHelper';
 import { Group } from '../Models/GroupModels/Group';
@@ -22,29 +22,25 @@ export class GroupMemberService {
   //
   private apiBaseUrl = `${environment.apiUrl}/group/member`;
 
-  constructor(private http: HttpClient, private ws: SalkyWebSocket) {
-
-  }
+  constructor(private http: HttpClient, private ws: SalkyWebSocket) {}
   public setEvents() {
-    this.onUserEntryInGroup((member) =>
-      this.next(ListHelper.AddOrUpdate(this.Members,member , 'id'))
+    var sub1 = this.onUserEntryInGroup((member) =>
+      this.next(ListHelper.AddOrUpdate(this.Members, member, 'id'))
     );
-    this.onMemberRemoved((member) =>
+    var sub2 = this.onMemberRemoved((member) =>
       this.next(ListHelper.TryRemove(this.Members, 'id', member.memberId))
     );
-    this.onMemberChangePicture(value =>{
-      ListHelper.UpdateField(this.Members,'id',value.memberId,'pictureSource',this.setImageUrl(value.pictureSource))
+    var sub2 = this.onMemberChangePicture((value) => {
+      ListHelper.UpdateField(
+        this.Members,
+        'id',
+        value.memberId,
+        'pictureSource',
+        this.setImageUrl(value.pictureSource)
+      );
     });
+    console.warn("Subscriptions without finish")
   }
-  private onMemberRemoved(
-    handler: (data: { memberId: string; groupId: string }) => void
-  ) {
-    this.ws.On('group/member', 'delete').Do((x) => handler(x.data));
-  }
-  private onUserEntryInGroup(handler: (GroupMember: GroupMember) => void) {
-    this.ws.On('group/member', 'post').Do((x) => handler(x.data));
-  }
-
 
   public addFriendInGroup(friendId: string, groupId: string) {
     this.ws.sendMessageServer({
@@ -88,21 +84,6 @@ export class GroupMemberService {
     this.CurrentMembers.next(GroupMembers);
   }
 
-  public onMemberChangePicture(
-    handler: (data: {
-      groupId: string;
-      memberId: string;
-      pictureSource: string;
-    }) => void
-  ): void {
-    this.ws
-      .On('group/member/change/picture', 'put')
-      .Do((x) => {
-        console.log(`Data received : ${x.data}`);
-        handler(x.data);
-      });
-  }
-
   private nextCurrentMember(groupId: string): Observable<void> {
     return this.http
       .get<GroupMember>(`${this.apiBaseUrl}/self/${groupId}`)
@@ -132,5 +113,30 @@ export class GroupMemberService {
     } else {
       return relativePath;
     }
+  }
+
+  private onMemberRemoved(
+    handler: (data: { memberId: string; groupId: string }) => void
+  ): Subscription {
+    return this.ws.On('group/member', 'delete').Build<any>((x) => handler(x));
+  }
+  private onUserEntryInGroup(
+    handler: (GroupMember: GroupMember) => void
+  ): Subscription {
+    return this.ws
+      .On('group/member', 'post')
+      .Build<GroupMember>((x) => handler(x));
+  }
+
+  public onMemberChangePicture(
+    handler: (data: {
+      groupId: string;
+      memberId: string;
+      pictureSource: string;
+    }) => void
+  ): Subscription {
+    return this.ws.On('group/member/change/picture', 'put').Build<any>((x) => {
+      handler(x);
+    });
   }
 }

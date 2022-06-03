@@ -46,7 +46,7 @@ namespace Salky.WebSocket.Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="class"></param>
-        /// <returns>All <see cref="MethodInfo"/> of a <paramref name="class"/> where <see cref="MethodInfo"/> contains a <see cref="Attribute"/> of type <typeparamref name="T"/> </returns>
+        /// <returns>All <see cref="MethodInfo"/> of a <see langword="class"/> where <see cref="MethodInfo"/> contains a <see cref="Attribute"/> of type <typeparamref name="T"/> </returns>
         public static MethodInfo[] GetMethodsWithAtribute<T>(this Type @class)
         {
             return

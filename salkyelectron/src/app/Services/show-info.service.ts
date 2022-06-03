@@ -87,21 +87,21 @@ export class ShowInfoService {
     };
   }
 
-  public show(Title :string ,message: string,buttons?: ShowInfoButton[]) {
-    this.control?.Show(message, Title,buttons);
+  public show(Title :string ,message: string,buttons?: ShowInfoButton[],CanClickOutToClose = true) {
+    this.control?.Show(message, Title,buttons ?? [],CanClickOutToClose);
   }
 
-  public showMsg(Title :string,message: string) {
-    this.show(Title,message, this.Styles['default'].btns);
+  public showMsg(Title :string,message: string,CanClickOutToClose = true) {
+    this.show(Title,message, this.Styles['default'].btns,CanClickOutToClose);
   }
 
-  public showStyle(Title :string,styleName:string) {
+  public showStyle(Title :string,styleName:string,CanClickOutToClose = true) {
     var style = this.Styles[styleName];
-    this.show(Title,style.message, style.btns);
+    this.show(Title,style.message, style.btns,CanClickOutToClose);
   }
-  public showStyleWithOtherMsg(Title :string,message: string,styleName: string,) {
+  public showStyleWithOtherMsg(Title :string,message: string,styleName: string,CanClickOutToClose = true) {
     var style = this.Styles[styleName];
-    this.show(Title,message,style.btns);
+    this.show(Title,message,style.btns,CanClickOutToClose);
   }
 
   public hide() {

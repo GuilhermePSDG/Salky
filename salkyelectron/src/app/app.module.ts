@@ -29,7 +29,7 @@ import { AppComponent } from './app.component';
     MatSliderModule,
     MatGridListModule,
     BrowserModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [
     AudioService,

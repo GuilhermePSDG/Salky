@@ -35,7 +35,7 @@ namespace Salky.Domain.Repositories
 
         public async Task<MessageGroup?> GetById(Guid id)
         {
-            return await GetBaseQuery(true).SingleOrDefaultAsync(q => q.Id.Equals(id));
+            return await GetBaseQuery(true).FirstOrDefaultAsync(q => q.Id.Equals(id));
         }
 
     }

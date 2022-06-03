@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ChatBoxComponent } from './Components/chat-box/chat-box.component';
+import { MainComponent } from './main/main.component';
+import { LogoutComponent } from './Components/logout/logout.component';
 import { FriendsComponent } from './Components/friends/friends.component';
-import { MainComponent } from './Components/main/main.component';
-import { LogoutComponent } from './Components/Shared/user/logout/logout.component';
 
 const routes: Routes = [
   {

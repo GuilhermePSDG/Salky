@@ -62,7 +62,7 @@ namespace Salky.Domain.Repositories
 
         public async Task<Friend?> GetById(Guid userId, Guid FriendId, bool IncludeAll)
         {
-            return await Query(IncludeAll).SingleOrDefaultAsync(
+            return await Query(IncludeAll).FirstOrDefaultAsync(
                 x => x.Id == FriendId && (x.RequestedById == userId || x.RequestedToId == userId)
                 );
         }

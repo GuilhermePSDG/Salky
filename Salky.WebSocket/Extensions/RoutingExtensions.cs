@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Salky.WebSocket.Handler;
-using Salky.WebSocket.Infra;
 using Salky.WebSocket.Infra.Interfaces;
 
 

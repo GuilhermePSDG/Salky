@@ -95,7 +95,7 @@ namespace Salky.API
        
         public static IServiceCollection InjectRequiredSalkyWebSocketDependencys(this IServiceCollection services)
         {
-            services.AddScoped<IValidateToken, TokenService>();
+            services.AddScoped<IDoHttpHandshake, HttpWebSocketHandShaker>();
             return services;
         }
 

@@ -39,7 +39,6 @@ export class AudioService {
     if (!started || !this.mediaRecorder)
       throw new Error('Cannot start audio service');
     this.isStoped = false;
-    console.log('call started');
     while (true) {
       if (!this.isStoped) {
         this.mediaRecorder.start();
@@ -50,6 +49,7 @@ export class AudioService {
   }
 
   private isStoped = false;
+
   public STOP() {
     this.isStoped = true;
   }

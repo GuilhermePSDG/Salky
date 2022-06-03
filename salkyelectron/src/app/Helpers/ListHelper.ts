@@ -33,14 +33,12 @@ export class ListHelper {
     fieldToUpdateValue: any
   ): T[] {
     var i = source.findIndex((x) => x[fieldComparer] == FieldComparerValue);
-    if (i === -1) {
-      throw new Error('Element not found');
-    } else {
+    if (i !== -1) {
       source[i][fieldToupdate] = fieldToUpdateValue;
     }
     return source;
   }
-  public static Any<T>(source : T[],comparer : (data : T) => boolean){
-    return source.findIndex(x => comparer(x)) !== -1;
+  public static Any<T>(source: T[], comparer: (data: T) => boolean) {
+    return source.findIndex((x) => comparer(x)) !== -1;
   }
 }

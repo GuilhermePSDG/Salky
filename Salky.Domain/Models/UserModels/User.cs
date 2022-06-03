@@ -53,19 +53,7 @@ namespace Salky.Domain.Models.UserModels
             this.PictureSource = PictureSource;
             @event = new UserPictureChanged(this.Id,PictureSource);
         }
-
-        [NotMapped]
-        public virtual List<Friend> Friends
-        {
-            get
-            {
-                return SentFriendRequests
-                    .Where(x => x.Approved)
-                    .Concat(ReceievedFriendRequests.Where(x => x.Approved))
-                    .ToList();
-            }
-        }
-
+        
         public string PassWordHash { get; set; }
     }
 }

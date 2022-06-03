@@ -16,6 +16,8 @@
 
         private bool _MicroFoneMuted;
 
+        public bool CanTalk => !MicroFoneMuted && !HeadPhoneMuted;
+        public bool CanHear => !HeadPhoneMuted;
 
 
         public bool HeadPhoneMuted { get; set; }

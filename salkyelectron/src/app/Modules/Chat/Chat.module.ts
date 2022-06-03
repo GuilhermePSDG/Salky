@@ -1,24 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MainComponent } from './Components/main/main.component';
-import { GifComponent } from './Components/Shared/gif/gif.component';
-import { CallComponent } from './Components/Shared/call/call.component';
-import { ModalComponent } from './Components/Shared/modal/modal.component';
+import { MainComponent } from './main/main.component';
 import { ChatBoxComponent } from './Components/chat-box/chat-box.component';
-import { EmojisComponent } from './Components/Shared/emojis/emojis.component';
-import { AddGroupComponent } from './Components/Shared/AddGroup/add-group.component';
-import { RoundedPictureComponent } from './Components/Shared/Picture/rounded-picture.component';
-import { ContactsListComponent } from './Components/Shared/contacts-list/contacts-list.component';
-import { ScrenCaptureComponent } from './Components/Shared/scren-capture/scren-capture.component';
-import { MessageRenderComponent } from './Components/Shared/message-render/message-render.component';
-import { SendMessageBoxComponent } from './Components/Shared/send-message-box/send-message-box.component';
-import { AddGroupFormComponent } from './Components/Shared/add-group-form/add-group-form.component';
-import { SearchUserComponent } from './Components/Shared/search-user/search-user.component';
-import { GroupMemberListComponent } from './Components/Shared/group-members-list/group-members-list.component';
-import { AddUserInGroupComponent } from './Components/Shared/add-user-in-group/add-user-in-group.component';
-import { FriendsComponent } from './Components/friends/friends.component';
-import { FriendListComponent } from './Components/Shared/friend-list/friend-list.component';
+import { ContactsListComponent } from './Components/left-bar/left-bar.component';
+import { AddGroupFormComponent } from './Components/add-group-form/add-group-form.component';
+import { AddUserInGroupComponent } from './Components/add-user-in-group/add-user-in-group.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,7 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { LogoutComponent } from './Components/Shared/user/logout/logout.component';
+import { LogoutComponent } from './Components/logout/logout.component';
 import { MicrofoneComponent } from 'src/app/Components/Shared/Buttons/Call/microfone/microfone.component';
 import { HeadSetComponent } from 'src/app/Components/Shared/Buttons/Call/head-set/head-set.component';
 import { ConfigButtonComponent } from 'src/app/Components/Shared/Buttons/Config/config-button/config-button.component';
@@ -41,6 +28,19 @@ import { ToggleComponent } from 'src/app/Components/Shared/Buttons/toggle/toggle
 import { ContextMenuComponent } from 'src/app/Components/Shared/context-menu/context-menu.component';
 import { LeaveComponent } from 'src/app/Components/Shared/Buttons/User/leave/leave.component';
 import { ChatRoutingModule } from './Chat-routing.module';
+import { CallComponent } from './Components/call/call.component';
+import { EmojisComponent } from './Components/emojis/emojis.component';
+import { FriendListComponent } from './Components/friend-list/friend-list.component';
+import { GifComponent } from './Components/gif/gif.component';
+import { GroupMemberListComponent } from './Components/group-members-list/group-members-list.component';
+import { MessageRenderComponent } from './Components/message-render/message-render.component';
+import { ModalComponent } from './Components/modal/modal.component';
+import { RoundedPictureComponent } from './Components/Picture/rounded-picture.component';
+import { ScrenCaptureComponent } from './Components/scren-capture/scren-capture.component';
+import { SearchUserComponent } from './Components/search-user/search-user.component';
+import { SendMessageBoxComponent } from './Components/send-message-box/send-message-box.component';
+import { AddGroupComponent } from './Components/add-friend-or-group/add-friend-or-group.component';
+import { FriendsComponent } from './Components/friends/friends.component';
 
 @NgModule({
   imports: [
@@ -79,7 +79,6 @@ import { ChatRoutingModule } from './Chat-routing.module';
     SearchUserComponent,
     GroupMemberListComponent,
     AddUserInGroupComponent,
-    FriendsComponent,
     FriendListComponent,
     DeleteComponent,
     AcceptComponent,
@@ -88,6 +87,7 @@ import { ChatRoutingModule } from './Chat-routing.module';
     ToggleComponent,
     ContextMenuComponent,
     LeaveComponent,
+    FriendsComponent
   ],
 })
 export class ChatModule {}

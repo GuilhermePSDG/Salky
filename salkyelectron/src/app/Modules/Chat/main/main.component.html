@@ -1,0 +1,8 @@
+
+<app-show-info></app-show-info>
+<div class="main">
+  <app-left-bar *ngIf="canShowUserList()"></app-left-bar>
+  <div class="centredBox">
+    <router-outlet></router-outlet>
+  </div>
+</div>
