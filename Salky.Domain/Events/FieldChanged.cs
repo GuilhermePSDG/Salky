@@ -9,8 +9,8 @@
             this.FieldName = FieldName;
         }
 
-        public Guid Id { get; set; }
-        public FieldValueType Value { get; set; }
+        public Guid Id { get; }
+        public FieldValueType Value { get;}
         public string FieldName { get; }
     }
 }

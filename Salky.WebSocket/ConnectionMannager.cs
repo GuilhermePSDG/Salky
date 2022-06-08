@@ -34,7 +34,6 @@ public class ConnectionMannager : IConnectionManager
 
     #region Properties
 
-
     public void PrintDeep(string tab = "")
     {
         Console.WriteLine($"{tab}Id : {this.ConnectionPoolId} - Connections : {this.ConnectionsCount} - Childrens Mannagers : {this.PoolsCount}");

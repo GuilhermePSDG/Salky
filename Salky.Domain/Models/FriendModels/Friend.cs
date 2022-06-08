@@ -15,28 +15,28 @@ namespace Salky.Domain.Models.FriendModels
         /// Is who start the relationship
         /// </summary>
         [Column(Order = 0)]
-        public Guid RequestedById { get; set; }
+        public Guid RequestedById { get; private set; }
         /// <summary>
         /// Is who will receive the request of the relationship
         /// </summary>
         [Column(Order = 1)]
-        public Guid RequestedToId { get; set; }
+        public Guid RequestedToId { get; private set; }
         /// <summary>
         /// Is who start the relationship
         /// </summary>
-        public virtual User RequestedBy { get; set; }
+        public virtual User RequestedBy { get; private set; }
         /// <summary>
         /// Is who will receive the request of the relationship
         /// </summary>
-        public virtual User RequestedTo { get; set; }
+        public virtual User RequestedTo { get; private set; }
 
-        public List<FriendMessage> Messages { get; set; }
+        public List<FriendMessage> Messages { get; private set; }
         
-        public DateTime? RequestTime { get; set; }
+        public DateTime? RequestTime { get; private set; }
 
-        public DateTime? BecameFriendsTime { get; set; }
+        public DateTime? BecameFriendsTime { get; private set; }
 
-        public RelationShipStatus FriendRequestFlag { get; set; }
+        public RelationShipStatus FriendRequestFlag { get; private set; }
 
         [NotMapped]
         public bool Approved => FriendRequestFlag == RelationShipStatus.Approved;
@@ -72,10 +72,7 @@ namespace Salky.Domain.Models.FriendModels
             }
         }
 
-        public bool CanInteractBetween()
-        {
-            return FriendRequestFlag == RelationShipStatus.Approved;
-        }
+        public bool CanInteractBetween() => FriendRequestFlag == RelationShipStatus.Approved;
 
         public User GetUserOfFriendDiferentOf(Guid UserId)
         {
@@ -116,13 +113,12 @@ namespace Salky.Domain.Models.FriendModels
         public bool TryReturnToPending(Guid userId)
         {
             if (FriendRequestFlag != RelationShipStatus.Removed && FriendRequestFlag != RelationShipStatus.Canceled && FriendRequestFlag != RelationShipStatus.Rejected) return false;
-            //Então.. aqui tem que inverter.. não tenho certeza se irá gerar problemas futuros
             if(this.RequestedById != userId)
             {
                 this.RequestedToId = this.RequestedById;
                 this.RequestedById = userId;
-                this.RequestedBy = null;
                 this.RequestedTo = null;
+                this.RequestedBy = null;
             }
             this.FriendRequestFlag = RelationShipStatus.Pending;
             this.RequestTime = DateTime.UtcNow;

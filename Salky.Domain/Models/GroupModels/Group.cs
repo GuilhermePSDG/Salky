@@ -47,21 +47,11 @@ namespace Salky.Domain.Models.GroupModels
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="groupMember"></param>
-        /// <param name="message"></param>
-        /// <returns><see langword="true"/> if can add, otherwise <see langword="false"/> </returns>
-        /// <exception cref="InvalidOperationException"></exception>
+  
         public bool MemberCanDeleteMessage(GroupMember groupMember, MessageGroup message, [NotNullWhen(true)]out MessageGroupRemoved? @event)
         {
             @event = null;
-            //Se não é o mesmo grupo  -> false
             if (groupMember.GroupId != Id || message.GroupId != Id) return false;
-            //Se quem fez o envio é quem quer deletar -> true
-            //Se o dono do grupo quer remover -> true
-            //Se as roles permitem -> true
             if (
                 message.SenderId == groupMember.UserId || 
                 groupMember.UserId == OwnerId || 
@@ -99,38 +89,39 @@ namespace Salky.Domain.Models.GroupModels
             if (member.Role.GroupPermissions.CanEditGroupPicture) return true;
             return false;
         }
-
-        public bool MemberCanRemoveTheOther(GroupMember MemberWhoWantRemove, GroupMember MemberToRemove, [NotNullWhen(true)] out GroupMemberRemoved? @event)
+        public bool TryRemoveMember(Guid UserIdOfWhoWantRemove, Guid MemberToRemoveId, [NotNullWhen(true)] out GroupMemberRemoved? @event)
         {
             @event = null;
-            //Se não é o mesmo grupo  -> false
+            var MemberWhoWantRemove = this.Members.Single(x => x.UserId == UserIdOfWhoWantRemove);
+            var MemberToRemove = this.Members.Single(x => x.Id == MemberToRemoveId);
+            if (MemberCanRemoveTheOther(MemberWhoWantRemove, MemberToRemove))
+            {
+                if (!this.Members.Remove(MemberToRemove)) return false;
+                @event = new GroupMemberRemoved(MemberToRemove);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool MemberCanRemoveTheOther(GroupMember MemberWhoWantRemove, GroupMember MemberToRemove)
+        {
             if (MemberWhoWantRemove.GroupId != this.Id || MemberToRemove.GroupId != this.Id) return false;
-            //Se for para remover for o dono -> false
             if(MemberToRemove.UserId == OwnerId) return false;
-            //Se quer remover a si mesmo -> true
-            //Se quem quer remover for o dono -> true
-            //Se a role permite remoção -> true
             if (
                 MemberWhoWantRemove.UserId == MemberToRemove.UserId || 
                 MemberWhoWantRemove.UserId == this.OwnerId || 
                 MemberWhoWantRemove.Role.GroupPermissions.CanRemoveOtherUsers
                 )
             {
-                @event = new GroupMemberRemoved(MemberToRemove);
                 return true;
             }
-            //Se não false
             return false;
         }
 
 
-        /// <summary>
-        /// This method do not add <see cref="GroupMember"/> in the <see cref="Members"/> list
-        /// </summary>
-        /// <param name="UserId"></param>
-        /// <param name="UserToAddId"></param>
-        /// <returns><see langword="true"/> if can add, otherwise <see langword="false"/> </returns>
-        /// <exception cref="InvalidOperationException"></exception>
         private bool MemberCanAddOtherMember(Guid UserId,Guid UserToAddId)
         {
             if (Members.Count == 0) throw new InvalidOperationException($"{nameof(Group.Members)} is required for this method");
@@ -143,28 +134,26 @@ namespace Salky.Domain.Models.GroupModels
 
 
         /// <summary>
-        /// 
         /// </summary>
-        /// <param name="whoWillAddTheOtherUser"></param>
-        /// <param name="userToAddId"></param>
-        /// <returns><see cref="Group"/> if can create , otherwise <see langword="null"/> </returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public GroupMember? TryCreateNewMember(Guid whoWillAddTheOtherUser,Guid userToAddId,out GroupMemberAdded? @event)
+        public bool TryAddNewMember(Guid whoWillAddTheOtherUser,Guid userToAddId,[NotNullWhen(true)]out GroupMemberAdded? @event, [NotNullWhen(true)] out GroupMember? newMember)
         {
-            @event = null;
+
             if (MemberCanAddOtherMember(whoWillAddTheOtherUser,userToAddId))
             {
                 var role = this.GroupRoles.OrderBy(x => x.Hierarchy).Last();
                 if (role.Hierarchy <= 1) throw new InvalidOperationException("No such roles");
-                var member = GroupMember.Create(this.Id, userToAddId, role);
-                this.Members.Add(member);
-                role.MemberWithRoles.Add(member);
-                @event = new GroupMemberAdded(member);
-                return member;
+                newMember = GroupMember.Create(this.Id, userToAddId, role);
+                this.Members.Add(newMember);
+                role.MemberWithRoles.Add(newMember);
+                @event = new GroupMemberAdded(newMember);
+                return true;
             }
             else
             {
-                return null;
+                @event = null;
+                newMember = null;
+                return false;
             }
 
         }
@@ -185,7 +174,7 @@ namespace Salky.Domain.Models.GroupModels
 
             return false;
         }
-
+      
         public static Group Create(Guid creatorId, string GroupName, out GroupCreated @event)
         {
 
@@ -222,14 +211,17 @@ namespace Salky.Domain.Models.GroupModels
         /// <returns><see langword="true"/> if changed, otherwise <see langword="false"/></returns>
         public bool ChangeName(Guid WhoWantChangeTheName, string newGroupName,[NotNullWhen(true)] out GroupNameChanged? @event)
         {
-            @event = null;
             if (WhoWantChangeTheName == this.OwnerId)
             {
                 this.Name = newGroupName;
                 @event = new GroupNameChanged(this.Id, this.Name);
                 return true;
             }
-            return false;
+            else
+            {
+                @event = null;
+                return false;
+            }
         }
         /// <summary>
         /// 

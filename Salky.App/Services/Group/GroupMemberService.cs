@@ -74,8 +74,7 @@ namespace Salky.App.Services.Group
         {
             var group = await groupRepository.GetGroupByIdWithMembersWithTracking(GroupId);
             if (group == null) return null;
-            var newMember = group.TryCreateNewMember(CurrentUserId, UserToAddInGroupId, out var @event);
-            if (newMember != null && @event != null)
+            if (group.TryAddNewMember(CurrentUserId, UserToAddInGroupId, out var @event, out var newMember))
             {
                 await groupRepository.EnsureSaveChangesAsync();
                 var memberToReturn = await memberRepo.GetMemberByUserId(UserToAddInGroupId, GroupId) ?? throw new NullReferenceException();
@@ -89,13 +88,10 @@ namespace Salky.App.Services.Group
         {
             var MemberToRemove = await memberRepo.GetMemberById(MemberToRemoveId);
             if (MemberToRemove == null) return null;
-            var MemberWhoWantRemove = await memberRepo.GetMemberByUserId(UserId, MemberToRemove.GroupId);
-            if (MemberWhoWantRemove == null) return null;
-            var group = await groupRepository.GetGroupByIdWithRolesAndConfig(MemberWhoWantRemove.GroupId) ?? throw new InvalidOperationException($"A {nameof(GroupMember)} cannot exist without a {nameof(Group)}");
-            if (group.MemberCanRemoveTheOther(MemberWhoWantRemove, MemberToRemove, out var @event))
+            var group = await groupRepository.GetGroupByIdWithMembersWithTracking(MemberToRemove.GroupId) ?? throw new InvalidOperationException($"A {nameof(GroupMember)} cannot exist without a {nameof(Group)}");
+            if(group.TryRemoveMember(UserId,MemberToRemoveId,out var @event))
             {
-                memberRepo.Remove(MemberToRemove);
-                await memberRepo.EnsureSaveChangesAsync();
+                await groupRepository.EnsureSaveChangesAsync();
                 dispatcher.Raise(@event);
                 return mapper.Map<GroupMemberDto>(MemberToRemove);
             }

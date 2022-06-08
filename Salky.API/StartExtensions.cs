@@ -64,7 +64,6 @@ namespace Salky.API
             return builder.UsePostGress<T>(conStr);
         }
 
-
         public static WebApplicationBuilder UseHerokuPostGress<T>(this WebApplicationBuilder builder) where T : DbContext
         {
             return builder.UsePostGress<T>(Environment.GetEnvironmentVariable("DATABASE_URL") ?? throw new InvalidOperationException("Cannot Found ConnectionString In Environment Variables"));
@@ -98,7 +97,6 @@ namespace Salky.API
             services.AddScoped<IDoHttpHandshake, HttpWebSocketHandShaker>();
             return services;
         }
-
 
         public static IApplicationBuilder UseSalkyWebSocket(this IApplicationBuilder app)
         {
