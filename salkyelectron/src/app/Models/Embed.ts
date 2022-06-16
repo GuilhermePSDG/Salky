@@ -1,4 +1,12 @@
 export interface Embed {
   content: string;
-  renderType: 'any' | 'text' | 'url' | 'emoji' | 'youtubeEmbed' | 'gif';
+  type: EmbedType;
+}
+
+export enum EmbedType {
+  UNKNOW,
+  EMOJI,
+  URL,
+  URL_YOUTUBE_EMBED,
+  URL_GIPHY
 }

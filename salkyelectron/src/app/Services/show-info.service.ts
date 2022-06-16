@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  ShowInfoButton,
-  ShowInfoComponent,
-  ShowInfoControl,
-} from '../Components/Shared/show-info/show-info.component';
+import { ShowInfoButton, ShowInfoControl } from '../Components/show-info/show-info.component';
 
 @Injectable({
   providedIn: 'root',
@@ -63,10 +59,6 @@ export class ShowInfoService {
         ],
         message: 'Mensagem padrão.',
       }
-
-
-
-
     };
   }
 

@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Salky.WebSocket.Extensions;
 
-public static class WebSocketExtensions
+internal static class Extensions
 {
-    
+    public static bool IsInternalMethod(this Method method) => (int)method < 0;
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Salky.Domain.Contexts;
 
@@ -10,9 +11,10 @@ using Salky.Domain.Contexts;
 namespace Salky.Domain.Migrations
 {
     [DbContext(typeof(SalkyDbContext))]
-    partial class SalkyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220616104046_indexes")]
+    partial class indexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.4");

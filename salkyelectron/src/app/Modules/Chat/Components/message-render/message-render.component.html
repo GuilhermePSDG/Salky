@@ -1,27 +1,18 @@
 <div class="anyrendermain {{this.isHighLight ? 'high-ligh' : ''}}">
-  <div [ngSwitch]="embed.renderType" *ngFor="let embed of msg.embeds">
-    <img *ngSwitchCase="'gif'" class="imgS" [src]="this.imgSource" />
+  <div [ngSwitch]="embed.type" *ngFor="let embed of msg.embeds">
+    <img *ngSwitchCase="'URL_GIPHY'" class="imgS" [src]="this.imgSource" />
 
-    <a
-    class="hyperLink"
-      *ngSwitchCase="'url'"
-      (click)="this.NavigateUrl(embed.content)"
-    >
-    {{embed.content}}
+    <a class="hyperLink" *ngSwitchCase="'URL'" (click)="this.NavigateUrl(embed.content)">
+      {{embed.content}}
     </a>
-    <span *ngSwitchCase="'text'">
+    <span *ngSwitchCase="'UNKNOW'">
       {{ embed.content }}
     </span>
 
-    <span class="emoji" *ngSwitchCase="'emoji'">
+    <span class="emoji" *ngSwitchCase="'EMOJI'">
       {{ embed.content }}
     </span>
   </div>
 </div>
-<iframe
-  *ngIf="this.youtubeEmbedUrl"
-  class="yotubeembed"
-  [src]="this.youtubeEmbedUrl"
-  allowfullscreen
->
+<iframe *ngIf="this.youtubeEmbedUrl" class="yotubeembed" [src]="this.youtubeEmbedUrl" allowfullscreen>
 </iframe>

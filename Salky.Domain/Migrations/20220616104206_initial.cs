@@ -26,7 +26,7 @@ namespace Salky.Domain.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 32, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "TEXT", nullable: false),
                     PictureSource = table.Column<string>(type: "TEXT", nullable: false),
                     Visibility = table.Column<int>(type: "INTEGER", nullable: false),
@@ -364,6 +364,11 @@ namespace Salky.Domain.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MessagesGroup_SenderId_GroupId",
+                table: "MessagesGroup",
+                columns: new[] { "SenderId", "GroupId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
                 table: "Notifications",
                 column: "UserId");
@@ -372,6 +377,11 @@ namespace Salky.Domain.Migrations
                 name: "IX_Transference_GroupId",
                 table: "Transference",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_NormalizedUserName",
+                table: "Users",
+                column: "NormalizedUserName");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -30,13 +30,15 @@ export class GroupService {
 
   eventsStarted = false;
   SubscribeEvents() {
-    if(this.eventsStarted) return;
+    console.log("okaskdokoasd")
+    if (this.eventsStarted) return;
     this.eventsStarted = true;
 
     var sub1 = this.onGroupNameChanged((x) =>
       this.ChangeFieldOfGroup(x.groupId, 'name', x.newGroupName)
     );
     var sub2 = this.onGroupDeleted((groupId) => {
+      console.log("removing group")
       this.removeGroup(groupId);
       if (this.router.url.includes(groupId)) {
         this.router.navigateByUrl('');
@@ -48,10 +50,10 @@ export class GroupService {
     var sub5 = this.onPictureChanged((q) =>
       this.ChangeFieldOfGroup(q.id, 'pictureSource', this.setImageUrl(q.value))
     );
-    this.subs.push(sub1,sub2,sub3,sub4,sub5);
+    this.subs.push(sub1, sub2, sub3, sub4, sub5);
   }
-  subs : Subscription[] = [];
-  UnsubscribeEvents(){
+  subs: Subscription[] = [];
+  UnsubscribeEvents() {
     this.eventsStarted = false;
     this.subs.forEach(x => x.unsubscribe());
   }
@@ -135,7 +137,10 @@ export class GroupService {
   private removeGroup(id: string) {
     var i = this.groups.findIndex((x) => x.id === id);
     if (i !== -1) {
+      console.log("GROUP REMOVED")
       this.groups.splice(i, 1);
+    } else {
+      console.log("GROUP NOT FOUND")
     }
   }
 
@@ -152,7 +157,7 @@ export class GroupService {
 
   //#region Events
 
-  private onUserAddedInGroup(handler: (group: Group) => void) : Subscription {
+  private onUserAddedInGroup(handler: (group: Group) => void): Subscription {
     return this.ws.On('group/member/added', 'post').Build<any>((x) => {
       handler(x);
     });
@@ -179,7 +184,7 @@ export class GroupService {
     return this.ws.On('group/create', 'post').Build<Group>((x) => handler(x));
   }
   private onGroupDeleted(handler: (groupId: string) => void): Subscription {
-    return this.ws.On('group', 'delete').Build<string>((x) => handler(x));
+    return this.ws.On('group', 'delete').Build<any>((x) =>handler(x));
   }
   //#endregion
 }

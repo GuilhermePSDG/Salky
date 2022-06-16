@@ -12,7 +12,6 @@ export class AddGroupFormComponent implements OnInit {
   @Output() OnComplete = new EventEmitter<boolean>();
   value: string = '';
   constructor(
-    private storage: StorageService,
     private groupService: GroupService,
     private router: Router
   ) {}
@@ -22,9 +21,10 @@ export class AddGroupFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.groupService.onGroupCreated((x) => {
+    var sub = this.groupService.onGroupCreated((x) => {
       this.OnComplete.emit(true);
       this.router.navigateByUrl('/main/group/' + x.id);
+      sub.unsubscribe();
     });
   }
   public CreateGroup() {

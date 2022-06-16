@@ -41,17 +41,10 @@ export class AddUserInGroupComponent implements OnInit {
     this.onClickOutElement('.mainAddUserInGroup', () => this.hide());
     this.initFriends();
   }
+
   ngAfterViewInit(): void {}
 
-  isVisible(elem: any): boolean {
-    return (
-      !!elem &&
-      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
-    );
-  }
-
-  public extractOtherUserOfFriend(friend: Friend) {}
-
+  
   public addFriendInGroup(friend: Friend) {
     console.log('addFriendInGroup(friend : Friend)');
     if (!this.GroupId) return;

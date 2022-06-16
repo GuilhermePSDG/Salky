@@ -1,13 +1,8 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
   Component,
-  ComponentFactoryResolver,
   HostListener,
   OnInit,
 } from '@angular/core';
-import { ShowInfoComponent } from './Components/Shared/show-info/show-info.component';
-import { ShowInfoService } from './Services/show-info.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

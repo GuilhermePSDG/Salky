@@ -7,6 +7,7 @@ import {
   SafeUrl,
 } from '@angular/platform-browser';
 import { take } from 'rxjs';
+import { EmbedType } from 'src/app/Models/Embed';
 import { Message } from 'src/app/Models/Message';
 import { ShowInfoService } from 'src/app/Services/show-info.service';
 
@@ -26,9 +27,10 @@ export class MessageRenderComponent implements OnInit {
     private domSaniter: DomSanitizer,
     private http: HttpClient,
     private show: ShowInfoService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    console.log(this.msg);
     if (this.msg.content.startsWith('##') && this.msg.content.endsWith('##')) {
       this.isHighLight = true;
       this.msg.embeds.forEach(
@@ -38,11 +40,11 @@ export class MessageRenderComponent implements OnInit {
     }
 
     this.msg.embeds.forEach((x) => {
-      if (x.renderType === 'gif') {
+      if (x.type === EmbedType.URL_GIPHY) {
         this.imgSource = this.sanitizeURL(x.content);
-      } else if (x.renderType === 'youtubeEmbed') {
+      } else if (x.type === EmbedType.URL_YOUTUBE_EMBED) {
         this.youtubeEmbedUrl = this.sanitizeURL(x.content);
-      } else if (x.renderType === 'url') {
+      } else if (x.type === EmbedType.URL) {
       } else {
       }
     });

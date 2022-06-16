@@ -123,7 +123,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
                     return;
                 }
-                if (usr.AudioState.CanTalk)
+                if (!usr.AudioState.CanTalk)
                 {
                     await SendErrorBack(CurrentPath, "Usuario está mutado.");
                     return;
@@ -193,6 +193,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             usrCall.AudioState = userUiInfo;
             if (usrCall.IsInCall && usrCall.GroupId != null)
                 await GetPool(usrCall.GroupId).SendToAll(CurrentPath, Method.PUT, usrCall);
+            Storage.AddOrUpdate(usrCall);
         }
 
     }

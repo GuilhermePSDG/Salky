@@ -10,10 +10,6 @@ import { CallService } from 'src/app/Services/call.service';
 export class HeadSetComponent implements OnInit {
 
   constructor(public callService: CallService) {}
-
-
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
 }

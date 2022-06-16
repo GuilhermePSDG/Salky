@@ -4,16 +4,18 @@ import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 
 @Component({
   selector: 'NO-SELECTOR',
-  template:'',
-  styles:['']
+  template: '',
+  styles: ['']
 })
 export class LogoutComponent implements OnInit {
 
-  constructor(private router : Router, private chatService: SalkyWebSocket) { }
+  constructor(private router: Router, private chatService: SalkyWebSocket) { }
 
   ngOnInit(): void {
     console.log("LOGOUT PAGE");
-    this.chatService.close();
+    try {
+      this.chatService.close();
+    }catch(e){};
     localStorage.clear()
     this.router.navigateByUrl("");
   }

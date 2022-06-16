@@ -1,12 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { User } from 'src/app/Models/Users/User';
-import { GroupMember } from 'src/app/Models/Users/UserGroup';
 import { FriendService } from 'src/app/Services/friend.service';
-import { GroupService } from 'src/app/Services/Group.service';
-import { StorageService } from 'src/app/Services/storage.service';
 import { UserService } from 'src/app/Services/UserService.service';
-import { map, take } from 'rxjs';
 import { Friend } from 'src/app/Models/Users/Friend';
 import { UserLogged } from 'src/app/Models/Users/UserLogged';
 
@@ -17,13 +12,10 @@ import { UserLogged } from 'src/app/Models/Users/UserLogged';
 })
 export class SearchUserComponent implements OnInit {
   friends: User[] = [];
-  loggedUser : UserLogged = {} as any;
+  loggedUser: UserLogged = {} as any;
   constructor(
     private userService: UserService,
     private friendService: FriendService,
-    private groupService: GroupService,
-    private storage: StorageService,
-    private router: Router
   ) {
     this.userService.currentUser$.subscribe({
       next: (usr) => (this.loggedUser = usr),
@@ -47,7 +39,7 @@ export class SearchUserComponent implements OnInit {
   locked = false;
   lockedReturn = false;
   lastSearch = '';
-  onInputUserKeyChanged(event: KeyboardEvent) {
+  onInputUserKeyChanged() {
     if (this.searchText === '') {
       this.SearchUserResult = [];
       return;
@@ -60,11 +52,8 @@ export class SearchUserComponent implements OnInit {
       this.lockedReturn = true;
       return;
     }
-
     this.locked = true;
-
     const usersFounds = this.userService.searchUser(this.searchText);
-
     this.lastSearch = this.searchText;
     usersFounds
       .subscribe({
@@ -80,7 +69,7 @@ export class SearchUserComponent implements OnInit {
         this.locked = false;
         if (this.lockedReturn) {
           this.lockedReturn = false;
-          this.onInputUserKeyChanged({} as KeyboardEvent);
+          this.onInputUserKeyChanged();
         }
       });
   }

@@ -11,7 +11,7 @@ using Salky.Domain.Contexts;
 namespace Salky.Domain.Migrations
 {
     [DbContext(typeof(SalkyDbContext))]
-    [Migration("20220526170857_initial")]
+    [Migration("20220616104206_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -223,6 +223,32 @@ namespace Salky.Domain.Migrations
                     b.ToTable("GroupConfig");
                 });
 
+            modelBuilder.Entity("Salky.Domain.Models.GroupModels.GroupMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupsUsers");
+                });
+
             modelBuilder.Entity("Salky.Domain.Models.GroupModels.GroupPermissions", b =>
                 {
                     b.Property<Guid>("Id")
@@ -304,33 +330,9 @@ namespace Salky.Domain.Migrations
 
                     b.HasIndex("GroupId");
 
+                    b.HasIndex("SenderId", "GroupId");
+
                     b.ToTable("MessagesGroup");
-                });
-
-            modelBuilder.Entity("Salky.Domain.Models.UserModels.GroupMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("GroupsUsers");
                 });
 
             modelBuilder.Entity("Salky.Domain.Models.UserModels.User", b =>
@@ -353,12 +355,15 @@ namespace Salky.Domain.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Visibility")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedUserName");
 
                     b.ToTable("Users");
                 });
@@ -446,6 +451,33 @@ namespace Salky.Domain.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Salky.Domain.Models.GroupModels.GroupMember", b =>
+                {
+                    b.HasOne("Salky.Domain.Models.GroupModels.Group", "Group")
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Salky.Domain.Models.GroupModels.GroupRole", "Role")
+                        .WithMany("MemberWithRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Salky.Domain.Models.UserModels.User", "User")
+                        .WithMany("Groups")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Salky.Domain.Models.GroupModels.GroupPermissions", b =>
                 {
                     b.HasOne("Salky.Domain.Models.GroupModels.GroupRole", "GroupRole")
@@ -477,33 +509,6 @@ namespace Salky.Domain.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("Salky.Domain.Models.UserModels.GroupMember", b =>
-                {
-                    b.HasOne("Salky.Domain.Models.GroupModels.Group", "Group")
-                        .WithMany("Members")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Salky.Domain.Models.GroupModels.GroupRole", "Role")
-                        .WithMany("MemberWithRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Salky.Domain.Models.UserModels.User", "User")
-                        .WithMany("Groups")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Salky.Domain.Models.FriendModels.Friend", b =>

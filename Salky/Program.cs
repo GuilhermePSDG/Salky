@@ -22,6 +22,7 @@ using Salky.Domain.Models.UserModels;
 using StackExchange.Redis;
 using Salky.WebSocket.Infra.Models;
 
+
 Console.WriteLine("Hello");
 
 var conR =  ConnectionMultiplexer.Connect("localhost:6379");

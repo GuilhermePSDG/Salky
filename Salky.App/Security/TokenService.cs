@@ -18,12 +18,13 @@ namespace Salky.App.Security
         {
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWTKEY") ?? throw new InvalidOperationException("Nenhum JWTKET token na variavel de ambiente")));
         }
-        public async Task<Token> CreateToken(User user)
+
+        public async Task<AuthToken> CreateToken(User user)
         {
             return await Task.FromResult(this.CreateToken(ClaimsFromUser(user)));
           
         }
-        public async Task<Token> CreateToken(User User, List<Claim> Claims)
+        public async Task<AuthToken> CreateToken(User User, List<Claim> Claims)
         {
             return await Task.FromResult(
                 this.CreateToken(
@@ -49,7 +50,7 @@ namespace Salky.App.Security
             return jwtToken.Claims.ToList();
         }
 
-        private Token CreateToken(List<Claim> Claims)
+        private AuthToken CreateToken(List<Claim> Claims)
         {
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
             var expireDate = DateTime.UtcNow.Add(TokenExpiresTime);
@@ -61,7 +62,7 @@ namespace Salky.App.Security
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescription);
-            return new Token(tokenHandler.WriteToken(token), expireDate);
+            return new AuthToken(tokenHandler.WriteToken(token), expireDate);
         }
         private List<Claim> ClaimsFromUser(User user)
         {
@@ -71,5 +72,6 @@ namespace Salky.App.Security
                 new Claim(ClaimTypes.Name, user.UserName)
             };
         }
+
     }
 }

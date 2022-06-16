@@ -67,7 +67,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     var pool = GetPool(removedMember.GroupId.ToString());
                     if(pool.TryRemoveSocket(removedMember.Id.ToString(), out var removedsock))
                     {
-                        await removedsock.SendMessageServer(new MessageServer("group", Method.DELETE, Status.Success));
+                        await removedsock.SendMessageServer(new MessageServer("group", Method.DELETE, Status.Success,data.GroupId));
                     }
                     await GetPool(removedMember.GroupId.ToString()).SendToAll(CurrentPath, Method.DELETE, data);
                 }

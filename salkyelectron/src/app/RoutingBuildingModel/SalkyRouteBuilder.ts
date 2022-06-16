@@ -14,10 +14,8 @@
 //     this.context = context;
 //   }
 
-import { Observable, Subject, Subscription } from 'rxjs';
-import { MessageServer } from '../Models/MessageWsServer';
+import { Subscription } from 'rxjs';
 import { SalkyWebSocket } from '../Services/SalykWsClient.service';
-import { RouteFunction } from './RouteFunction';
 
 //   public static Create(context: SalkyWebSocket): RouteBuilderOn {
 //     return new SalkyRouteBuilder(context);
@@ -76,16 +74,14 @@ import { RouteFunction } from './RouteFunction';
 // }
 
 interface RouteBuilderDo {
-  // Do(todo: (message: MessageServer) => void): void;
-  // Observe<T>() : Observable<T>
   Build<T>(next: (data: T) => void, error?: (err: any) => void): Subscription;
 }
 interface RouteBuilderOn {
   On(routeName: string, method: string): RouteBuilderDo;
 }
 export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
-  private routeName: string = 'UNKNOW';
-  private method: string = 'UNKNOW';
+  private routeName: string = '';
+  private method: string = '';
 
   context: SalkyWebSocket;
   private constructor(context: SalkyWebSocket) {
@@ -93,12 +89,13 @@ export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
   }
 
   Build<T>(next: (data: T) => void, error?: (err: any) => void): Subscription {
+    console.log(`registred : ${this.routeName} ${this.method}`)
     return this.context.OnMessageReceived.subscribe({
       next: (x) => {
         if (
-          x.path.toLocaleLowerCase() === this.routeName &&
+          x.path.toLowerCase() === this.routeName &&
           this.method === x.method.toLowerCase()
-        ){
+        ) {
           next(x.data);
         }
       },
@@ -107,7 +104,7 @@ export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
           error &&
           err.path.toLocaleLowerCase() === this.routeName &&
           this.method === err.method.toLowerCase()
-        ){
+        ) {
           error(err.data);
         }
       },

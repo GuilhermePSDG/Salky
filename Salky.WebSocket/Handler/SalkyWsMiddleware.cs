@@ -118,6 +118,42 @@ public partial class WebServerSocketMiddleware
             }
             (_connectionManager as ConnectionMannager).PrintDeep();
         }
+        else if (context.Request.Path.Equals("/ws/doc"))
+        {
+            var routes = RouteResolver.RouteDocs();
+            var style = @"<style>
+.card{
+    background:#f3f3f3;
+    padding:10px;
+    margin:15px;
+}
+</style>";
+            var template =
+@"
+<div class=""card"">
+    <p>Path : $Path</p>
+    <p>Method : $Method</p>
+    <p>Parameter : $ParameterType</p>
+    <p>Parameter Json : $ParameterJson</p>
+</div>
+";
+            var html = new StringBuilder();
+            html.Append(style);
+            html.Append(@"<div style=""display:flex;flex-wrap:wrap;"">");
+            foreach(var route in routes)
+            {
+                html.AppendLine(template
+                    .Replace($"${nameof(RouteResolver.RouteDoc.Path)}",route.Path)
+                    .Replace($"${nameof(RouteResolver.RouteDoc.Method)}",route.Method)
+                    .Replace($"${nameof(RouteResolver.RouteDoc.ParameterType)}",route.ParameterType)
+                    .Replace($"${nameof(RouteResolver.RouteDoc.ParameterJson)}", JsonSerializer.Serialize(route.ParameterJson))
+                    );
+            }
+            html.Append(@"</div>");
+
+            await context.Response.WriteAsync(html.ToString());
+
+        }
         else
         {
             await _next(context);

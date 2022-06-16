@@ -1,4 +1,4 @@
-global using Salky.App.Services;
+﻿global using Salky.App.Services;
 global using Salky.WebSocket.Infra.Models;
 global using Salky.WebSocket.Infra.Routing;
 global using Salky.WebSocket.Infra.Routing.Atributes;
@@ -25,6 +25,7 @@ using Salky.App.Services.User;
 using Salky.App.Services.Group;
 using Salky.App.Services.Friends;
 using MongoDB.Driver;
+using Salky.App.Services.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,11 +109,11 @@ builder.Services.UseSalkyWebSocketRouter();
 var app = builder.Build();
 
 
-Directory.CreateDirectory(ImageRepositoryConfig.FullPath);
+Directory.CreateDirectory(ImageServiceConfig.FullPath);
 app.UseStaticFiles(new StaticFileOptions()
 {
-    FileProvider = new PhysicalFileProvider(ImageRepositoryConfig.FullPath),
-    RequestPath = new PathString($"/{ImageRepositoryConfig.FolderName}"),
+    FileProvider = new PhysicalFileProvider(ImageServiceConfig.FullPath),
+    RequestPath = new PathString($"/{ImageServiceConfig.FolderName}"),
 });
 
 app.UseSalkyWebSocket();
@@ -126,6 +127,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
+
 }
 //app.MigrateDatabase<SalkyDbContext>();
 

@@ -4,7 +4,6 @@ import { first, map, Observable, Subscription, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Message } from '../Models/Message';
 import { MessageAdd } from '../Models/MessageAdd';
-import { MessageStatus } from '../Models/MessageWsServer';
 import { PaginationResult } from '../Models/PaginationResult';
 import { SalkyWebSocket } from './SalykWsClient.service';
 

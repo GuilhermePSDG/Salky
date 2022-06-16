@@ -27,21 +27,21 @@ export class FriendsComponent implements OnInit {
     this.friendService.GetAllFriends().subscribe({
       next: (friends) => {
         this.staticFriends = friends;
-        this.changeTo({flag:FriendFlag.Approved})
+        this.changeTo({ flag: null })
       },
     });
 
     this.friendService.onFriendAccept((friend) =>
       this.addOrUpdateFriend(friend)
     );
-    this.friendService.onFriendChangePicture( friendIn =>{
+    this.friendService.onFriendChangePicture(friendIn => {
       console.log("processando mensagem")
       console.log(friendIn)
       console.log(this.friends)
 
       var i = this.friends.findIndex(x => x.id === friendIn.friendId);
       console.log(i)
-      if(i !== -1){
+      if (i !== -1) {
         this.friends[i].pictureSource = friendIn.pictureSource;
       }
     });
@@ -83,7 +83,7 @@ export class FriendsComponent implements OnInit {
 
   flags: any[] = [
     {
-      flag: FriendFlag.Approved,
+      flag: null,
       text: 'Todos',
       active: true,
     },
@@ -101,6 +101,9 @@ export class FriendsComponent implements OnInit {
   public changeTo(flag: any) {
     this.desactiveAllFlags();
     flag.active = true;
-    this.friends = this.staticFriends.filter((x) => x.friendFlag === flag.flag);
+    if (flag.flag)
+      this.friends = this.staticFriends.filter((x) => x.friendFlag === flag.flag);
+    else
+      this.friends = this.staticFriends;
   }
 }

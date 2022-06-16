@@ -29,7 +29,7 @@ namespace Salky.App.Mapping
             CreateMap<GroupConfigDto,GroupConfig>().ReverseMap();
 
             CreateMap<MessageGroup,MessageDto>()
-                .ForMember(q => q.Embeds, q => q.MapFrom(n => PartialContentService.CreateEmbeds(n.Content)))
+                .ForMember(q => q.Embeds, q => q.MapFrom(n => new MessagePartialContentService().Generate(n.Content)))
                 .ForMember(f=>f.SendedAt,q => q.MapFrom(n => n.CreatedDate))
                 .ForMember(f=>f.Author, q => q.MapFrom(n => n.Sender))
                 .ReverseMap();

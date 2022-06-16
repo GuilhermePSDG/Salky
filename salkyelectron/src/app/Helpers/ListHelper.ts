@@ -4,7 +4,6 @@ export class ListHelper {
     fieldComparer: keyof T,
     fieldValue: any
   ): T[] {
-    console.log('removendo membro');
     var i = source.findIndex((x) => x[fieldComparer] == fieldValue);
     if (i !== -1) {
       source.splice(i, 1);

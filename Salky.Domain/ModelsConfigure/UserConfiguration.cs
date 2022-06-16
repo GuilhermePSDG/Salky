@@ -8,6 +8,8 @@ namespace Salky.Domain.ModelsConfigure
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.HasKey(x => x.Id);
+            builder.HasIndex(x => x.NormalizedUserName);
         }
     }
 }

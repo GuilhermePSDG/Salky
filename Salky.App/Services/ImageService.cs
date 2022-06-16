@@ -1,13 +1,7 @@
-﻿namespace Salky.App.Services
+﻿using Salky.App.Services.Models;
+
+namespace Salky.App.Services
 {
-
-    public static class ImageRepositoryConfig
-    {
-        public const string FolderName = "images/a";
-        public static string CurrentDirectory => Directory.GetCurrentDirectory();
-        public static string FullPath => Path.Combine(CurrentDirectory, FolderName);
-
-    }
     public class ImageService
     {
         /// <summary>
@@ -20,10 +14,10 @@
         {
             string fileName = this.GenerateRandomFileName();
             var extension = ExtractInfo(ref Base64);
-            var physicalPath = Path.Combine(ImageRepositoryConfig.FullPath, fileName + $".{extension}");
+            var physicalPath = Path.Combine(ImageServiceConfig.FullPath, fileName + $".{extension}");
             var buff = Convert.FromBase64String(Base64);
             File.WriteAllBytes(physicalPath, buff);
-            var relativePath = Path.Combine(ImageRepositoryConfig.FolderName, fileName + $".{extension}");
+            var relativePath = Path.Combine(ImageServiceConfig.FolderName, fileName + $".{extension}");
             return relativePath.Replace(@"\","/");
         }
 
@@ -36,7 +30,7 @@
         {
             try
             {
-                var fullPath = Path.Combine(ImageRepositoryConfig.CurrentDirectory, relativePath);
+                var fullPath = Path.Combine(ImageServiceConfig.CurrentDirectory, relativePath);
                 File.Delete(fullPath);
                 return true;
             }
@@ -45,9 +39,7 @@
                 return false;
             }
         }
-
-
-
+        
         /// <summary>
         /// <para>  <see langword="set"/> the <paramref name="Base64"/> as pure Base64 String</para>
         /// <para>Parameter Format Example : data:image/png;base64,BASE64 </para>

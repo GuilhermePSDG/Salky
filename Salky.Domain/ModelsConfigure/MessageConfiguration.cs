@@ -9,7 +9,7 @@ namespace Salky.Domain.ModelsConfigure
     {
         public void Configure(EntityTypeBuilder<MessageGroup> builder)
         {
-
+            builder.HasIndex(x => new { x.SenderId , x.GroupId});
         }
     }
 }

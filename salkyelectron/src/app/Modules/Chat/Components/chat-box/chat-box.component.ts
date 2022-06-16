@@ -15,8 +15,6 @@ import {
 import { UserLogged } from 'src/app/Models/Users/UserLogged';
 import { Group } from 'src/app/Models/GroupModels/Group';
 import { PaginationResult } from 'src/app/Models/PaginationResult';
-import { MessageService } from 'src/app/Services/Message.service';
-import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 import { StorageService as LocalStorageService } from 'src/app/Services/storage.service';
 import { GroupMember } from 'src/app/Models/Users/UserGroup';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,6 +24,7 @@ import { ScrollEventListener } from 'src/app/Helpers/ScrollListener';
 import { Friend } from 'src/app/Models/Users/Friend';
 import { Converter } from 'src/app/Helpers/Converter';
 import { Subscription } from 'rxjs';
+import { MessageService } from 'src/app/Services/Message.service';
 
 @Component({
   selector: 'app-chat-box',
@@ -241,6 +240,7 @@ export class ChatBoxComponent
   }
 
   public receiveMessage(msg: Message) {
+    console.log("Message received");
     if (!this.group?.id) return;
     if (msg.groupId === this.group?.id) {
       this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
