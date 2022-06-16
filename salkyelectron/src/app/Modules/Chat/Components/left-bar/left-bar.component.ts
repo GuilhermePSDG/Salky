@@ -1,11 +1,7 @@
-import { ThisReceiver } from '@angular/compiler';
 import {
-  AfterViewInit,
   Component,
-  EventEmitter,
-  Input,
+  OnDestroy,
   OnInit,
-  Output,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Converter } from 'src/app/Helpers/Converter';
@@ -20,14 +16,14 @@ import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 import { ShowInfoService } from 'src/app/Services/show-info.service';
 import { StorageService } from 'src/app/Services/storage.service';
 import { UserService } from 'src/app/Services/UserService.service';
-import { environment } from 'src/environments/environment';
+import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
 
 @Component({
   selector: 'app-left-bar',
   templateUrl: './left-bar.component.html',
   styleUrls: ['./left-bar.component.scss'],
 })
-export class ContactsListComponent implements OnInit {
+export class ContactsListComponent extends EventsDestroyables implements OnInit,OnDestroy  {
   public selectedGroup?: Group;
   public _ContextMenuSelectedGroup?: Group;
   public currentUser: UserLogged = {} as UserLogged;
@@ -41,15 +37,21 @@ export class ContactsListComponent implements OnInit {
     public chatService: SalkyWebSocket,
     public loaddingService: LoaddingService,
     private show: ShowInfoService
-  ) {}
+  ) {
+    super();
+  }
+  ngOnDestroy(): void {
+    this.Destroy();
+  }
   async ngOnInit(): Promise<void> {
-    this.userService.currentUser$.subscribe({
+    var sub1 = this.userService.currentUser$.subscribe({
       next:(usr) =>{
         this.currentUser = usr;
       }
     })
     this.groupMemberService.setEvents();
     this.audioService.START();
+    this.AppendToDestroy(sub1);
   }
 
   public isHide = false;

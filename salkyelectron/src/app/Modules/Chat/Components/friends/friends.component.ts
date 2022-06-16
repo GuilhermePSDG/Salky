@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Friend } from 'src/app/Models/Users/Friend';
 import { FriendFlag } from 'src/app/Models/Users/FriendFlag';
 import { User } from 'src/app/Models/Users/User';
 import { UserLogged } from 'src/app/Models/Users/UserLogged';
 import { FriendService } from 'src/app/Services/friend.service';
 import { StorageService } from 'src/app/Services/storage.service';
+import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
 
 @Component({
   selector: 'app-friends',
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.scss'],
 })
-export class FriendsComponent implements OnInit {
+export class FriendsComponent
+extends EventsDestroyables
+ implements OnInit,OnDestroy {
   staticFriends: Friend[] = [];
   friends: Friend[] = [];
   loggedUser: UserLogged;
@@ -20,21 +23,25 @@ export class FriendsComponent implements OnInit {
     private storage: StorageService,
     private friendService: FriendService
   ) {
+    super();
     this.loggedUser = this.storage.CurrentUser;
+  }
+  ngOnDestroy(): void {
+    this.Destroy();
   }
 
   ngOnInit(): void {
-    this.friendService.GetAllFriends().subscribe({
+    var sub1 = this.friendService.GetAllFriends().subscribe({
       next: (friends) => {
         this.staticFriends = friends;
         this.changeTo({ flag: null })
       },
     });
 
-    this.friendService.onFriendAccept((friend) =>
+    var sub2 =this.friendService.onFriendAccept((friend) =>
       this.addOrUpdateFriend(friend)
     );
-    this.friendService.onFriendChangePicture(friendIn => {
+    var sub3 = this.friendService.onFriendChangePicture(friendIn => {
       console.log("processando mensagem")
       console.log(friendIn)
       console.log(this.friends)
@@ -45,22 +52,22 @@ export class FriendsComponent implements OnInit {
         this.friends[i].pictureSource = friendIn.pictureSource;
       }
     });
-    this.friendService.onFriendAddComfirmReceived((friend) => {
+    var sub4 = this.friendService.onFriendAddComfirmReceived((friend) => {
       this.addOrUpdateFriend(friend);
     });
-    this.friendService.onFriendAddReceived((friend) =>
+    var sub5 = this.friendService.onFriendAddReceived((friend) =>
       this.addOrUpdateFriend(friend)
     );
-    this.friendService.onFriendReject((friendId) =>
+    var sub6 = this.friendService.onFriendReject((friendId) =>
       this.removeFriend(friendId)
     );
-    this.friendService.onFriendCancel((friendId) =>
+    var sub7 = this.friendService.onFriendCancel((friendId) =>
       this.removeFriend(friendId)
     );
-
-    this.friendService.onFriendDelete((friendId) =>
+    var sub8 = this.friendService.onFriendDelete((friendId) =>
       this.removeFriend(friendId)
     );
+    this.AppendManyToDestroy(sub1,sub2,sub3,sub4,sub5,sub6,sub7,sub8);
   }
 
   removeFriend(friendId: string) {

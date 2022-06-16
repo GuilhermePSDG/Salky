@@ -1,17 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, ReplaySubject, Subscription, take } from 'rxjs';
+import { map, Observable, ReplaySubject, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ListHelper } from '../Helpers/ListHelper';
 import { Group } from '../Models/GroupModels/Group';
 import { GroupMember } from '../Models/Users/UserGroup';
+import { Destroyable } from './SalkyEvents';
 import { SalkyWebSocket } from './SalykWsClient.service';
 import { UserService } from './UserService.service';
+import { WebSocketBaseService } from './WebSocketBaseService';
 
 @Injectable({
   providedIn: 'root',
 })
-export class GroupMemberService {
+export class GroupMemberService extends WebSocketBaseService {
   private CurrentMembers = new ReplaySubject<GroupMember[]>(1);
   private CurrentMember = new ReplaySubject<GroupMember>(1);
   //
@@ -21,8 +23,13 @@ export class GroupMemberService {
   Members: GroupMember[] = [];
   //
   private apiBaseUrl = `${environment.apiUrl}/group/member`;
+  wsBasePath: string;
 
-  constructor(private http: HttpClient, private ws: SalkyWebSocket) {}
+  constructor(private http: HttpClient, ws: SalkyWebSocket) {
+    var wsBasePath = 'group/member'
+    super(ws, wsBasePath)
+    this.wsBasePath = wsBasePath;
+  }
   public setEvents() {
     var sub1 = this.onUserEntryInGroup((member) =>
       this.next(ListHelper.AddOrUpdate(this.Members, member, 'id'))
@@ -30,7 +37,7 @@ export class GroupMemberService {
     var sub2 = this.onMemberRemoved((member) =>
       this.next(ListHelper.TryRemove(this.Members, 'id', member.memberId))
     );
-    var sub2 = this.onMemberChangePicture((value) => {
+    var sub3 = this.onMemberChangePicture((value) => {
       ListHelper.UpdateField(
         this.Members,
         'id',
@@ -39,7 +46,7 @@ export class GroupMemberService {
         this.setImageUrl(value.pictureSource)
       );
     });
-    console.warn("Subscriptions without finish")
+    this.AppendManyToDestroy(sub1,sub2,sub3);
   }
 
   public addFriendInGroup(friendId: string, groupId: string) {
@@ -49,7 +56,7 @@ export class GroupMemberService {
         friendId: friendId,
       },
       method: 'post',
-      path: 'group/member',
+      path: this.wsBasePath,
     });
   }
 
@@ -57,7 +64,7 @@ export class GroupMemberService {
     this.ws.sendMessageServer({
       data: memberId,
       method: 'delete',
-      path: 'group/member',
+      path: this.wsBasePath,
     });
   }
 
@@ -117,14 +124,14 @@ export class GroupMemberService {
 
   private onMemberRemoved(
     handler: (data: { memberId: string; groupId: string }) => void
-  ): Subscription {
-    return this.ws.On('group/member', 'delete').Build<any>((x) => handler(x));
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath, 'delete').Build<any>((x) => handler(x));
   }
   private onUserEntryInGroup(
     handler: (GroupMember: GroupMember) => void
-  ): Subscription {
+  ): Destroyable {
     return this.ws
-      .On('group/member', 'post')
+      .On(this.wsBasePath, 'post')
       .Build<GroupMember>((x) => handler(x));
   }
 
@@ -134,8 +141,8 @@ export class GroupMemberService {
       memberId: string;
       pictureSource: string;
     }) => void
-  ): Subscription {
-    return this.ws.On('group/member/change/picture', 'put').Build<any>((x) => {
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath+'/change/picture', 'put').Build<any>((x) => {
       handler(x);
     });
   }

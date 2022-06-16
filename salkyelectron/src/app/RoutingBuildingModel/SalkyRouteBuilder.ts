@@ -15,6 +15,7 @@
 //   }
 
 import { Subscription } from 'rxjs';
+import { Destroyable } from '../Services/SalkyEvents';
 import { SalkyWebSocket } from '../Services/SalykWsClient.service';
 
 //   public static Create(context: SalkyWebSocket): RouteBuilderOn {
@@ -74,7 +75,7 @@ import { SalkyWebSocket } from '../Services/SalykWsClient.service';
 // }
 
 interface RouteBuilderDo {
-  Build<T>(next: (data: T) => void, error?: (err: any) => void): Subscription;
+  Build<T>(next: (data: T) => void, error?: (err: any) => void): Destroyable;
 }
 interface RouteBuilderOn {
   On(routeName: string, method: string): RouteBuilderDo;
@@ -88,27 +89,8 @@ export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
     this.context = context;
   }
 
-  Build<T>(next: (data: T) => void, error?: (err: any) => void): Subscription {
-    console.log(`registred : ${this.routeName} ${this.method}`)
-    return this.context.OnMessageReceived.subscribe({
-      next: (x) => {
-        if (
-          x.path.toLowerCase() === this.routeName &&
-          this.method === x.method.toLowerCase()
-        ) {
-          next(x.data);
-        }
-      },
-      error: (err) => {
-        if (
-          error &&
-          err.path.toLocaleLowerCase() === this.routeName &&
-          this.method === err.method.toLowerCase()
-        ) {
-          error(err.data);
-        }
-      },
-    });
+  Build<T>(next: (data: T) => void, error?: (err: any) => void): Destroyable {
+    return this.context.events.on<T>(this.routeName, this.method,next,error,)
   }
 
   public static Create(context: SalkyWebSocket): RouteBuilderOn {

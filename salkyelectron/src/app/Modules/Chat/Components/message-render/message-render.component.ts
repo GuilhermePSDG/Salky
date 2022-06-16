@@ -1,13 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { ThisReceiver } from '@angular/compiler';
 import { Component, Input, OnInit } from '@angular/core';
 import {
   DomSanitizer,
-  SafeResourceUrl,
   SafeUrl,
 } from '@angular/platform-browser';
-import { take } from 'rxjs';
-import { EmbedType } from 'src/app/Models/Embed';
 import { Message } from 'src/app/Models/Message';
 import { ShowInfoService } from 'src/app/Services/show-info.service';
 
@@ -25,26 +20,23 @@ export class MessageRenderComponent implements OnInit {
 
   constructor(
     private domSaniter: DomSanitizer,
-    private http: HttpClient,
     private show: ShowInfoService
   ) { }
 
   ngOnInit(): void {
-    console.log(this.msg);
     if (this.msg.content.startsWith('##') && this.msg.content.endsWith('##')) {
       this.isHighLight = true;
       this.msg.embeds.forEach(
         (x) => (x.content = x.content.replace(/##/g, ''))
       );
-      console.log(this.msg.embeds);
     }
 
     this.msg.embeds.forEach((x) => {
-      if (x.type === EmbedType.URL_GIPHY) {
+      if (x.type === 'URL_GIPHY') {
         this.imgSource = this.sanitizeURL(x.content);
-      } else if (x.type === EmbedType.URL_YOUTUBE_EMBED) {
+      } else if (x.type === 'URL_YOUTUBE_EMBED') {
         this.youtubeEmbedUrl = this.sanitizeURL(x.content);
-      } else if (x.type === EmbedType.URL) {
+      } else if (x.type === 'URL') {
       } else {
       }
     });

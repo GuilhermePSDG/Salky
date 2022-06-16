@@ -19,8 +19,7 @@ export class FriendListComponent implements OnInit {
   loggedUser: UserLogged;
 
   constructor(
-    private storage: StorageService,
-    private friendService: FriendService
+    private storage: StorageService
   ) {
     this.loggedUser = this.storage.CurrentUser;
   }

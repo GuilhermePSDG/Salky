@@ -1,16 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { first, map, Observable, Subscription, take } from 'rxjs';
+import {  map, Observable,take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Message } from '../Models/Message';
 import { MessageAdd } from '../Models/MessageAdd';
 import { PaginationResult } from '../Models/PaginationResult';
+import { Destroyable } from './SalkyEvents';
 import { SalkyWebSocket } from './SalykWsClient.service';
+import { WebSocketBaseService } from './WebSocketBaseService';
 
 @Injectable({
   providedIn: 'root',
 })
-export class MessageService {
+export class MessageService extends WebSocketBaseService {
+  private wsBasePath = "";
   sendBase64Image(base64: string): Observable<string> {
     return this.http
       .post<string>(`${this.apiBaseUrl}/message/img`, base64)
@@ -18,7 +21,11 @@ export class MessageService {
   }
   _cached: { [groupId: string]: Message[] } = {};
 
-  constructor(private http: HttpClient, private ws: SalkyWebSocket) {}
+  constructor(private http: HttpClient,  ws: SalkyWebSocket) {
+    var basePath = "group/message";
+    super(ws,basePath);
+    this.wsBasePath = basePath;
+  }
 
   private apiBaseUrl = `${environment.apiUrl}/group`;
 
@@ -49,21 +56,21 @@ export class MessageService {
     this.ws.sendMessageServer({
       data : msg,
       method : 'redirect',
-      path : 'group/message',
+      path : this.wsBasePath,
     })
   }
 
   public deleteMessage(messageId: string): void {
     this.ws.sendMessageServer({
       data: messageId,
-      path: 'group/message',
+      path: this.wsBasePath,
       method: 'delete',
     });
   }
 
 
-  public onMessageReceived(handler: (msg: Message) => void) : Subscription {
-    return this.ws.On('group/message', 'post').Build<Message>(msg =>{
+  public onMessageReceived(handler: (msg: Message) => void) : Destroyable {
+    return this.ws.On(this.wsBasePath, 'post').Build<Message>(msg =>{
       console.log('executando msg received')
       msg.author.pictureSource=this.setImageUrl(msg.author.pictureSource)
       handler(msg);
@@ -72,8 +79,8 @@ export class MessageService {
 
   public onMessageDeleted(
     handler: (removedMessage: { groupId: string; messageId: string }) => void
-  ) :  Subscription{
-    return this.ws.On('group/message', 'delete').Build(handler);
+  ) :  Destroyable{
+    return this.ws.On(this.wsBasePath, 'delete').Build(handler);
   }
 
 }

@@ -10,7 +10,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import { GroupMember } from 'src/app/Models/Users/UserGroup';
-import { GroupService } from 'src/app/Services/Group.service';
 import { GroupMemberService } from 'src/app/Services/GroupMember.service';
 
 @Component({
@@ -29,17 +28,13 @@ export class GroupMemberListComponent implements OnInit {
   SelectedContextMember?: GroupMember;
 
   constructor(
-    private renderer: Renderer2,
-    private ngZone: NgZone,
-    private groupService: GroupService,
     private groupMemberS: GroupMemberService,
-    private cdref: ChangeDetectorRef
   ) {
 
   }
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void { }
 
   public get UserCanRemoveSelectedContextMember(): boolean {
     if (!this.currentMember) return false;

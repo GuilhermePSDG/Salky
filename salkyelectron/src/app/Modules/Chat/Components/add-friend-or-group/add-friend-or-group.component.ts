@@ -11,5 +11,4 @@ export class AddGroupComponent implements OnInit {
   constructor() {}
   public mode : 'CreateGroup' | 'SearchUsers' = 'SearchUsers';
   ngOnInit(): void {}
-
 }

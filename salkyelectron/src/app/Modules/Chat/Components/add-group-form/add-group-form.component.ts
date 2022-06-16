@@ -24,7 +24,7 @@ export class AddGroupFormComponent implements OnInit {
     var sub = this.groupService.onGroupCreated((x) => {
       this.OnComplete.emit(true);
       this.router.navigateByUrl('/main/group/' + x.id);
-      sub.unsubscribe();
+      sub.destroy();
     });
   }
   public CreateGroup() {

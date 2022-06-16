@@ -1,46 +1,48 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject, Subscription } from 'rxjs';
-import { Group } from '../Models/GroupModels/Group';
+import { ReplaySubject } from 'rxjs';
 import { UserCall as CallMember } from '../Models/Users/UserCall';
 import { AudioState } from '../Models/AudioState';
 import { AudioService } from './AudioService';
 import { SalkyWebSocket } from './SalykWsClient.service';
-import { StorageService } from './storage.service';
 import { UserService } from './UserService.service';
 import { UserLogged } from '../Models/Users/UserLogged';
-import { environment } from 'src/environments/environment';
 import { Converter } from '../Helpers/Converter';
+import { Destroyable } from './SalkyEvents';
+import { WebSocketBaseService } from './WebSocketBaseService';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CallService {
+export class CallService extends WebSocketBaseService {
   public UserCall: CallMember;
   public UserLogged: UserLogged = {} as any;
 
-  private BasePath = 'group/call';
+  private BasePath = '';
 
   constructor(
     private audioService: AudioService,
     usrService: UserService,
-    private ws: SalkyWebSocket,
-    private storageService: StorageService
+     ws: SalkyWebSocket,
   ) {
-    var sub1 = usrService.currentUser$.subscribe({
-      next: (usr) => {
-        this.UserLogged = usr;
-      },
-    });
+    var basepath = 'group/call';
+    super(ws,basepath);
+    this.BasePath=basepath;
     this.UserCall = {
       audioState: this.AudioState,
       isInCall: false,
       groupId: '',
       memberId: '',
     } as CallMember;
+
+    var sub1 = usrService.currentUser$.subscribe({
+      next: (usr) => {
+        this.UserLogged = usr;
+      },
+    });
     var sub2 = this.audioState$.subscribe({
       next: (x) => (this.UserCall.audioState = x),
     });
-    var sub3 = this.audioService.onMicrofoneOutPut = (blob) => {
+    this.audioService.onMicrofoneOutPut = (blob) => {
       blob.arrayBuffer().then((buff) => this.sendAudioToCall(buff));
     };
     var sub4 = this.onAudioReceived((base64) => {
@@ -50,9 +52,9 @@ export class CallService {
         this.audioService.ReproduceAudio(blob);
       }
     });
-    console.warn("A lot of subscriptions without finish");
+    this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub4);
   }
-
+ 
   public entryInCall(groupId: string): void {
     var data = {
       groupId: groupId,
@@ -77,9 +79,9 @@ export class CallService {
 
   public getUsersInCallOfGroup(groupId: string) {
     this.ws.sendMessageServer({
-      path:`${this.BasePath}/all`,
-      method:'get',
-      data : groupId,
+      path: `${this.BasePath}/all`,
+      method: 'get',
+      data: groupId,
     })
   }
 
@@ -147,24 +149,24 @@ export class CallService {
   private onAudioReceived(
     handler: (Base64: string) => void,
     error?: (err: any) => void
-  ) {
-    this.ws.On(this.BasePath, 'redirect').Build(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.BasePath, 'redirect').Build(handler, error);
   }
-  public onUserQuitCall(handler: (UserCall: CallMember) => void): Subscription {
+  public onUserQuitCall(handler: (UserCall: CallMember) => void): Destroyable {
     return this.ws.On(this.BasePath, 'delete').Build(handler);
   }
   public onUserEntryCall(
     handler: (UserCall: CallMember) => void
-  ): Subscription {
+  ): Destroyable {
     return this.ws.On(this.BasePath, 'post').Build(handler);
   }
-  public onPutUserCall(handler: (UserCall: CallMember) => void): Subscription {
+  public onPutUserCall(handler: (UserCall: CallMember) => void): Destroyable {
     return this.ws.On(this.BasePath, 'put').Build(handler);
   }
 
   public onAllUsersInCallReceived(
     handler: (users: CallMember[]) => void
-  ): Subscription {
+  ): Destroyable {
     return this.ws.On(`${this.BasePath}/all`, 'get_response').Build(handler);
   }
   //#endregion

@@ -8,5 +8,6 @@ namespace Salky.Domain.Contracts
         public Task<User?> GetUserByName(string userName, bool includeAll = false);
         public Task<User?> GetById(Guid userId, bool includeAll);
         public bool Exist(Guid userid);
+        public bool Exist(string UserName);
     }
 }

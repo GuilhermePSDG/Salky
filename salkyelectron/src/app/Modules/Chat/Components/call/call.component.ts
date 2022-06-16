@@ -7,13 +7,14 @@ import { CallService } from 'src/app/Services/call.service';
 import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 import { StorageService } from 'src/app/Services/storage.service';
 import { UserService } from 'src/app/Services/UserService.service';
+import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
 
 @Component({
   selector: 'app-call',
   templateUrl: './call.component.html',
   styleUrls: ['./call.component.scss'],
 })
-export class CallComponent implements OnInit {
+export class CallComponent extends EventsDestroyables implements OnInit {
   public callMembers: UserCall[] = [];
   @Input() GroupMembers: GroupMember[] = [];
   @Input() CurrentMember?: GroupMember;
@@ -35,13 +36,18 @@ export class CallComponent implements OnInit {
   }
 
 
-  constructor(private callService: CallService) {}
+  ngOnDestroy(): void {
+    this.Destroy();
+  }
+  constructor(private callService: CallService) {
+    super();
+  }
 
   ngOnInit(): void {
-    this.callService.onAllUsersInCallReceived((x) => (this.callMembers = x));
-    this.callService.onUserQuitCall((x) => this.removeUser(x));
-    this.callService.onUserEntryCall((x) => this.addUserCall(x));
-    this.callService.onPutUserCall((x) => this.updateUserCall(x));
+    this.AppendToDestroy(this.callService.onAllUsersInCallReceived((x) => (this.callMembers = x)));
+    this.AppendToDestroy(this.callService.onUserQuitCall((x) => this.removeUser(x)));
+    this.AppendToDestroy(this.callService.onUserEntryCall((x) => this.addUserCall(x)));
+    this.AppendToDestroy(this.callService.onPutUserCall((x) => this.updateUserCall(x)));
   }
 
   public getMember(UserCall : UserCall) : GroupMember | undefined{

@@ -11,29 +11,27 @@ import {
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Friend } from '../Models/Users/Friend';
-import { MessageServer } from '../Models/MessageWsServer';
 import { SalkyWebSocket } from './SalykWsClient.service';
-import { User } from '../Models/Users/User';
-import { UserService } from './UserService.service';
+import { Destroyable } from './SalkyEvents';
+import { WebSocketBaseService } from './WebSocketBaseService';
 
 @Injectable({
   providedIn: 'root',
 })
-export class FriendService {
-  // private FriendsArr: Friend[] = [];
-  // private CurrentFriendsSource = new ReplaySubject<Friend[]>(1);
-  // public CurrentFriends = this.CurrentFriendsSource.asObservable();
+
+
+
+export class FriendService extends WebSocketBaseService {
+
   private url = `${environment.apiUrl}/friend`;
-  private loggedUser: User = {} as any;
+  private wsBasePath = "";
   constructor(
-    private usrService: UserService,
     private http: HttpClient,
-    private ws: SalkyWebSocket
+    ws: SalkyWebSocket
   ) {
-    this.usrService.currentUser$.subscribe({
-      next: (usr) => (this.loggedUser = usr),
-    });
-    // this.GetAllFriends().subscribe();
+    var wsBasePath = "friend";
+    super(ws, wsBasePath);
+    this.wsBasePath = wsBasePath;
   }
   private setImageUrl(relativePath: string) {
     if (!relativePath.includes('http'))
@@ -54,23 +52,23 @@ export class FriendService {
     this.ws.sendMessageServer({
       data: friendId,
       method: 'delete',
-      path: 'friend',
+      path: this.wsBasePath,
     });
   }
 
   public SendFriendRequest(userId: String) {
     this.ws.sendMessageServer({
-      method : 'post',
-      path : 'friend/add',
-      data : userId,
+      method: 'post',
+      path: this.wsBasePath + '/add',
+      data: userId,
     })
   }
 
   public AcceptFriendRequest(friendId: string) {
     this.ws.sendMessageServer({
-      path:'friend/accept',
-      method : 'post',
-      data : friendId,
+      path: this.wsBasePath + '/accept',
+      method: 'post',
+      data: friendId,
     })
   }
 
@@ -78,7 +76,7 @@ export class FriendService {
     this.ws.sendMessageServer({
       data: friendId,
       method: 'redirect',
-      path: 'friend/message/send',
+      path: this.wsBasePath + '/message/send',
     });
   }
 
@@ -86,7 +84,7 @@ export class FriendService {
     this.ws.sendMessageServer({
       data: friendId,
       method: 'post',
-      path: 'friend/reject',
+      path: this.wsBasePath + '/reject',
     });
   }
 
@@ -94,7 +92,7 @@ export class FriendService {
     this.ws.sendMessageServer({
       data: friendId,
       method: 'post',
-      path: 'friend/cancel',
+      path: this.wsBasePath + '/cancel',
     });
   }
 
@@ -102,48 +100,48 @@ export class FriendService {
   public onFriendAddComfirmReceived(
     handler: (friend: Friend) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend/add', 'confirm').Build(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath + '/add', 'confirm').Build(handler, error);
   }
 
   public onFriendAddReceived(
     handler: (friend: Friend) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend/add', 'post').Build(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath + '/add', 'post').Build(handler, error);
   }
 
   onFriendDelete(
     handler: (friendId: string) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend', 'delete').Build(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath, 'delete').Build(handler, error);
   }
   public onFriendReject(
     handler: (friendId: string) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend/reject', 'delete').Build(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath + '/reject', 'delete').Build(handler, error);
   }
 
   public onFriendCancel(
     handler: (friendId: string) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend/cancel', 'delete').Build<string>(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath + '/cancel', 'delete').Build<string>(handler, error);
   }
 
   public onFriendChangePicture(
     handler: (data: { friendId: string; pictureSource: string }) => void
-  ): Subscription {
+  ): Destroyable {
     throw new Error('Not Implemented');
   }
 
   public onFriendAccept(
     handler: (friend: Friend) => void,
     error?: (error: any) => void
-  ): Subscription {
-    return this.ws.On('friend/accept', 'put').Build<Friend>(handler, error);
+  ): Destroyable {
+    return this.ws.On(this.wsBasePath + '/accept', 'put').Build<Friend>(handler, error);
   }
 
   //#endregion

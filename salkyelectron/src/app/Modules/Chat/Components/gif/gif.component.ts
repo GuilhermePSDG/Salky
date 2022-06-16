@@ -12,7 +12,6 @@ import { LoaddingService } from 'src/app/Services/loadding.service';
 })
 export class GifComponent implements OnInit {
   constructor(
-    private Saniter: DomSanitizer,
     private gifService: GiphyService
   ) {
     this.setGifsAsDefault();

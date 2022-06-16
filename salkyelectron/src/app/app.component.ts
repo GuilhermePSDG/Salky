@@ -16,11 +16,11 @@ export class AppComponent implements OnInit {
       this.e = event;
     }
   }
-  e : any;
+  e: any;
   constructor() {
-
   }
-  async ngOnInit(): Promise<void> {}
+ 
+  async ngOnInit(): Promise<void> { }
   sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

@@ -1,30 +1,22 @@
-import { Message } from 'src/app/Models/Message';
 import {
-  AfterContentChecked,
-  AfterViewChecked,
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnChanges,
-  OnInit,
-  QueryList,
-  SimpleChanges,
-  ViewChild,
-  ViewChildren,
-} from '@angular/core';
-import { UserLogged } from 'src/app/Models/Users/UserLogged';
-import { Group } from 'src/app/Models/GroupModels/Group';
-import { PaginationResult } from 'src/app/Models/PaginationResult';
-import { StorageService as LocalStorageService } from 'src/app/Services/storage.service';
-import { GroupMember } from 'src/app/Models/Users/UserGroup';
-import { ActivatedRoute, Router } from '@angular/router';
-import { GroupService } from 'src/app/Services/Group.service';
-import { GroupMemberService } from 'src/app/Services/GroupMember.service';
-import { ScrollEventListener } from 'src/app/Helpers/ScrollListener';
-import { Friend } from 'src/app/Models/Users/Friend';
-import { Converter } from 'src/app/Helpers/Converter';
-import { Subscription } from 'rxjs';
-import { MessageService } from 'src/app/Services/Message.service';
+  AfterContentChecked, AfterViewInit,
+  Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren
+} from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Converter } from "src/app/Helpers/Converter";
+import { ScrollEventListener } from "src/app/Helpers/ScrollListener";
+import { Group } from "src/app/Models/GroupModels/Group";
+import { Message } from "src/app/Models/Message";
+import { PaginationResult } from "src/app/Models/PaginationResult";
+import { Friend } from "src/app/Models/Users/Friend";
+import { GroupMember } from "src/app/Models/Users/UserGroup";
+import { UserLogged } from "src/app/Models/Users/UserLogged";
+import { GroupService } from "src/app/Services/Group.service";
+import { GroupMemberService } from "src/app/Services/GroupMember.service";
+import { MessageService } from "src/app/Services/message.service";
+import { StorageService } from "src/app/Services/storage.service";
+import { EventsDestroyables } from "src/app/Services/WebSocketBaseService";
+
 
 @Component({
   selector: 'app-chat-box',
@@ -32,8 +24,8 @@ import { MessageService } from 'src/app/Services/Message.service';
   styleUrls: ['./chat-box.component.scss'],
 })
 export class ChatBoxComponent
-  implements OnInit, AfterViewInit, AfterContentChecked
-{
+  extends EventsDestroyables
+  implements OnInit, AfterViewInit, AfterContentChecked {
   @ViewChild('spanGroupName') spanGroupName?: ElementRef;
   @ViewChildren('chatBoxMessage') chatBoxMessage?: QueryList<any>;
 
@@ -59,12 +51,14 @@ export class ChatBoxComponent
 
   constructor(
     private messageService: MessageService,
-    private localStorageService: LocalStorageService,
+    private localStorageService: StorageService,
     private activeRouter: ActivatedRoute,
-    private router:Router,
+    private router: Router,
     private groupService: GroupService,
     private memberService: GroupMemberService
-  ) {}
+  ) { 
+    super();
+  }
 
   ngAfterContentInit(): void {
     this.scroll = new ScrollEventListener(
@@ -78,7 +72,6 @@ export class ChatBoxComponent
     this.scroll.onIncress = () => this.scrollToBottom();
   }
 
-  subscribes : Subscription[] = [];
   async ngOnInit() {
     var sub1 = this.messageService.onMessageReceived((msg) => this.receiveMessage(msg));
     var sub2 = this.messageService.onMessageDeleted((r) =>
@@ -100,22 +93,21 @@ export class ChatBoxComponent
           this.group = group;
           this.viewGroupname = group.name;
           this.setMessages();
-        }else{
+        } else {
           this.router.navigateByUrl("");
         }
       }
     });
+    this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub3).AppendToDestroy(sub4).AppendToDestroy(sub5);
     this.LoggedUser = this.localStorageService.CurrentUser;
-    this.subscribes.push(sub1,sub2,sub3,sub4,sub5);
   }
 
   ngOnDestroy(): void {
-    this.scroll.Dispose();
-    this.subscribes.forEach(sub => sub.unsubscribe());
+    this.Destroy();
   }
 
-  ngAfterViewChecked() {}
-  ngAfterContentChecked(): void {}
+  ngAfterViewChecked() { }
+  ngAfterContentChecked(): void { }
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
@@ -126,7 +118,7 @@ export class ChatBoxComponent
       if (this.chatBoxMessage)
         this.chatBoxMessage.first.nativeElement.scrollTop =
           this.chatBoxMessage.first.nativeElement.scrollHeight;
-    } catch (err) {}
+    } catch (err) { }
   }
 
   groupPictureChangedRequested(event: any) {
@@ -203,7 +195,7 @@ export class ChatBoxComponent
         next: (msgs) => {
           if (msgs && msgs.results.length > 0) {
             if (scrollMode === 'unset') {
-              this.scroll.onIncress = () => {};
+              this.scroll.onIncress = () => { };
             } else {
               this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
             }
@@ -231,7 +223,7 @@ export class ChatBoxComponent
   }
 
   public deleteMessage(groupId: string, messageId: string) {
-    this.scroll.onIncress = () => {};
+    this.scroll.onIncress = () => { };
     if (!this.group?.id) return;
     var i = this.MessageResults.results.findIndex(
       (x) => x.id === messageId && x.groupId === groupId

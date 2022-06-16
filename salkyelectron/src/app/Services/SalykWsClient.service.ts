@@ -4,15 +4,13 @@ import { MessageServer } from '../Models/MessageWsServer';
 import { UserLogged } from '../Models/Users/UserLogged';
 import { Subject } from 'rxjs';
 import { SalkyRouteBuilder } from '../RoutingBuildingModel/SalkyRouteBuilder';
+import { SalkyEvents } from './SalkyEvents';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SalkyWebSocket {
-  // public events: CadastredRoute[] = [];
-
-  private OnMessageReceivedSubject = new Subject<MessageServer>();
-  public OnMessageReceived = this.OnMessageReceivedSubject.asObservable();
+  public events: SalkyEvents = new SalkyEvents(true);
 
   protected ws: WebSocket = {} as WebSocket;
 
@@ -90,9 +88,9 @@ export class SalkyWebSocket {
   }
   private ExecuteEvents(message: MessageServer) {
     if (message.status && message.status < 0) {
-      this.OnMessageReceivedSubject.error(message);
+      this.events.error(message);
     } else {
-      this.OnMessageReceivedSubject.next(message);
+      this.events.sucess(message);
     }
   }
   protected sleep(timeMs: number): Promise<void> {

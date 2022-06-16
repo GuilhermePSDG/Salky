@@ -33,7 +33,6 @@ export class HttpInterceptorInterceptor implements HttpInterceptor {
         else if (new Date(currentUser.TokenExpire).getTime() < new Date().getTime()) {
           this.router.navigateByUrl('user/logout');
         } else {
-          console.log("injected")
           tokenIneject = true;
           request = request.clone({
             setHeaders: {
@@ -49,7 +48,6 @@ export class HttpInterceptorInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error) => {
-        console.log(error);
         if (tokenIneject) {
           if (error?.status === 401) {
             this.router.navigateByUrl('user/logout');

@@ -48,8 +48,7 @@ namespace Salky.App.Services.User
         public async Task<Response<UserLoggedDto?>> CreateAccountAsync(UserRegisterDto userRegisterDto)
         {
             if(userRegisterDto.Password.Length < 6) return "Senha muito curta.";
-            var found = await userRepo.GetUserByName(userRegisterDto.UserName);
-            if (found != null) return "Usuário já existe.";
+            if (userRepo.Exist(userRegisterDto.UserName)) return "Usuário já existe.";
             var hash = await signProvider.CreateHashAsync(userRegisterDto.Password);
             Domain.Models.UserModels.User user = new (userRegisterDto.UserName, hash);
             if(!user.IsValid(out var msg)) return msg;

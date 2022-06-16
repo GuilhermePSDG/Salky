@@ -9,32 +9,38 @@ import { GroupService } from 'src/app/Services/Group.service';
 import { GroupMemberService } from 'src/app/Services/GroupMember.service';
 import { StorageService } from 'src/app/Services/storage.service';
 import { UserService } from 'src/app/Services/UserService.service';
+import { EventsDestroyables, WebSocketBaseService } from 'src/app/Services/WebSocketBaseService';
 
 @Component({
   selector: 'app-add-user-in-group',
   templateUrl: './add-user-in-group.component.html',
   styleUrls: ['./add-user-in-group.component.scss'],
 })
-export class AddUserInGroupComponent implements OnInit {
+export class AddUserInGroupComponent extends EventsDestroyables implements OnInit {
   friends: Friend[] = [];
   @Input() GroupId?: string;
   @Input() GroupMembers: GroupMember[] = [];
 
+  ngOnDestroy(): void {
+    this.Destroy();
+  }
+  
   currentUser: UserLogged = {} as any;
   constructor(
     public friendService: FriendService,
     public groupService: GroupService,
-    private storage: StorageService,
     userService: UserService,
     private groupMemberSer: GroupMemberService
   ) {
-    userService.currentUser$.subscribe({
+    super();
+    var sub = userService.currentUser$.subscribe({
       next: (usr) => {
         if (usr) {
           this.currentUser = usr;
         }
       },
     });
+    this.AppendToDestroy(sub);
   }
 
   ngOnInit(): void {

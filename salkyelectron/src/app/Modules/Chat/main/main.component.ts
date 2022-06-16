@@ -6,16 +6,18 @@ import { AudioService } from 'src/app/Services/AudioService';
 import { CallService } from 'src/app/Services/call.service';
 import { GroupService } from 'src/app/Services/Group.service';
 import { LoaddingService } from 'src/app/Services/loadding.service';
+import { Destroyable } from 'src/app/Services/SalkyEvents';
 import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 import { ShowInfoService } from 'src/app/Services/show-info.service';
 import { UserService } from 'src/app/Services/UserService.service';
+import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
 })
-export class MainComponent implements OnInit {
+export class MainComponent extends EventsDestroyables implements OnInit {
   constructor(
     public audioService: AudioService,
     public salkyWsClient: SalkyWebSocket,
@@ -24,9 +26,9 @@ export class MainComponent implements OnInit {
     public router: Router,
     public loaddingService: LoaddingService,
     private show: ShowInfoService,
-    private callservice: CallService,
     private groupService: GroupService
   ) {
+    super();
     this.userService.currentUser$.subscribe({
       next: (usr) => (this.loggedUser = usr),
     });
@@ -42,7 +44,7 @@ export class MainComponent implements OnInit {
     );
   }
 
-  subs: Subscription[] = [];
+  subs: Destroyable[] = [];
   async ngOnInit(): Promise<void> {
     var sub1 = this.userService.currentUser$.subscribe({
       next: async (usr) => await this.salkyWsClient.connectIfnot(usr),
@@ -84,14 +86,12 @@ export class MainComponent implements OnInit {
             // this.salkyWsClient.connectIfnot(usr);
             break;
         }
-      } catch {}
+      } catch { }
     });
-    this.groupService.SubscribeEvents();
-    this.subs.push(sub1, sub2);
+    this.AppendManyToDestroy(sub1, sub2);
   }
   ngOnDestroy(): void {
-    this.subs.forEach((x) => x.unsubscribe());
-    this.groupService.UnsubscribeEvents();
+    this.Destroy();
   }
 
   protected sleep(timeMs: number): Promise<void> {

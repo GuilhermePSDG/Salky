@@ -4,12 +4,9 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild,
-  ElementRef,
-  Sanitizer,
 } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { MessageService } from 'src/app/Services/Message.service';
+import { MessageService } from 'src/app/Services/message.service';
 import { environment } from 'src/environments/environment';
 
 @Component({

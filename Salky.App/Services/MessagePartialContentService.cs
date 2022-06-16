@@ -11,7 +11,11 @@ namespace Salky.App.Services
 {
     public class MessagePartialContentService
     {
-        public TokenResolver TokenResolver { get; }
+        public ITokenResolver TokenResolver { get; }
+        public MessagePartialContentService(ITokenResolver tokenResolver)
+        {
+            TokenResolver = tokenResolver;
+        }
         public MessagePartialContentService()
         {
             TokenResolver = new TokenResolver(Tokens);
@@ -22,8 +26,8 @@ namespace Salky.App.Services
         private static string gifRegex = (@"(https:\/\/media[0-9].giphy\.com\/media\/[A-Za-z0-9]{13,18}\/giphy\.gif)([^ ]+)?");
         private static Token[] Tokens = new Token[]
         {
-            new Token(ytRegex,TokenType.URL_YOUTUBE_EMBED,(x) => $"https://www.youtube.com/embed/{x.Groups[3].Value}"),
-            new Token(gifRegex,TokenType.URL_GIPHY, x => x.Groups[1].Value),
+            new Token(ytRegex,TokenType.URL_YOUTUBE_EMBED/*,(x) => $"https://www.youtube.com/embed/{x.Groups[3].Value}"*/),
+            new Token(gifRegex,TokenType.URL_GIPHY/*, x => x.Groups[1].Value*/),
             new Token(urlReg,TokenType.URL),
             new Token(emojiReg,TokenType.EMOJI),
         };

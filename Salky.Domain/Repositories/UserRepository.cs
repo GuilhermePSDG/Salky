@@ -29,14 +29,21 @@ namespace Salky.Domain.Repositories
             return await baseQuery(includeAll).Where(x => x.NormalizedUserName.Contains(userName)).Take(MaxResults).ToListAsync();
         }
 
-        public async Task<User?> GetUserByName(string userName, bool includeAll = false)
+        public async Task<User?> GetUserByName(string userName,bool includeAll = false)
         {
-            return await baseQuery(includeAll).FirstOrDefaultAsync(x => x.NormalizedUserName == userName.ToUpper());
+            return await baseQuery(includeAll).FirstOrDefaultAsync(x => x.UserName == userName);
         }
+
 
         public async Task<User?> GetById(Guid userId, bool includeAll)
         {
             return await baseQuery(includeAll).FirstOrDefaultAsync(x => x.Id == userId);
+        }
+
+        public bool Exist(string UserName)
+        {
+            UserName = UserName.ToUpper();
+            return db.Users.AsNoTracking().Any(x => x.NormalizedUserName == UserName);
         }
 
         public bool Exist(Guid userid)
