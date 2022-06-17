@@ -12,6 +12,10 @@ namespace Salky.WebSocket.Infra.Interfaces
     {
         /// <summary>
         /// Any <see cref="Exception"/> when want reject the connection
+        /// <para></para>
+        /// The User Claims <paramref name="Claims"/>
+        /// <para></para>
+        /// <paramref name="SocketKey"/> Usualy will be the UserId, must be unique
         /// </summary>
         /// <param name="httpContext"></param>
         /// <param name="Claims"></param>

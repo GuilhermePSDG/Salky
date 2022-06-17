@@ -49,7 +49,7 @@ namespace Salky.WebSocket.Infra.Routing
             }
         }
 
-        public async Task Closed(SalkyWebSocket connectionWs) => await RouteInternal(connectionWs, Method._CONNECTIONCLOSED);
+        public async Task AfterClose(SalkyWebSocket connectionWs) => await RouteInternal(connectionWs, Method._CONNECTIONCLOSED);
         public async Task AfterOpen(SalkyWebSocket connectionWs) => await RouteInternal(connectionWs, Method._AFTERCONNECTIONOPEN);
         private async Task RouteInternal(SalkyWebSocket connectionWs, Method method)
         {

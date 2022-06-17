@@ -90,19 +90,6 @@ namespace Salky.API
                  });
             return builder;
         }
-        
-       
-        public static IServiceCollection InjectRequiredSalkyWebSocketDependencys(this IServiceCollection services)
-        {
-            services.AddScoped<IDoHttpHandshake, HttpWebSocketHandShaker>();
-            return services;
-        }
-
-        public static IApplicationBuilder UseSalkyWebSocket(this IApplicationBuilder app)
-        {
-            app.UseWebSockets();
-            return app.UseMiddleware<WebServerSocketMiddleware>();
-        }
 
 
     }

@@ -9,18 +9,19 @@ using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Web;
 
 namespace Salky.WebSocket.Handler;
 
-public partial class WebServerSocketMiddleware
+public partial class SalkyWebSocketMiddleWare
 {
     private RequestDelegate _next;
     private readonly IConnectionManager _connectionManager;
     private readonly IServiceScopeFactory scopeFactory;
-    private readonly ILogger<WebServerSocketMiddleware> logger;
+    private readonly ILogger<SalkyWebSocketMiddleWare> logger;
 
-    public WebServerSocketMiddleware(RequestDelegate next, IConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ILogger<WebServerSocketMiddleware> logger)
+    public SalkyWebSocketMiddleWare(RequestDelegate next, IConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ILogger<SalkyWebSocketMiddleWare> logger)
     {
         _next = next;
         this._connectionManager = connectionManager;
@@ -78,13 +79,15 @@ public partial class WebServerSocketMiddleware
 
                 if (_connectionManager.TryGetSocket(key,out var oldSocket))
                 {
-                    //Caso não esteja fechado, irá fechar
                     if(oldSocket.State == WebSocketState.CloseReceived || oldSocket.ConnectionsIsOpen)
                     {
                         await oldSocket.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation, CloseDescription.DuplicatedConnection);
                     }
                     var removed = _connectionManager.RemoveSocket(key, oldSocket);
-                    this.logger.LogInformation(removed ? "Conexão removida" : "Conexão NÃO FOI removida");
+                    if (removed)
+                        this.logger.LogDebug("Duplicated Connection Removed");
+                    else
+                        this.logger.LogError("Duplicated Connection NOT removed");
                 }
                 _connectionManager.AddSocket(key,salkySocket);
                 addedToPool = true;
@@ -92,6 +95,8 @@ public partial class WebServerSocketMiddleware
                 await serviceProvider.GetRequiredService<IRouterResolver>().AfterOpen(salkySocket);
                 (_connectionManager as ConnectionMannager).PrintDeep();
                 await ReceiveMessage(salkySocket, key);
+                await serviceProvider.GetRequiredService<IRouterResolver>().AfterClose(salkySocket);
+
             }
             catch (Exception ex)
             {
@@ -103,56 +108,29 @@ public partial class WebServerSocketMiddleware
                 {
                     if (_connectionManager.TryGetSocket(key, out var sock) && sock.UniqueId == salkySocket.UniqueId)
                     {
-                        if (_connectionManager.TryRemoveSocket(key, out var removedsock))
+                        if (_connectionManager.TryRemoveSocket(key, out var removedsock) && removedsock.State == WebSocketState.Open)
                         {
-                            if(removedsock.State == WebSocketState.Open)
-                            {
-                                await removedsock.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation, CloseDescription.Unknow);
-                                removedsock.Dispose();
-                            }
-
+                            this.logger.LogDebug("==========================================");
+                            this.logger.LogDebug("UNEXPECTED SCENARIO - UNEXPECTED SCENARIO");
+                            this.logger.LogDebug("==========================================");
+                            try {removedsock.Abort();}catch { }
+                            try {removedsock.Dispose(); }catch { }
                         }
-
                     }
                 }
             }
             (_connectionManager as ConnectionMannager).PrintDeep();
         }
-        else if (context.Request.Path.Equals("/ws/doc"))
+        else if (context.Request.Path.Equals("/ws.json"))
         {
             var routes = RouteResolver.RouteDocs();
-            var style = @"<style>
-.card{
-    background:#f3f3f3;
-    padding:10px;
-    margin:15px;
-}
-</style>";
-            var template =
-@"
-<div class=""card"">
-    <p>Path : $Path</p>
-    <p>Method : $Method</p>
-    <p>Parameter : $ParameterType</p>
-    <p>Parameter Json : $ParameterJson</p>
-</div>
-";
-            var html = new StringBuilder();
-            html.Append(style);
-            html.Append(@"<div style=""display:flex;flex-wrap:wrap;"">");
-            foreach(var route in routes)
-            {
-                html.AppendLine(template
-                    .Replace($"${nameof(RouteResolver.RouteDoc.Path)}",route.Path)
-                    .Replace($"${nameof(RouteResolver.RouteDoc.Method)}",route.Method)
-                    .Replace($"${nameof(RouteResolver.RouteDoc.ParameterType)}",route.ParameterType)
-                    .Replace($"${nameof(RouteResolver.RouteDoc.ParameterJson)}", JsonSerializer.Serialize(route.ParameterJson))
-                    );
-            }
-            html.Append(@"</div>");
-
-            await context.Response.WriteAsync(html.ToString());
-
+            var json = JsonSerializer.Serialize(routes,
+                new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Converters = { new JsonStringEnumConverter() }
+                });
+            await context.Response.WriteAsync(json);
         }
         else
         {
@@ -220,7 +198,6 @@ public partial class WebServerSocketMiddleware
             parsedDescription = CloseDescription.Unknow;
         if(webSocket.State == WebSocketState.CloseReceived || webSocket.State == WebSocketState.Open)
             await webSocket.CloseOutputAsync(result.CloseStatus ?? WebSocketCloseStatus.Empty, parsedDescription);
-        await webSocket.Storage.Get<IServiceProvider>().GetRequiredService<IRouterResolver>().Closed(webSocket);
         if(!_connectionManager.RemoveSocket(key, webSocket))
         {
             this.logger.LogDebug("CONEXÃO NÃO REMOVIDA");

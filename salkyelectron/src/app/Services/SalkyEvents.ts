@@ -28,8 +28,13 @@ export class SalkyEvents {
         return `${path}${method}`.toLowerCase().trim();
     }
     private generateHandlerKey(): string {
+
         if (this.EnablePreventDuplicated)
+        {
+            // Error.stackTraceLimit = 1000;
             return new Error().stack?.toString() ?? Math.random().toString();
+        }
+      
         else
             return Math.random().toString();
     }

@@ -5,7 +5,6 @@ namespace Salky.Domain
 {
     public class Dispatcher : IDispatcher
     {
-        public static Func<IDispatcher> InstanceFactory { private get ; set; }
 
         private IServiceProvider provider;
         public Dispatcher(IServiceProvider provider)

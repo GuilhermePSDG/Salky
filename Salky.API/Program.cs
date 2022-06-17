@@ -26,6 +26,7 @@ using Salky.App.Services.Group;
 using Salky.App.Services.Friends;
 using MongoDB.Driver;
 using Salky.App.Services.Models;
+using Salky.WebSocket.Handler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +36,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 
 
@@ -102,10 +102,10 @@ builder.Services.AddCors();
 
 builder.Services.RegisterEvents();
 
-#region WebSocket
-builder.Services.InjectRequiredSalkyWebSocketDependencys();
-builder.Services.UseSalkyWebSocketRouter();
-#endregion
+builder.Services
+    .UseSalkyWebSocketRouter()
+    .UseSalkyHttpHandShakerMiddleWare<HttpWebSocketHandShaker>();
+
 var app = builder.Build();
 
 
@@ -116,8 +116,11 @@ app.UseStaticFiles(new StaticFileOptions()
     RequestPath = new PathString($"/{ImageServiceConfig.FolderName}"),
 });
 
-app.UseSalkyWebSocket();
-Dispatcher.InstanceFactory = () => app.Services.CreateScope().ServiceProvider.GetRequiredService<IDispatcher>();
+app
+    .UseWebSockets()
+    .UseMiddleware<SalkyWebSocketMiddleWare>();
+
+//Dispatcher.InstanceFactory = () => app.Services.CreateScope().ServiceProvider.GetRequiredService<IDispatcher>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

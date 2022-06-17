@@ -65,6 +65,11 @@ namespace Salky.WebSocket.Extensions
                 return null;
             }
         }
+        public static object? MapProperties(this Type type)
+        {
+            var result = new Dictionary<string,object>();
+            return null;
+        }
     }
 
 }
