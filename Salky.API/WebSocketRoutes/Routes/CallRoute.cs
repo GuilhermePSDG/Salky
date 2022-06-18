@@ -143,22 +143,23 @@ namespace Salky.API.WebSocketRoutes.Routes
 
                     return;
                 }
+                throw new InvalidOperationException("É necessário alterar para uma connection pool de call, ao invez de verificar se pode enviar o audio.");
                 //Faz o envio do audio
-                await connectionPool.SendToAll(
-                    CanSendToThis: socket =>
-                    {
-                        var otherUser = socket.Storage.Get<GroupMemberCall>();
-                        return 
-                        otherUser.IsInCall &&
-                        otherUser.GroupId == usr.GroupId &&
-                        otherUser.AudioState.CanHear &&
-                        socket.UniqueId != UserSocket.UniqueId
-                        ;
-                    },
-                    path: CurrentPath,
-                    method: Method.REDIRECT,
-                    data: data
-                    );
+                //await connectionPool.SendToAll(
+                //    CanSendToThis: socket =>
+                //    {
+                //        var otherUser = socket.Storage.Get<GroupMemberCall>();
+                //        return 
+                //        otherUser.IsInCall &&
+                //        otherUser.GroupId == usr.GroupId &&
+                //        otherUser.AudioState.CanHear &&
+                //        socket.UniqueId != UserSocket.UniqueId
+                //        ;
+                //    },
+                //    path: CurrentPath,
+                //    method: Method.REDIRECT,
+                //    data: data
+                //    );
             }
             catch
             {

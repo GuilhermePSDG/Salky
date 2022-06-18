@@ -100,7 +100,7 @@ builder.Services.AddScoped<ImageService>();
 builder.UseLocalSqlite<SalkyDbContext>();
 builder.Services.AddCors();
 
-builder.Services.RegisterEvents();
+builder.Services.RegisterDomainEventsHandlers();
 
 builder.Services
     .UseSalkyWebSocketRouter()

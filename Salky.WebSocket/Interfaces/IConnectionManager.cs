@@ -18,7 +18,6 @@ namespace Salky.WebSocket.Infra.Interfaces
         /// The amount of <see cref="IConnectionManager"/> as pool
         /// </summary>
         public int PoolsCount { get; }
-
         public IConnectionManager Previus { get; }
         public void AddSocket(string key, SalkyWebSocket data);
         public bool TryGetSocket(string key,[NotNullWhen(true)] out SalkyWebSocket? sock);
@@ -42,9 +41,7 @@ namespace Salky.WebSocket.Infra.Interfaces
         /// <param name="removedData"></param>
         /// <returns>True if removed</returns>
         public bool TryRemoveSocket(string key, [NotNullWhen(true)] out SalkyWebSocket? removedData);
-        //public bool TryRemoveBy(Func<SalkyWebSocket, bool> selector, out SalkyWebSocket? removedData);
         public void ForEachSocket(Action<SalkyWebSocket> action);
-        public IEnumerable<T> SelectManySocket<T>(Func<SalkyWebSocket,T> selector);
         public IEnumerable<SalkyWebSocket> WhereSocket(Func<SalkyWebSocket, bool> evaluate);
         public Task ForEachSocket(Func<SalkyWebSocket, Task> action);
 
@@ -87,8 +84,6 @@ namespace Salky.WebSocket.Infra.Interfaces
         public Task<IConnectionManager?> NavigateTo(Func<IConnectionManager, Task<bool>> ValidatePool, params string[] PoolsKey);
         public IConnectionManager? NavigateTo(params string[] PoolsKey);
         public Task SendToAll<T>(string path, Method method, T data, Status status = Status.Success) where T : notnull;
-        public Task SendToAll<T>(Func<SalkyWebSocket,bool> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull;
-        public Task SendToAll<T>(Func<SalkyWebSocket,Task<bool>> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull;
 
         public IConnectionManager BackToRoot();
     }

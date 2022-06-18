@@ -129,29 +129,7 @@ public class ConnectionMannager : IConnectionManager
         });
         await Task.WhenAll(tasks);
     }
-    public async Task SendToAll<T>(Func<SalkyWebSocket, bool> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
-    {
-        var msg = new MessageServer(path, method, status, data);
-        var tasks = new List<Task>(this.ConnectionsCount);
-        ForEachSocket(x =>
-        {
-            if (x.ConnectionsIsOpen && CanSendToThis(x)) 
-                tasks.Add(x.SendMessageServer(msg));
-        });
-        await Task.WhenAll(tasks);
-    }
-    public async Task SendToAll<T>(Func<SalkyWebSocket, Task<bool>> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
-    {
-        var msg = new MessageServer(path, method, status, data);
-        var tasks = new List<Task>(this.ConnectionsCount);
-        await ForEachSocket(async x =>
-        {
-            if (x.ConnectionsIsOpen && await CanSendToThis(x))
-                tasks.Add(x.SendMessageServer(msg));
-        });
-        await Task.WhenAll(tasks);
-    }
-    public IEnumerable<T> SelectManySocket<T>(Func<SalkyWebSocket, T> selector) => connections.Select(x => selector(x.Value));
+
     public IEnumerable<SalkyWebSocket> WhereSocket(Func<SalkyWebSocket, bool> evaluate) => connections.Where(x => evaluate(x.Value)).Select(x => x.Value);
     #endregion
 

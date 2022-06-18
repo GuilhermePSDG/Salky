@@ -33,7 +33,7 @@ namespace Salky.API
         }
 
 
-        public static IServiceCollection RegisterEvents(this IServiceCollection collection, params string[] IncludeAssembly)
+        public static IServiceCollection RegisterDomainEventsHandlers(this IServiceCollection collection, params string[] IncludeAssembly)
         {
             AppDomain.CurrentDomain.GetAssemblies()
                 .Where(f => f.GetName().Name == AppDomain.CurrentDomain.FriendlyName || IncludeAssembly.Contains(f.GetName().Name))

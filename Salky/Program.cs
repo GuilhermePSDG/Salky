@@ -31,118 +31,264 @@ using Salky.Domain;
 using Salky.Domain.Contracts;
 using Salky.WebSocket.Handler;
 using Salky.WebSocket.Infra.Interfaces;
+using Salky.WebSocket;
+using Salky.WebSocket.Infra.Socket;
+
+string AppID = "1";
 
 
-var mapper = new ObjectMapper();
-var res = mapper.MapProperties(typeof(B));
-var json = JsonSerializer.Serialize(res, new JsonSerializerOptions() {WriteIndented=true });
-Console.Write(json);
-class ObjectMapper
+
+
+using (ConnectionMultiplexer connectionRedis = ConnectionMultiplexer.Connect("localhost:6379,password=senhadoredis"))
 {
-    public ObjectMapper()
-    {
-
-    }
-
-
-
-    Dictionary<string, Type> mappedTypes = new ();
-    public object MapProperties(Type type)
-    {
-        mappedTypes = new();
-        return SafeMapPropertiesLoopingPrevent(type) ?? throw new NullReferenceException();
-    }
-    private object? SafeMapPropertiesLoopingPrevent(Type? type,MemberInfo? HASMEMBER = null)
-    {
-        if (type == null) return null;
-        if (IsPrimitive(type)) return new SimpleType(HASMEMBER == null ? type.Name : HASMEMBER.Name, type.Name);
-        
-        mappedTypes.Add(type.Name, type);
-        var result = new Dictionary<string, List<object?>>();
-        result[type.Name] = new List<object?>();
-
-        foreach (var member in type.GetProperties())
-        {
-            if (IsPrimitive(member.PropertyType))
-            {
-                result[type.Name].Add(new SimpleType(member.Name, member.PropertyType.Name));
-            }
-            else if (IsCollection(member.PropertyType))
-            {
-                var arrayPropertyType = member.PropertyType.GetElementType() ?? throw new NullReferenceException();
-                if (mappedTypes.ContainsKey(arrayPropertyType.Name))
-                    result[type.Name].Add(new SimpleType(member.Name, member.PropertyType.Name));
-                else
-                    result[type.Name].Add(new ArrayType(member.Name, arrayPropertyType.Name, new ComplexType(arrayPropertyType.Name, SafeMapPropertiesLoopingPrevent(arrayPropertyType,member) ?? throw new NullReferenceException())));
-            }
-            else
-            {
-                if (mappedTypes.ContainsKey(member.PropertyType.Name))
-                    result[type.Name].Add(new SimpleType(member.Name,member.PropertyType.Name));
-                else
-                    result[type.Name].Add(SafeMapPropertiesLoopingPrevent(member.PropertyType));
-            }
-        }
-        return result;
-    }
-
-    bool IsPrimitive(Type type)
-    {
-        if (type.IsPrimitive)
-            return true;
-        if (type.Equals(typeof(string)))
-            return true;
-        if (type.Equals(typeof(DateTime)))
-            return true;
-        return false;
-    }
-    bool IsCollection(Type type)
-    {
-        if (type.IsArray)
-            return true;
-        if (type.GetInterface(nameof(ICollection)) != null)
-            return true;
-        return false;
-    }
-   
-    record SimpleType(string Name, string TypeName);
-    record ArrayType(string Name,string TypeName , ComplexType ArrayObject);
-    record ComplexType(string Name, object ComplexObject);
+    //obter o database para envio de comandos ao Redis
+    IDatabase clientRedis = connectionRedis.GetDatabase();
+    //gravando uma chave
+    clientRedis.StringSet("admin_sistema", "Desenvolvedor Ninja");
+    //lendo uma chave
+    Console.WriteLine(clientRedis.StringGet("admin_sistema"));
+    //definindo 600 segundos como tempo de expiração
+    clientRedis.KeyExpire("admin_sistema", TimeSpan.FromSeconds(600));
+    //consultando o tempo de expiração da chave
+    Console.WriteLine(clientRedis.KeyTimeToLive("admin_sistema"));
+    //retirando o tempo de expiração da chave tornando-a permanente
+    clientRedis.KeyPersist("admin_sistema");
+    //apagando uma chave
+    clientRedis.KeyDelete("admin_sistema");
+    //fechando a conexão com o Redis
+    connectionRedis.Close();
 }
 
 
-record B(string naime, A[] a);
-record A(string Name,string b);
-
-record SafePerson(string Name, DateTime BornAt, Adress[] adress);
+Console.WriteLine("Hello");
 
 
-record Person(string Name,DateTime BornAt,Person[] Friend,Adress[] adress);
-record Adress(string Streat,long HouseNumber);
+var conR = ConnectionMultiplexer.Connect("localhost:6379");
 
-//Console.WriteLine("Hello");
+var sub = conR.GetSubscriber();
+var db = conR.GetDatabase();
+var channel = "a";
+//db.StringSet("I am a string", "I am the string value");
+//db.StringSet(CreateKey("app", AppID,"client","gui"),"");
+//db.StringSet(CreateKey("app", AppID,"client","fi"),"");
+//db.StringSet(CreateKey("app", AppID,"client", "fqwe"),"");
+//db.StringSet(CreateKey("app", AppID,"client", "fqwe"),"");
 
-//var conR =  ConnectionMultiplexer.Connect("localhost:6379");
+var usr1 = new User("Guilherme");
+var usr2 = new User("Geovane");
 
-//var sub = conR.GetSubscriber();
-//var db = conR.GetDatabase();
-//var channel = "a";
-//var h1 = (RedisChannel channel, RedisValue value) =>
-//{
-//    Console.WriteLine($"In Handler 1 - From Channel : {channel} - Value : {value}");
-//};
-//var h2 = (RedisChannel channel, RedisValue value) =>
-//{
-//    Console.WriteLine($"In Handler 2 - From Channel : {channel} - Value : {value}");
-//};
-//await sub.SubscribeAsync(channel, h1);
-//await sub.SubscribeAsync(channel, h2);
+var r1 =db.SetAdd(CreateKey("app", AppID,"connections"), new List<RedisValue>() { usr1.Id.ToString(), usr2.Id.ToString() }.ToArray());
+return;
 
-//await sub.PublishAsync(channel, "Msg1");
-//await sub.PublishAsync(channel, "Msg2");
-//await Task.Delay(200);
-//await sub.UnsubscribeAsync(channel, h1);
-//Console.WriteLine("Handler 1 out");
-//await sub.PublishAsync(channel, "Msg3");
 
-//while (true) ;
+
+
+
+var h1 = (RedisChannel channel, RedisValue value) =>
+{
+    Console.WriteLine($"In Handler 1 - From Channel : {channel} - Value : {value}");
+};
+var h2 = (RedisChannel channel, RedisValue value) =>
+{
+    Console.WriteLine($"In Handler 2 - From Channel : {channel} - Value : {value}");
+};
+await sub.SubscribeAsync(channel, h1);
+await sub.SubscribeAsync(channel, h2);
+
+await sub.PublishAsync(channel, "Msg1");
+await sub.PublishAsync(channel, "Msg2");
+await Task.Delay(200);
+await sub.UnsubscribeAsync(channel, h1);
+Console.WriteLine("Handler 1 out");
+await sub.PublishAsync(channel, "Msg3");
+
+while (true) ;
+
+void AddConnection(string AppId ,string ConnectionId,Action<MessageServer> Handler)
+{
+
+}
+string CreateKey(params string[] values)
+{
+    var str = "";
+    foreach (var x in values) str += x+":";
+    return str.Trim(':');
+}
+void RouteResolver(MessageServer msg)
+{
+
+}
+class User{
+    public User(string Name)
+    {
+        this.Id = Guid.NewGuid();
+        this.Name = Name;
+    }
+
+    public Guid Id { get; }
+    public string Name { get; }
+}
+
+public class RedisConnectionMannager : IConnectionManager
+{
+    public RedisConnectionMannager(ConnectionMultiplexer connection,IConnectionManager Previus)
+    {
+        var thDId = Thread.GetDomainID();
+        this.ConnectionPoolId = Guid.NewGuid().ToString();
+        this.AppRedisBasePoolPath = CreateKey("app", thDId);
+        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
+        this.connection = connection;
+        this.Previus = Previus;
+    }
+    public RedisConnectionMannager(ConnectionMultiplexer connection)
+    {
+        var thDId = Thread.GetDomainID();
+        this.ConnectionPoolId = "root";
+        this.AppRedisBasePoolPath = CreateKey("app", thDId);
+        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
+        this.connection = connection;
+        Previus = this;
+    }
+    public Dictionary<string, SalkyWebSocket> Sockets = new();
+    public Dictionary<string, IConnectionManager> Pools = new ();
+
+    public string AppRedisConnectionsPath { get; }
+    public string AppRedisBasePoolPath { get; }
+
+    private ConnectionMultiplexer connection;
+    private IDatabase redis_db=> connection.GetDatabase();
+
+    public string ConnectionPoolId { get; }
+
+    public int ConnectionsCount => Sockets.Count;
+
+    public int PoolsCount => this.Pools.Count;
+
+    public IConnectionManager Previus { get; }
+
+    public void AddSocket(string key, SalkyWebSocket data)
+    {
+        var added = redis_db.SetAdd(AppRedisConnectionsPath, new List<RedisValue>() { key }.ToArray());
+        if (added == 0) throw new Exception("User is alredy on redis database, please remove beffore add");
+        this.Sockets.Add(key, data);
+    }
+    private string CreateKey(params object[] values)
+    {
+        var str = "";
+        foreach (var x in values) str += x.ToString() + ":";
+        return str.Trim(':');
+    }
+    public IConnectionManager BackToRoot() => this.ConnectionPoolId == "root" ? this : this.Previus;
+
+    public bool ContainsSocketKey(string key)
+    {
+        return redis_db.SetContains(AppRedisConnectionsPath, key);
+    }
+  
+    public IConnectionManager CreateConnectionPool(string connectionPoolId, params string[] participantsId)
+    {
+        var added = redis_db.SetAdd(AppRedisConnectionsPath, participantsId.Select(x => new RedisValue(x)).ToArray());
+        if(added != participantsId.Length) throw new InvalidOperationException();
+        //PROBLEMA, COMO A POOLID NÃO ESTÁ SENDO CONSIDERADA, VAI DAR ERROR NA HORA DE ADICIONAR.
+        var @new =  new RedisConnectionMannager(this.connection, this);
+        participantsId.Where(x => Sockets.ContainsKey(x)).Select(x => new { sock = Sockets[x] ,key = x}).ToList().ForEach(x => @new.AddSocket(x.key,x.sock));
+        return @new;
+    }
+
+
+
+    public IConnectionManager GetConnectionPool(string connectionPoolId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IConnectionManager GetOrCreateConnectionPool(string PoolId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IConnectionManager? NavigateTo(Func<IConnectionManager, bool> ValidatePool, params string[] PoolsKey)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IConnectionManager?> NavigateTo(Func<IConnectionManager, Task<bool>> ValidatePool, params string[] PoolsKey)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IConnectionManager? NavigateTo(params string[] PoolsKey)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool PoolExist(string poolId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IConnectionManager RemoveConnectionPool(string connectionPoolId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool RemoveSocket(string key, SalkyWebSocket SalkySocket)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<T> SelectManySocket<T>(Func<SalkyWebSocket, T> selector)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SendToAll<T>(string path, Method method, T data, Status status = Status.Success) where T : notnull
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SendToAll<T>(Func<SalkyWebSocket, bool> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SendToAll<T>(Func<SalkyWebSocket, Task<bool>> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryGetConnectionPool(string connectionPoolId, [NotNullWhen(true)] out IConnectionManager? connectionPool)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryGetSocket(string key, [NotNullWhen(true)] out SalkyWebSocket? sock)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryRemoveConnectionPool(string connectionPoolId, [NotNullWhen(true)] out IConnectionManager? removedPool)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryRemoveSocket(string key, [NotNullWhen(true)] out SalkyWebSocket? removedData)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<SalkyWebSocket> WhereSocket(Func<SalkyWebSocket, bool> evaluate)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ForEachSocket(Action<SalkyWebSocket> action)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task ForEachSocket(Func<SalkyWebSocket, Task> action)
+    {
+        throw new NotImplementedException();
+    }
+}

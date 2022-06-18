@@ -34,8 +34,17 @@ public partial class SalkyWebSocketMiddleWare
     private void MakeHttpHandshake(HttpContext context, IServiceProvider serviceProvider, out List<Claim> Claims, out string SocketKey)
     {
         var httpHandShaker = serviceProvider.GetService(typeof(IDoHttpHandshake));
-        if(httpHandShaker == null)throw new InvalidOperationException($"You must provide a class that inherits from {nameof(IDoHttpHandshake)}");
-        ((IDoHttpHandshake)httpHandShaker).MakeOrThrow(context, out Claims, out SocketKey);
+        //if(httpHandShaker == null)throw new InvalidOperationException($"You must provide a class that inherits from {nameof(IDoHttpHandshake)}");
+        if (httpHandShaker != null)
+        {
+            ((IDoHttpHandshake)httpHandShaker).MakeOrThrow(context, out Claims, out SocketKey);
+        }
+        else
+        {
+            this.logger.LogWarning($"{nameof(IDoHttpHandshake)}");
+            Claims = new();
+            SocketKey = Guid.NewGuid().ToString();
+        }
     }
     private void MakeWsHandShake(IServiceProvider serviceProvider,SalkyWebSocket ws)
     {
@@ -184,9 +193,9 @@ public partial class SalkyWebSocketMiddleWare
             if (msgResult == null) throw new Exception("Message cannot be null");
             await websocket.Storage.Get<IServiceProvider>().GetRequiredService<IRouterResolver>().Route(websocket, msgResult);
         }
-        catch
+        catch(Exception ex)
         {
-            this.logger.LogWarning("Error while receiving message");
+            this.logger.LogWarning(ex,"Error while receiving message");
             await websocket.SendErrorAsync("You must send a object like this, and here a object of any type","error");
         }
     }

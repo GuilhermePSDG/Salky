@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salky.Test", "Salky.Test\Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salky.WebSocket", "Salky.WebSocket\Salky.WebSocket.csproj", "{76EE6E63-CDDB-4A00-9DD5-00E589AB790D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisWebSocketTesting", "RedisWebSocketTesting\RedisWebSocketTesting.csproj", "{0D452996-54CE-4DEE-9946-93ED557231BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{76EE6E63-CDDB-4A00-9DD5-00E589AB790D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76EE6E63-CDDB-4A00-9DD5-00E589AB790D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76EE6E63-CDDB-4A00-9DD5-00E589AB790D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D452996-54CE-4DEE-9946-93ED557231BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D452996-54CE-4DEE-9946-93ED557231BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D452996-54CE-4DEE-9946-93ED557231BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D452996-54CE-4DEE-9946-93ED557231BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
