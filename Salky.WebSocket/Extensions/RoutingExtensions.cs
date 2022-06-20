@@ -50,7 +50,7 @@ public static class RoutingExtensions
             serviceCollection.AddScoped(@class);
         serviceCollection
             .AddTransient<IRouterResolver, RouteResolver>()
-            .AddSingleton<IConnectionManager, ConnectionMannager>();
+            .AddSingleton<IPoolMannager, ConnectionMannager>();
         return new Builder(serviceCollection);
     }
 

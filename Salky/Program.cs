@@ -129,166 +129,64 @@ class User{
     public string Name { get; }
 }
 
-public class RedisConnectionMannager : IConnectionManager
-{
-    public RedisConnectionMannager(ConnectionMultiplexer connection,IConnectionManager Previus)
-    {
-        var thDId = Thread.GetDomainID();
-        this.ConnectionPoolId = Guid.NewGuid().ToString();
-        this.AppRedisBasePoolPath = CreateKey("app", thDId);
-        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
-        this.connection = connection;
-        this.Previus = Previus;
-    }
-    public RedisConnectionMannager(ConnectionMultiplexer connection)
-    {
-        var thDId = Thread.GetDomainID();
-        this.ConnectionPoolId = "root";
-        this.AppRedisBasePoolPath = CreateKey("app", thDId);
-        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
-        this.connection = connection;
-        Previus = this;
-    }
-    public Dictionary<string, SalkyWebSocket> Sockets = new();
-    public Dictionary<string, IConnectionManager> Pools = new ();
+//public class RedisConnectionMannager /*: IConnectionManager*/
+//{
+//    public RedisConnectionMannager(ConnectionMultiplexer connection, IConnectionManager Previus)
+//    {
+//        var thDId = Thread.GetDomainID();
+//        this.ConnectionPoolId = Guid.NewGuid().ToString();
+//        this.AppRedisBasePoolPath = CreateKey("app", thDId);
+//        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
+//        this.connection = connection;
+//        this.Previus = Previus;
+//    }
+//    public RedisConnectionMannager(ConnectionMultiplexer connection)
+//    {
+//        var thDId = Thread.GetDomainID();
+//        this.ConnectionPoolId = "root";
+//        this.AppRedisBasePoolPath = CreateKey("app", thDId);
+//        this.AppRedisConnectionsPath = CreateKey(AppRedisBasePoolPath, "connections");
+//        this.connection = connection;
+//    }
+//    public Dictionary<string, SalkyWebSocket> Sockets = new();
+//    public Dictionary<string, IConnectionManager> Pools = new();
 
-    public string AppRedisConnectionsPath { get; }
-    public string AppRedisBasePoolPath { get; }
+//    public string AppRedisConnectionsPath { get; }
+//    public string AppRedisBasePoolPath { get; }
 
-    private ConnectionMultiplexer connection;
-    private IDatabase redis_db=> connection.GetDatabase();
+//    private ConnectionMultiplexer connection;
+//    private IDatabase redis_db => connection.GetDatabase();
+//    public string ConnectionPoolId { get; }
+//    public int ConnectionsCount => Sockets.Count;
+//    public int PoolsCount => this.Pools.Count;
+//    public IConnectionManager Previus { get; }
+//    public void AddSocket(string key, SalkyWebSocket data)
+//    {
+//        var added = redis_db.SetAdd(AppRedisConnectionsPath, new List<RedisValue>() { key }.ToArray());
+//        if (added == 0) throw new Exception("User is alredy on redis database, please remove beffore add");
+//        this.Sockets.Add(key, data);
+//    }
+//    private string CreateKey(params object[] values)
+//    {
+//        var str = "";
+//        foreach (var x in values) str += x.ToString() + ":";
+//        return str.Trim(':');
+//    }
 
-    public string ConnectionPoolId { get; }
+//    public bool ContainsSocketKey(string key)
+//    {
+//        return redis_db.SetContains(AppRedisConnectionsPath, key);
+//    }
 
-    public int ConnectionsCount => Sockets.Count;
-
-    public int PoolsCount => this.Pools.Count;
-
-    public IConnectionManager Previus { get; }
-
-    public void AddSocket(string key, SalkyWebSocket data)
-    {
-        var added = redis_db.SetAdd(AppRedisConnectionsPath, new List<RedisValue>() { key }.ToArray());
-        if (added == 0) throw new Exception("User is alredy on redis database, please remove beffore add");
-        this.Sockets.Add(key, data);
-    }
-    private string CreateKey(params object[] values)
-    {
-        var str = "";
-        foreach (var x in values) str += x.ToString() + ":";
-        return str.Trim(':');
-    }
-    public IConnectionManager BackToRoot() => this.ConnectionPoolId == "root" ? this : this.Previus;
-
-    public bool ContainsSocketKey(string key)
-    {
-        return redis_db.SetContains(AppRedisConnectionsPath, key);
-    }
-  
-    public IConnectionManager CreateConnectionPool(string connectionPoolId, params string[] participantsId)
-    {
-        var added = redis_db.SetAdd(AppRedisConnectionsPath, participantsId.Select(x => new RedisValue(x)).ToArray());
-        if(added != participantsId.Length) throw new InvalidOperationException();
-        //PROBLEMA, COMO A POOLID NÃO ESTÁ SENDO CONSIDERADA, VAI DAR ERROR NA HORA DE ADICIONAR.
-        var @new =  new RedisConnectionMannager(this.connection, this);
-        participantsId.Where(x => Sockets.ContainsKey(x)).Select(x => new { sock = Sockets[x] ,key = x}).ToList().ForEach(x => @new.AddSocket(x.key,x.sock));
-        return @new;
-    }
+//    public IConnectionManager CreateConnectionPool(string connectionPoolId, params string[] participantsId)
+//    {
+//        var added = redis_db.SetAdd(AppRedisConnectionsPath, participantsId.Select(x => new RedisValue(x)).ToArray());
+//        if (added != participantsId.Length) throw new InvalidOperationException();
+//        //PROBLEMA, COMO A POOLID NÃO ESTÁ SENDO CONSIDERADA, VAI DAR ERROR NA HORA DE ADICIONAR.
+//        var @new = new RedisConnectionMannager(this.connection, this);
+//        participantsId.Where(x => Sockets.ContainsKey(x)).Select(x => new { sock = Sockets[x], key = x }).ToList().ForEach(x => @new.AddSocket(x.key, x.sock));
+//        return @new;
+//    }
+//}
 
 
-
-    public IConnectionManager GetConnectionPool(string connectionPoolId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IConnectionManager GetOrCreateConnectionPool(string PoolId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IConnectionManager? NavigateTo(Func<IConnectionManager, bool> ValidatePool, params string[] PoolsKey)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IConnectionManager?> NavigateTo(Func<IConnectionManager, Task<bool>> ValidatePool, params string[] PoolsKey)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IConnectionManager? NavigateTo(params string[] PoolsKey)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool PoolExist(string poolId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IConnectionManager RemoveConnectionPool(string connectionPoolId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool RemoveSocket(string key, SalkyWebSocket SalkySocket)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<T> SelectManySocket<T>(Func<SalkyWebSocket, T> selector)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SendToAll<T>(string path, Method method, T data, Status status = Status.Success) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SendToAll<T>(Func<SalkyWebSocket, bool> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SendToAll<T>(Func<SalkyWebSocket, Task<bool>> CanSendToThis, string path, Method method, T data, Status status = Status.Success) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool TryGetConnectionPool(string connectionPoolId, [NotNullWhen(true)] out IConnectionManager? connectionPool)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool TryGetSocket(string key, [NotNullWhen(true)] out SalkyWebSocket? sock)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool TryRemoveConnectionPool(string connectionPoolId, [NotNullWhen(true)] out IConnectionManager? removedPool)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool TryRemoveSocket(string key, [NotNullWhen(true)] out SalkyWebSocket? removedData)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<SalkyWebSocket> WhereSocket(Func<SalkyWebSocket, bool> evaluate)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void ForEachSocket(Action<SalkyWebSocket> action)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task ForEachSocket(Func<SalkyWebSocket, Task> action)
-    {
-        throw new NotImplementedException();
-    }
-}

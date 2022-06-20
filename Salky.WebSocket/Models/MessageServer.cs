@@ -14,7 +14,7 @@ public class MessageServer
         Status = status;
     }
 
-    public MessageServer(string path, Method method,Status status, object data) : this(path,method,status)
+    public MessageServer(string path, Method method,Status status, object? data) : this(path,method,status)
     {
         Data = data;
     }

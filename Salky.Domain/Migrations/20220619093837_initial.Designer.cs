@@ -11,7 +11,7 @@ using Salky.Domain.Contexts;
 namespace Salky.Domain.Migrations
 {
     [DbContext(typeof(SalkyDbContext))]
-    [Migration("20220616104206_initial")]
+    [Migration("20220619093837_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

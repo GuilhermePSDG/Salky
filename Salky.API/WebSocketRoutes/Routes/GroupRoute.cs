@@ -30,7 +30,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             var usrId = Claims.GetUserId().ToString();
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
-                AddInPool(member.GroupId.ToString(),member.Id.ToString(), UserSocket);
+                AddInPool(member.GroupId.ToString(),usrId);
             });
         }
 
@@ -41,7 +41,8 @@ namespace Salky.API.WebSocketRoutes.Routes
             var usrId = Claims.GetUserId().ToString();
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
-                TryRemoveFromPool(member.GroupId.ToString(), member.Id.ToString());
+                TryRemoveFromPool(member.GroupId.ToString(), usrId);
+                TryRemoveFromPool(member.GroupId.ToString()+"/call", usrId);
             });
         }
             
@@ -80,8 +81,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                 }
                 else
                 {
-                    var pool = GetPool(GroupId.ToString());
-                    await pool.SendToAll(CurrentPath, Method.PUT, new ChangeName(groupDto.Id, groupDto.Name));
+                    await SendToAllInPool(GroupId.ToString(), CurrentPath, Method.PUT, new ChangeName(groupDto.Id, groupDto.Name));
                 }
             }
             catch (Exception ex)
@@ -94,9 +94,11 @@ namespace Salky.API.WebSocketRoutes.Routes
         [WsPost("create")]
         public async Task Create(string GroupName)
         {
-            var group = await groupService.CreateNewPublicGroup(Claims.GetUserId(), GroupName);
-            var member = await this.groupMemberService.GetMemberWithRole(Claims.GetUserId(), group.Id) ?? throw new InvalidOperationException();
-            AddInPool(group.Id.ToString(), member.Id.ToString(),UserSocket);
+            var uId = Claims.GetUserId();
+            var group = await groupService.CreateNewPublicGroup(uId, GroupName);
+            var member = await this.groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
+            //PROBLEMA DE ID
+            AddInPool(group.Id.ToString(), uId.ToString());
             await SendBack(group, CurrentPath, Method.POST);
         }
 
@@ -108,9 +110,8 @@ namespace Salky.API.WebSocketRoutes.Routes
                 var removed = await groupService.RemoveGroup(Claims.GetUserId(), GroupId);
                 if (removed)
                 {
-                    var pool = GetPool(GroupId.ToString());
-                    await pool.SendToAll(CurrentPath, Method.DELETE, GroupId);
-                    pool.Previus.TryRemoveConnectionPool(GroupId.ToString(),out _);
+                    await SendToAllInPool(GroupId.ToString(), CurrentPath, Method.DELETE, GroupId);
+                    DeletePool(GroupId.ToString());
                 }
                 else
                 {

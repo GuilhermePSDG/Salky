@@ -28,13 +28,10 @@ export class SearchUserComponent implements OnInit {
         this.friends = friends;
       },
     });
-    this.friendService.onFriendAddComfirmReceived((friend) =>
-      this.OnComplete.emit(friend)
-    );
   }
   public searchText: string = '';
   public SearchUserResult?: User[];
-  @Output() OnComplete = new EventEmitter<Friend>();
+  @Output() OnComplete = new EventEmitter<boolean>();
 
   locked = false;
   lockedReturn = false;
@@ -76,5 +73,6 @@ export class SearchUserComponent implements OnInit {
 
   public addContact(member: User) {
     this.friendService.SendFriendRequest(member.id);
+    this.OnComplete.emit(true)
   }
 }

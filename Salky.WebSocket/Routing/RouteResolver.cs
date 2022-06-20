@@ -20,59 +20,53 @@ namespace Salky.WebSocket.Infra.Routing
             .Where(x => x.GetCustomAttribute(typeof(WebSocketRoute)) != null && x.IsAssignableTo(typeof(WebSocketRouteBase)))
             .ToArray();
         private static Dictionary<string, RouteInfo> Routes = MapRoutes();
-        private static MethodInfo WebSocketRouteBase_Inject_Method = typeof(WebSocketRouteBase).GetMethod("Inject", BindingFlags.NonPublic | BindingFlags.Instance);
-
+        private static MethodInfo WebSocketRouteBase_Inject_Method = typeof(WebSocketRouteBase).GetMethod("Inject", BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new NullReferenceException();
+        private static MethodInfo WebSocketRouteBase_Constructor_Method = typeof(WebSocketRouteBase).GetMethod("Constructor", BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new NullReferenceException();
+        
         public ILogger<RouteResolver> Logger { get; }
 
         public RouteResolver(ILogger<RouteResolver> logger)
         {
             Logger = logger;
         }
-
        
-        public async Task Route(SalkyWebSocket connectionWs, MessageServer messageServer)
+        public async Task Route(SalkyWebSocket connectionWs, MessageServer messageServer,IServiceProvider provider)
         {
-            try
+            var key = CreateRouteKey(messageServer.Path, messageServer.Method);
+            if (!Routes.TryGetValue(key, out var routeInfoFound) || messageServer.Method.IsInternalMethod())
             {
-                var key = CreateRouteKey(messageServer.Path, messageServer.Method);
-                if (!Routes.TryGetValue(key, out var routeInfoFound) || messageServer.Method.IsInternalMethod())
-                {
-                    await connectionWs.SendErrorAsync($"Cannot resolve route for path : {messageServer.Path} and method : {messageServer.Method}","error");
-                    return;
-                }
-                var parameter = ParameterCaster(routeInfoFound, messageServer.Data);
-                await ExecuteRoute(connectionWs, routeInfoFound, parameter);
+                await connectionWs.SendErrorAsync($"Cannot resolve route for path : {messageServer.Path} and method : {messageServer.Method}","error");
+                return;
             }
-            catch(Exception ex)
-            {
-                this.Logger.LogError(ex, "Erro no roteamento");
-            }
+            var parameter = ParameterCaster(routeInfoFound, messageServer.Data);
+            await ExecuteRoute(connectionWs, routeInfoFound, parameter, provider);
         }
-
-        public async Task AfterClose(SalkyWebSocket connectionWs) => await RouteInternal(connectionWs, Method._CONNECTIONCLOSED);
-        public async Task AfterOpen(SalkyWebSocket connectionWs) => await RouteInternal(connectionWs, Method._AFTERCONNECTIONOPEN);
-        private async Task RouteInternal(SalkyWebSocket connectionWs, Method method)
+        
+        public async Task AfterClose(SalkyWebSocket connectionWs,IServiceProvider provider) => await RouteInternal(connectionWs, Method._CONNECTIONCLOSED,provider);
+        public async Task AfterOpen(SalkyWebSocket connectionWs,IServiceProvider provider) => await RouteInternal(connectionWs, Method._AFTERCONNECTIONOPEN,provider);
+        private async Task RouteInternal(SalkyWebSocket connectionWs, Method method,IServiceProvider provider)
         {
             if (!method.IsInternalMethod()) throw new InvalidOperationException("Ilegal method.");
 
             foreach (var route in Routes.Values.Where(x => x.RoutePath.Method == method))
             {
-                await ExecuteRoute(connectionWs, route, new object[] { });
+                await ExecuteRoute(connectionWs, route, new object[] { }, provider);
             }
         }
-        private async Task ExecuteRoute(SalkyWebSocket connectionWs, RouteInfo route, object[] parameters)
+        private async Task ExecuteRoute(SalkyWebSocket connectionWs, RouteInfo route, object[] parameters,IServiceProvider provider)
         {
-            var objtIstance = RecoveryObjectInstance(connectionWs, route.ClassType);
-            WebSocketRouteBase_Inject_Method.Invoke(objtIstance, new object[] { connectionWs, route.RoutePath.Path });
+            var objtIstance = provider.GetRequiredService(route.ClassType);
+            var instanceCast= (WebSocketRouteBase)objtIstance;
+            instanceCast.Constructor(connectionWs,provider);
+            instanceCast.Inject(route.RoutePath.Path);
             var returned = route.Execute(objtIstance, parameters);
             await WaitIfIsTask(returned);
         }
 
-
         public record RouteDoc(string Path,string Method,string? ParameterType,object? ParameterJson);
         public static List<RouteDoc> RouteDocs() =>
-            MapRoutes().Values
-                .Where(x => (int)x.RoutePath.Method > 0)
+           Routes.Values
+                .Where(x => !x.RoutePath.Method.IsInternalMethod())
                 .Select(x => new RouteDoc(
                     x.RoutePath.Path,
                     x.RoutePath.Method.ToString(),
@@ -111,9 +105,6 @@ namespace Salky.WebSocket.Infra.Routing
 
         private static string CleanPath(string path) => path.Trim(' ', '/').ToLower();
         private static string CreateRouteKey(string path, Method method) => $"{CleanPath(path)}{method}".ToLower();
-        
-        private static object RecoveryObjectInstance(SalkyWebSocket connectionWs, Type type)
-            => connectionWs.Storage.Get<IServiceProvider>().GetRequiredService(type);
 
         private static ParameterInfo[] ValidateParameters(ParameterInfo[] methodParam)
             =>  methodParam.Length > 1 ?  throw new InvalidRouteException($"A {nameof(WebSocketRoute)} cannot receive more than one parammeter") : methodParam;

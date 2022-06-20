@@ -18,24 +18,24 @@ namespace Salky.API.WebSocketRoutes.Models
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public GroupRole? Roles { get; private set; }
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
-        public string? CurrentCallPath { get; private set; } = null;
+        public string? PoolPath { get; private set; } = null;
 
         /// <summary>
         /// Todas as propiedades relacionadas a call serão setadas para null ou false
         /// </summary>
         public void ZeroCallProperties()
         {
-            this.CurrentCallPath = null;
+            this.PoolPath = null;
             this.IsInCall = false;
             this.GroupId = null;
             this.MemberId = null;
             this.Roles = null;
         }
-        public void FillCallProperties(string currentCallGroupId, string currentCallPath, string CurrentCallMemberId,GroupRole roles)
+        public void FillCallProperties(string GroupId, string PoolPath, string CurrentCallMemberId,GroupRole roles)
         {
             this.IsInCall = true;
-            this.CurrentCallPath = currentCallPath;
-            this.GroupId = currentCallGroupId;
+            this.PoolPath = PoolPath;
+            this.GroupId = GroupId;
             this.MemberId = CurrentCallMemberId;
             this.Roles = roles;
         }

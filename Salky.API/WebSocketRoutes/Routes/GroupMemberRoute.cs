@@ -1,4 +1,5 @@
-﻿using Salky.App.Services.Group;
+﻿using Salky.App.Services.Friends;
+using Salky.App.Services.Group;
 using Salky.App.Services.User;
 
 namespace Salky.API.WebSocketRoutes.Routes
@@ -10,13 +11,21 @@ namespace Salky.API.WebSocketRoutes.Routes
         public UserService userService;
         private readonly ILogger<GroupService> log;
         private readonly GroupMemberService groupMemberService;
+        private readonly FriendService friendService;
 
-        public GroupMemberRoute(GroupService groupService, UserService userService, ILogger<GroupService> log, GroupMemberService groupMemberService)
+        public GroupMemberRoute(
+            GroupService groupService, 
+            UserService userService, 
+            ILogger<GroupService> log, 
+            GroupMemberService groupMemberService,
+            FriendService friendService
+            )
         {
             this.groupService = groupService;
             this.userService = userService;
             this.log = log;
             this.groupMemberService = groupMemberService;
+            this.friendService = friendService;
         }
 
 
@@ -30,21 +39,15 @@ namespace Salky.API.WebSocketRoutes.Routes
                 var newMember = await groupMemberService.AddNewMemberByFriendId(Claims.GetUserId(), FriendId, groupId);
                 if (newMember != null)
                 {
-                    var pool = GetPool(groupId.ToString());
-                    await pool.SendToAll(CurrentPath, Method.POST, newMember);
-
-                    if(RootConnectionMannager.TryGetSocket(newMember.UserId.ToString(),out var usrSocket))
-                    {
-                        this.AddInPool(groupId.ToString(),newMember.Id.ToString() , usrSocket);
-                        var groupDto = await this.groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
-                        await usrSocket.SendMessageServer(new("group/create",Method.POST, Status.Success,groupDto));
-                    }
+                    await SendToAllInPool(groupId.ToString(), CurrentPath, Method.POST, newMember);
+                    this.AddInPool(groupId.ToString(), newMember.UserId.ToString());
+                    var groupDto = await this.groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
+                    await SendToOneInPool(groupId.ToString(), newMember.UserId.ToString(), "group/create",Method.POST,groupDto);
                 }
                 else
                 {
                     await SendErrorBack(CurrentPath, "Não foi possível adicionar o usuario no grupo");
                 }
-
             }
             catch (Exception ex)
             {
@@ -62,14 +65,15 @@ namespace Salky.API.WebSocketRoutes.Routes
                 var removedMember = await groupMemberService.RemoveGroupMember(Claims.GetUserId(), MemberId);
                 if (removedMember != null)
                 {
+                    var groupId = removedMember.GroupId.ToString();
+                    var removedMemberUsrId = removedMember.UserId.ToString();
                     var data = new RemoveMember(removedMember.Id, removedMember.GroupId);
-
-                    var pool = GetPool(removedMember.GroupId.ToString());
-                    if(pool.TryRemoveSocket(removedMember.Id.ToString(), out var removedsock))
-                    {
-                        await removedsock.SendMessageServer(new MessageServer("group", Method.DELETE, Status.Success,data.GroupId));
-                    }
-                    await GetPool(removedMember.GroupId.ToString()).SendToAll(CurrentPath, Method.DELETE, data);
+                    await SendToOneInPool(groupId, removedMemberUsrId, "group", Method.DELETE, groupId);
+                    TryRemoveFromPool(groupId, removedMemberUsrId);
+                    await SendToAllInPool(
+                           PoolId: groupId,
+                           Path: CurrentPath,Method.DELETE,data
+                           );
                 }
                 else
                 {
@@ -82,8 +86,6 @@ namespace Salky.API.WebSocketRoutes.Routes
                 await SendErrorBack(CurrentPath, "Erro ao remover o membro do grupo");
             }
         }
-
-
 
     }
 }

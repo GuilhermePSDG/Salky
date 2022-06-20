@@ -12,12 +12,6 @@ namespace Salky.Domain.Repositories
 
         }
 
-        public async Task<List<Friend>> GetAll(Guid userId, bool includeAll = false)
-        {
-            return await Query(includeAll)
-                .Where(x => x.RequestedById == userId || x.RequestedToId == userId)
-                .ToListAsync();
-        }
 
         public async Task<List<Friend>> GetAllAprovedOrPending(Guid userId, bool includeAll)
         {
@@ -25,30 +19,6 @@ namespace Salky.Domain.Repositories
             .Where(x => (x.RequestedById == userId || x.RequestedToId == userId) && (x.FriendRequestFlag == RelationShipStatus.Approved || x.FriendRequestFlag == RelationShipStatus.Pending))
             .ToListAsync();
         }
-
-        public async Task<List<Friend>> GetAllPending(Guid userId, bool includeAll)
-        {
-            return await Query(includeAll)
-                .Where(x => (x.RequestedById == userId || x.RequestedToId == userId) && x.FriendRequestFlag == RelationShipStatus.Pending)
-                .ToListAsync();
-        }
-
-        public async Task<List<Friend>> GetAllAproved(Guid userId, bool includeAll = false)
-        {
-            return await Query(includeAll)
-                .Where(x => (x.RequestedById == userId || x.RequestedToId == userId) && x.FriendRequestFlag == RelationShipStatus.Approved)
-                .ToListAsync();
-        }
-
-        public bool HasFriend(Guid userId, Guid otherUserId)
-        {
-            return Query(false).Any(x =>
-           x.RequestedById == userId && x.RequestedToId == otherUserId
-           ||
-           x.RequestedToId == userId && x.RequestedById == otherUserId
-            );
-        }
-
 
         public async Task<Friend?> GetByUsersId(Guid userId, Guid otherUserId)
         {
@@ -58,7 +28,6 @@ namespace Salky.Domain.Repositories
            x.RequestedToId == userId && x.RequestedById == otherUserId
             );
         }
-
 
         public async Task<Friend?> GetById(Guid userId, Guid FriendId, bool IncludeAll)
         {

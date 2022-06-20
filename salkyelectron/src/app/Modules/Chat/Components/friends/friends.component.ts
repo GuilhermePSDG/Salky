@@ -13,8 +13,8 @@ import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
   styleUrls: ['./friends.component.scss'],
 })
 export class FriendsComponent
-extends EventsDestroyables
- implements OnInit,OnDestroy {
+  extends EventsDestroyables
+  implements OnInit, OnDestroy {
   staticFriends: Friend[] = [];
   friends: Friend[] = [];
   loggedUser: UserLogged;
@@ -37,37 +37,9 @@ extends EventsDestroyables
         this.changeTo({ flag: null })
       },
     });
-
-    var sub2 =this.friendService.onFriendAccept((friend) =>
-      this.addOrUpdateFriend(friend)
-    );
-    var sub3 = this.friendService.onFriendChangePicture(friendIn => {
-      console.log("processando mensagem")
-      console.log(friendIn)
-      console.log(this.friends)
-
-      var i = this.friends.findIndex(x => x.id === friendIn.friendId);
-      console.log(i)
-      if (i !== -1) {
-        this.friends[i].pictureSource = friendIn.pictureSource;
-      }
-    });
-    var sub4 = this.friendService.onFriendAddComfirmReceived((friend) => {
-      this.addOrUpdateFriend(friend);
-    });
-    var sub5 = this.friendService.onFriendAddReceived((friend) =>
-      this.addOrUpdateFriend(friend)
-    );
-    var sub6 = this.friendService.onFriendReject((friendId) =>
-      this.removeFriend(friendId)
-    );
-    var sub7 = this.friendService.onFriendCancel((friendId) =>
-      this.removeFriend(friendId)
-    );
-    var sub8 = this.friendService.onFriendDelete((friendId) =>
-      this.removeFriend(friendId)
-    );
-    this.AppendManyToDestroy(sub1,sub2,sub3,sub4,sub5,sub6,sub7,sub8);
+    var sub2 = this.friendService.onFriendPut((friend) => this.addOrUpdateFriend(friend));
+    var sub3 = this.friendService.onFriendDeleted(friend => this.removeFriend(friend.id)); 
+    this.AppendManyToDestroy(sub1, sub2,sub3);
   }
 
   removeFriend(friendId: string) {

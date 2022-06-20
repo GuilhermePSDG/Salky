@@ -15,15 +15,17 @@ public class SalkyWebSocket
     public void InvokeMessageReceived(MessageServer messageServer) => OnMessageReceived.Invoke(null, messageServer);
     public ConcurrentStorage Storage { get; } = new ConcurrentStorage();
     //
-    public Guid UniqueId = Guid.NewGuid();
+    public Guid UniqueRandomId = Guid.NewGuid();
     private System.Net.WebSockets.WebSocket webSocket { get; set; }
     public List<Claim> UserClaims { get; set; }
+    public string Key { get; }
 
-    public SalkyWebSocket(System.Net.WebSockets.WebSocket webSocket, List<Claim> UserClaims)
+    public SalkyWebSocket(System.Net.WebSockets.WebSocket webSocket, List<Claim> UserClaims,string Key)
     {
         this.CreatedAt = DateTime.UtcNow;
         this.webSocket = webSocket;
         this.UserClaims = UserClaims;
+        this.Key = Key;
     }
 
 

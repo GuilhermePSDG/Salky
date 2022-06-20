@@ -14,9 +14,12 @@ namespace Salky.API.WebSocketRoutes.Routes
     {
         //
         private readonly GroupMemberService groupMemberService;
-        public CallRoute(GroupMemberService groupMemberService)
+        private readonly ILogger<CallRoute> logger;
+
+        public CallRoute(GroupMemberService groupMemberService,ILogger<CallRoute> logger)
         {
             this.groupMemberService = groupMemberService;
+            this.logger = logger;
         }
         [WsAfterConnectionClosed]
         public async Task AfterClose()
@@ -24,14 +27,9 @@ namespace Salky.API.WebSocketRoutes.Routes
             try
             {
                 var usrCall = Storage.Get<GroupMemberCall>();
-                if (usrCall.IsInCall && usrCall.CurrentCallPath != null)
+                if (usrCall.IsInCall && usrCall.PoolPath != null)
                 {
-                    if(RootConnectionMannager.TryGetConnectionPool(usrCall.CurrentCallPath,out var pool))
-                        await pool.SendToAll(
-                            path: $"group/call",
-                            method: Method.DELETE,
-                            data: usrCall
-                            );
+                    await SendToAllInPool(usrCall.PoolPath, "group/call", Method.DELETE, usrCall);
                     usrCall.ZeroCallProperties();
                 }
             }
@@ -57,25 +55,17 @@ namespace Salky.API.WebSocketRoutes.Routes
                     await SendErrorBack(CurrentPath, "Usuario não pode entrar nesse grupo");
                     return;
                 }
-
-                var groupPool = GetPool(groupid);
-                var usrCall = Storage.Get<GroupMemberCall>();
-                if (usrCall.IsInCall)
-                {
-                    await QuitFromCall();
-                }
-                //Atualiza o usuario
-                usrCall.FillCallProperties(groupid,groupid, member.Id.ToString(),member.GroupRole);
-                usrCall.AudioState = callEntry.AudioState;
-                //Faz o envio do usuario conectado, para os outros
-                await groupPool.SendToAll(
-                 path: CurrentPath,
-                 method: Method.POST,
-                 data: usrCall
-                 );
+                var callMember = Storage.Get<GroupMemberCall>();
+                if (callMember.IsInCall) await QuitFromCall();
+                var poolPath = $"{groupid}/call";
+                callMember.FillCallProperties(groupid, poolPath, member.Id.ToString(), member.GroupRole);
+                callMember.AudioState = callEntry.AudioState;
+                AddInPool(poolPath, member.UserId.ToString());
+                await SendToAllInPool(groupid, CurrentPath, Method.POST, callMember);
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Erro ao entrar na chamada");
                 await SendErrorBack(CurrentPath, "Erro ao entrar na chamada " + ex.Message);
             }
         }
@@ -91,16 +81,11 @@ namespace Salky.API.WebSocketRoutes.Routes
                     await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
                     return;
                 }
-                //Recupera a pool da call
-                var pool = GetPool(usrCall.CurrentCallPath ?? throw new InvalidOperationException());
-                if (pool == null)
-                {
-                    await SendErrorBack(CurrentPath, "Não foi possivel recuperar a chamada.");
-                    return;
-                }
+                TryRemoveFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
                 //Faz o envio da notificação para quem interessar
-                await pool.SendToAll(
-                    path: CurrentPath,
+                await SendToAllInPool(
+                    PoolId:usrCall.GroupId ?? throw new NullReferenceException(),
+                    Path: CurrentPath,
                     method: Method.DELETE,
                     data: usrCall
                     );
@@ -109,6 +94,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Erro ao sair da chamada");
                 await SendErrorBack(CurrentPath, "Erro ao sair da chamada " + ex.Message);
             }
         }
@@ -118,7 +104,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             try
             {
                 var usr = Storage.Get<GroupMemberCall>();
-                if (!usr.IsInCall || usr.CurrentCallPath == null || usr.GroupId == null)
+                if (!usr.IsInCall || usr.PoolPath == null || usr.GroupId == null)
                 {
                     await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
                     return;
@@ -128,41 +114,19 @@ namespace Salky.API.WebSocketRoutes.Routes
                     await SendErrorBack(CurrentPath, "Usuario está mutado.");
                     return;
                 }
-                var connectionPool = GetPool(usr.CurrentCallPath);
-                if (connectionPool == null)
-                {
-                    await SendErrorBack(CurrentPath, "Não foi possivel encontrar a chamada.");
-                    try
-                    {
-                        await this.QuitFromCall();
-                    }
-                    finally
-                    {
-                        usr.ZeroCallProperties();
-                    }
 
-                    return;
+                var usrId = Claims.GetUserId().ToString();
+                foreach(var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
+                {
+                    var callState = storage.Value.Get<GroupMemberCall>();
+                    if (storage.Key != usrId && callState.AudioState.CanHear)
+                        await SendToOneInPool(usr.PoolPath,storage.Key, CurrentPath, Method.REDIRECT, data);
                 }
-                throw new InvalidOperationException("É necessário alterar para uma connection pool de call, ao invez de verificar se pode enviar o audio.");
-                //Faz o envio do audio
-                //await connectionPool.SendToAll(
-                //    CanSendToThis: socket =>
-                //    {
-                //        var otherUser = socket.Storage.Get<GroupMemberCall>();
-                //        return 
-                //        otherUser.IsInCall &&
-                //        otherUser.GroupId == usr.GroupId &&
-                //        otherUser.AudioState.CanHear &&
-                //        socket.UniqueId != UserSocket.UniqueId
-                //        ;
-                //    },
-                //    path: CurrentPath,
-                //    method: Method.REDIRECT,
-                //    data: data
-                //    );
+
             }
-            catch
+            catch(Exception ex)
             {
+                logger.LogError(ex, "Erro ao enviar o audio");
                 await SendErrorBack("group/call/audio", "Erro ao enviar o audio");
             }
         }
@@ -171,14 +135,12 @@ namespace Salky.API.WebSocketRoutes.Routes
         {
             if (await groupMemberService.UserMakePartOfGroup(Claims.GetUserId(), GroupId))
             {
-                var groupId = GroupId.ToString();
-                var groupPool = GetPool(groupId);
-                var users = groupPool
-                    .WhereSocket(sock => sock.ConnectionsIsOpen && sock.Storage.Has<GroupMemberCall>())
-                    .Select(x => x.Storage.Get<GroupMemberCall>())
-                    .Where(usr => usr.IsInCall && usr.GroupId == groupId)
+                var poolPath = $"{GroupId}/call";
+                var usrs = RootConnectionMannager
+                    .GetStorageOfManyInPool(poolPath)
+                    .Select(x => x.Value.Get<GroupMemberCall>())
                     .ToList();
-                await SendBack(users, CurrentPath, Method.GET_RESPONSE);
+                await SendBack(usrs, CurrentPath, Method.GET_RESPONSE);
             }
             else
             {
@@ -193,7 +155,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             var usrCall = Storage.Get<GroupMemberCall>();
             usrCall.AudioState = userUiInfo;
             if (usrCall.IsInCall && usrCall.GroupId != null)
-                await GetPool(usrCall.GroupId).SendToAll(CurrentPath, Method.PUT, usrCall);
+                await SendToAllInPool(usrCall.GroupId.ToString(), CurrentPath, Method.PUT, usrCall);
             Storage.AddOrUpdate(usrCall);
         }
 

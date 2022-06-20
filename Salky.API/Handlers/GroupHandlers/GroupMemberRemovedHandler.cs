@@ -8,33 +8,22 @@ namespace Salky.API.Handlers.GroupHandlers
 {
     public class GroupMemberRemovedHandler : IHandler<GroupMemberRemoved>
     {
-        public GroupMemberRemovedHandler(IConnectionManager connectionMannager)
+        public GroupMemberRemovedHandler(IPoolMannager connectionMannager)
         {
             ConnectionMannager = connectionMannager;
         }
 
-        public IConnectionManager ConnectionMannager { get; }
+        public IPoolMannager ConnectionMannager { get; }
 
         public async void Handle(GroupMemberRemoved args)
         {
             try
             {
-                if(ConnectionMannager.TryGetSocket(args.groupMember.UserId.ToString(), out var memberSock))
-                {
-                    if (memberSock.Storage.TryGet<GroupMemberCall>(out var usrCall))
-                    {
-                        if (usrCall.IsInCall && usrCall.CurrentCallPath != null)
-                        {
-                            if (ConnectionMannager.TryGetConnectionPool(usrCall.CurrentCallPath, out var pool))
-                                await pool.SendToAll(
-                                    path: $"group/call",
-                                    method: Method.DELETE,
-                                    data: usrCall
-                                    );
-                            usrCall.ZeroCallProperties();
-                        }
-                    }
-                }
+                if (!ConnectionMannager.TryGet(args.groupMember.UserId.ToString(), out var memberSock)) return;
+                if (!memberSock.Storage.TryGet<GroupMemberCall>(out var usrCall)) return;
+                if (!(usrCall.IsInCall && usrCall.PoolPath != null && usrCall.PoolPath.Contains(args.groupMember.GroupId.ToString()))) return;
+                await ConnectionMannager.SendToAllInPool(usrCall.PoolPath,$"group/call", Method.DELETE, usrCall);
+                usrCall.ZeroCallProperties();
             }
             catch
             {

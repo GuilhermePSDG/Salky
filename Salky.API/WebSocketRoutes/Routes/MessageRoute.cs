@@ -7,12 +7,10 @@ namespace Salky.API.WebSocketRoutes.Routes
     public class MessageRoute : WebSocketRouteBase
     {
         private GroupMessageService messageService;
-        private readonly GroupService groupService;
 
-        public MessageRoute(GroupMessageService messageService, GroupService groupService)
+        public MessageRoute(GroupMessageService messageService)
         {
             this.messageService = messageService;
-            this.groupService = groupService;
         }
 
         [WsRedirect]
@@ -27,18 +25,13 @@ namespace Salky.API.WebSocketRoutes.Routes
                     await SendErrorBack(CurrentPath, "Não foi possivel adicionar a mensagem");
                     return;
                 }
-                var pool = GetPool(msgResult.GroupId.ToString());
-                if (pool != null)
-                {
-                    await pool.SendToAll(CurrentPath, Method.POST, msgResult);
-                }
+                await SendToAllInPool(msgResult.GroupId.ToString(), CurrentPath, Method.POST, msgResult);
             }
             catch
             {
                 await SendErrorBack(CurrentPath, "Erro ao fazer o envio da mensagem");
             }
         }
-
 
         [WsDelete]
         public async void RemoveMessage(Guid messageId)
@@ -48,8 +41,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                 var removedMsg = await messageService.RemoveMessage(Claims.GetUserId(), messageId);
                 if (removedMsg != null)
                 {
-                    var pool = GetPool(removedMsg.GroupId.ToString());
-                    await pool.SendToAll(CurrentPath, Method.DELETE, new
+                    await SendToAllInPool(removedMsg.GroupId.ToString(), CurrentPath, Method.DELETE, new
                     {
                         removedMsg.GroupId,
                         MessageId = removedMsg.Id

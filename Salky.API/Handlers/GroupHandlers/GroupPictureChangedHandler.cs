@@ -7,18 +7,15 @@ namespace Salky.API.Handlers
 {
     public class GroupPictureChangedHandler : IHandler<GroupPictureChanged>
     {
-        public IConnectionManager ConnectionMannager { get; }
-        public GroupPictureChangedHandler(IConnectionManager connectionMannager)
+        public IPoolMannager ConnectionMannager { get; }
+        public GroupPictureChangedHandler(IPoolMannager connectionMannager)
         {
             ConnectionMannager = connectionMannager;
         }
 
         public async void Handle(GroupPictureChanged args)
         {
-            if (ConnectionMannager.TryGetConnectionPool(args.Id.ToString(), out var pool))
-            {
-                await pool.SendToAll("group/change/picture", Method.PUT, args);
-            }
+            await ConnectionMannager.SendToAllInPool(args.Id.ToString(), "group/change/picture", Method.PUT, args);
         }
     }
 }

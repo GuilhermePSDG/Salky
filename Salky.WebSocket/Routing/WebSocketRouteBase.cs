@@ -10,20 +10,32 @@ namespace Salky.WebSocket.Infra.Routing
 {
     public class WebSocketRouteBase
     {
-        public IConnectionManager RootConnectionMannager;
-        public WebSocketRouteBase()  { }
+        public IPoolMannager RootConnectionMannager;
+        public WebSocketRouteBase() 
+        {
+     
+        }
         public SalkyWebSocket UserSocket { get; set; }
         public ConcurrentStorage Storage => UserSocket.Storage;
 
         public string CurrentPath = "";
+        private IServiceProvider provider;
 
         public List<Claim> Claims => UserSocket.UserClaims;
-        
-        private void Inject(SalkyWebSocket webSocket,string CurrentPath)
+
+        bool builded = false;
+        internal void Constructor(SalkyWebSocket webSocket,IServiceProvider provider)
         {
-            this.UserSocket = webSocket;
-            var serviceProvider = UserSocket.Storage.Get<IServiceProvider>();
-            this.RootConnectionMannager = serviceProvider.GetRequiredService<IConnectionManager>();
+            if (!builded)
+            {
+                this.provider = provider;
+                this.RootConnectionMannager = provider.GetRequiredService<IPoolMannager>();
+                this.UserSocket = webSocket;
+                builded = true;
+            }
+        }
+        internal void Inject(string CurrentPath)
+        {
             this.CurrentPath = CurrentPath;
         }
 
@@ -57,34 +69,36 @@ namespace Salky.WebSocket.Infra.Routing
                 status: Status.Error
                 );
         }
-        public void AddInPool(string PoolId,string SocketKey,SalkyWebSocket socket)
+
+        public void DeletePool(string PoolId)
         {
-            var pool = this.RootConnectionMannager.GetOrCreateConnectionPool(PoolId);
-            if (pool.ContainsSocketKey(SocketKey))
-            {
-                if(!pool.RemoveSocket(SocketKey, socket))
-                {
-                    throw new InvalidOperationException("Duplicated Connection");
-                }
-            }
-            pool.AddSocket(SocketKey, socket);
+            this.RootConnectionMannager.RemoveAllFromPool(PoolId);
         }
 
-        public bool TryRemoveFromPool(string PoolId,string SocketKey)
+        /// <summary>
+        /// MUITOS PROBLEMAS DE ID EM QUEM CHAMA ESTE METODO
+        /// </summary>
+        /// <param name="PoolId"></param>
+        /// <param name="SocketKey"></param>
+        public void AddInPool(string PoolId,params string[] SocketKey)
         {
-            if(this.RootConnectionMannager.TryGetConnectionPool(PoolId,out var pool))
-            {
-                return pool.TryRemoveSocket(SocketKey,out var socket);
-            }
-            return false;
+            RootConnectionMannager.AddInPool(PoolId, SocketKey);
         }
 
-
-        public IConnectionManager GetPool(string PoolId)
+        public void TryRemoveFromPool(string PoolId,string SocketKey)
         {
-            return RootConnectionMannager.NavigateTo(PoolId) ?? throw new NullReferenceException();
+            RootConnectionMannager.RemoveFromConnectionPool(PoolId,SocketKey);
         }
 
+        public async Task SendToAllInPool<T>(string PoolId,string Path,Method method,T data) where T : notnull
+        {
+            await RootConnectionMannager.SendToAllInPool(PoolId, Path, method, data);
+        }
+
+        public async Task SendToOneInPool<T>(string PoolId,string ReceiverIndentifier, string Path, Method method, T data) where T : notnull
+        {
+            await RootConnectionMannager.SendToOneInPool(PoolId, ReceiverIndentifier,Path, method, data);
+        }
 
     }
 }

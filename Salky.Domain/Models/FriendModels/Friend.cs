@@ -11,68 +11,30 @@ namespace Salky.Domain.Models.FriendModels
         {
 
         }
-        /// <summary>
-        /// Is who start the relationship
-        /// </summary>
         [Column(Order = 0)]
         public Guid RequestedById { get; private set; }
-        /// <summary>
-        /// Is who will receive the request of the relationship
-        /// </summary>
         [Column(Order = 1)]
         public Guid RequestedToId { get; private set; }
-        /// <summary>
-        /// Is who start the relationship
-        /// </summary>
         public virtual User RequestedBy { get; private set; }
-        /// <summary>
-        /// Is who will receive the request of the relationship
-        /// </summary>
         public virtual User RequestedTo { get; private set; }
-
         public List<FriendMessage> Messages { get; private set; }
-        
         public DateTime? RequestTime { get; private set; }
-
         public DateTime? BecameFriendsTime { get; private set; }
-
         public RelationShipStatus FriendRequestFlag { get; private set; }
 
-        [NotMapped]
-        public bool Approved => FriendRequestFlag == RelationShipStatus.Approved;
 
-        public static Friend CreateFriend(Guid userId, Guid friendUserId)
+        public static Friend CreateFriend(Guid userId, Guid OtherUserId)
         {
+            if (userId == OtherUserId) throw new InvalidOperationException("User cannot be your own friend");
             return new Friend()
             {
+                //Id=Guid.NewGuid(),
                 RequestedById = userId,
-                RequestedToId = friendUserId,
+                RequestedToId = OtherUserId,
                 RequestTime = DateTime.UtcNow,
                 FriendRequestFlag = RelationShipStatus.Pending
             };
         }
-
-        /// <summary>
-        /// </summary>s
-        /// <returns> <see langword="true"/> when can accept, otherwise <see langword="false"/></returns>
-        public bool TryAcceptFriendRequest(Guid whoWantAccept)
-        {
-            if(
-                FriendRequestFlag == RelationShipStatus.Pending &&
-                RequestedToId == whoWantAccept
-                )
-            {
-                BecameFriendsTime = DateTime.UtcNow;
-                FriendRequestFlag = RelationShipStatus.Approved;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool CanInteractBetween() => FriendRequestFlag == RelationShipStatus.Approved;
 
         public User GetUserOfFriendDiferentOf(Guid UserId)
         {
@@ -86,18 +48,42 @@ namespace Salky.Domain.Models.FriendModels
             }
             throw new InvalidOperationException("User is not one of the friends");
         }
+        public bool CanInteractBetween() => FriendRequestFlag == RelationShipStatus.Approved;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns> <see langword="true"/> when can reject, otherwise <see langword="false"/></returns>
-        private bool CanRejectFriendRequest(Guid whoWantReject)
+
+        #region FriendFlag Update
+        public bool TryUpdateFriendRequestTo(Guid CurrentUserId,RelationShipStatus TargetRelationStatus)
         {
-            return
-                FriendRequestFlag == RelationShipStatus.Pending &&
-                RequestedToId == whoWantReject;
+            switch (TargetRelationStatus)
+            {
+                case RelationShipStatus.Approved:
+                    return TryAcceptFriendRequest(CurrentUserId);
+                case RelationShipStatus.Removed:
+                    return TryChangeToRemoved(CurrentUserId);
+                case RelationShipStatus.Rejected:
+                    return TryRejectFriendRequest(CurrentUserId);
+                case RelationShipStatus.Canceled:
+                    return TryCancelFriendRequest(CurrentUserId);
+                case RelationShipStatus.Pending:
+                    return TryReturnToPending(CurrentUserId);
+                default:
+                    throw new InvalidOperationException();
+            }
         }
-        public bool RejectFriendRequest(Guid whoWantReject)
+        private bool TryAcceptFriendRequest(Guid whoWantAccept)
+        {
+            if (CanAcceptFriendRequest(whoWantAccept))
+            {
+                BecameFriendsTime = DateTime.UtcNow;
+                FriendRequestFlag = RelationShipStatus.Approved;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool TryRejectFriendRequest(Guid whoWantReject)
         {
             if (CanRejectFriendRequest(whoWantReject))
             {
@@ -109,56 +95,61 @@ namespace Salky.Domain.Models.FriendModels
                 return false;
             }
         }
-
-        public bool TryReturnToPending(Guid userId)
+        private bool TryReturnToPending(Guid userId)
         {
-            if (FriendRequestFlag != RelationShipStatus.Removed && FriendRequestFlag != RelationShipStatus.Canceled && FriendRequestFlag != RelationShipStatus.Rejected) return false;
-            if(this.RequestedById != userId)
+            if (CanReturnToPending(userId))
             {
-                this.RequestedToId = this.RequestedById;
-                this.RequestedById = userId;
-                this.RequestedTo = null;
-                this.RequestedBy = null;
+                if (this.RequestedById != userId)
+                {
+                    this.RequestedToId = this.RequestedById;
+                    this.RequestedById = userId;
+                    this.RequestedTo = null;
+                    this.RequestedBy = null;
+                }
+                this.FriendRequestFlag = RelationShipStatus.Pending;
+                this.RequestTime = DateTime.UtcNow;
+                return true;
             }
-            this.FriendRequestFlag = RelationShipStatus.Pending;
-            this.RequestTime = DateTime.UtcNow;
-            return true;
+            return false;
         }
-
-
-        public bool TryChangeToRemoved(Guid userId)
+        private bool TryChangeToRemoved(Guid userId)
         {
-            if(this.FriendRequestFlag != RelationShipStatus.Approved) return false;
-            if (RequestedById != userId && RequestedToId != userId) return false;
-            this.FriendRequestFlag = RelationShipStatus.Removed;
-            RequestTime = null;
-            BecameFriendsTime = null;
-            return true;
+            if (CanChangeToRemoved(userId))
+            {
+                this.FriendRequestFlag = RelationShipStatus.Removed;
+                RequestTime = null;
+                BecameFriendsTime = null;
+                return true;
+            }
+            return false;
         }
-
-        public bool CancelFriendRequest(Guid whoWantCancel)
+        private bool TryCancelFriendRequest(Guid whoWantCancel)
         {
             if (CanCancelFriendRequest(whoWantCancel))
             {
                 this.FriendRequestFlag = RelationShipStatus.Canceled;
                 return true;
             }
-            else
-            {
-                return false;
-            }
-        }
-        private bool CanCancelFriendRequest(Guid whoWantCancel)
-        {
-            return
-                FriendRequestFlag == RelationShipStatus.Pending &&
-                RequestedById == whoWantCancel;
-        }
-        public bool TryBlockFriend(Guid whoWantBlock)
-        {
-            throw new NotImplementedException();
+            return false;
         }
 
-       
+        private bool CanChangeToRemoved(Guid userId) 
+            => IsOneOfTheFriends(userId) && this.FriendRequestFlag == RelationShipStatus.Approved;
+        private bool CanReturnToPending(Guid WhoWantReturn)
+            => IsOneOfTheFriends(WhoWantReturn) && 
+            FriendRequestFlag == RelationShipStatus.Removed ||
+            FriendRequestFlag == RelationShipStatus.Canceled ||
+            FriendRequestFlag == RelationShipStatus.Rejected;
+        private bool CanRejectFriendRequest(Guid whoWantReject) 
+            => FriendRequestFlag == RelationShipStatus.Pending && RequestedToId == whoWantReject;
+        private bool CanAcceptFriendRequest(Guid whoWantAccept)
+            => FriendRequestFlag == RelationShipStatus.Pending && RequestedToId == whoWantAccept;
+        private bool CanCancelFriendRequest(Guid whoWantCancel) 
+            => FriendRequestFlag == RelationShipStatus.Pending && RequestedById == whoWantCancel;
+        private bool IsOneOfTheFriends(Guid UserId)
+            => UserId == this.RequestedById || UserId == this.RequestedToId;
+
+        #endregion
+
     }
 }

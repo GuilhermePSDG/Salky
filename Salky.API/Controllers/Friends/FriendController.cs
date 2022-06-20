@@ -16,37 +16,6 @@ namespace Salky.API.Controllers.Friends
         {
             this.friendService = friendService;
         }
-        [HttpPost("add/{userId}")]
-        public async Task<IActionResult> AddUser(Guid userId)
-        {
-            try
-            {
-                var friend = await friendService.SendFriendRequest(User.GetUserId(), userId);
-                return friend == null ? BadRequest() : Ok(friend);
-            }
-            catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
-
-
-        [HttpPost("accept/{friendId}")]
-        public async Task<IActionResult> AcceptFriendRequest(Guid friendId)
-        {
-            try
-            {
-                var res = await friendService.AcceptFriend(User.GetUserId(), friendId);
-                return res != null ? Ok(res) : BadRequest(res);
-            }
-            catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
-
-
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

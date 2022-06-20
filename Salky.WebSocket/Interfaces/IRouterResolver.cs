@@ -5,9 +5,9 @@ namespace Salky.WebSocket.Infra.Interfaces
 {
     public interface IRouterResolver
     {
-        public Task Route(SalkyWebSocket ws, MessageServer messageServer);
-        public Task AfterClose(SalkyWebSocket connectionWs);
-        public Task AfterOpen(SalkyWebSocket connectionWs);
+        public Task Route(SalkyWebSocket ws, MessageServer messageServer,IServiceProvider provider);
+        public Task AfterClose(SalkyWebSocket connectionWs,IServiceProvider provider);
+        public Task AfterOpen(SalkyWebSocket connectionWs,IServiceProvider provider);
 
     }
 }

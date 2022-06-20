@@ -14,6 +14,7 @@ import { Friend } from '../Models/Users/Friend';
 import { SalkyWebSocket } from './SalykWsClient.service';
 import { Destroyable } from './SalkyEvents';
 import { WebSocketBaseService } from './WebSocketBaseService';
+import { FriendFlag } from '../Models/Users/FriendFlag';
 
 @Injectable({
   providedIn: 'root',
@@ -48,13 +49,9 @@ export class FriendService extends WebSocketBaseService {
     );
   }
 
-  public removeFriend(friendId: string) {
-    this.ws.sendMessageServer({
-      data: friendId,
-      method: 'delete',
-      path: this.wsBasePath,
-    });
-  }
+  
+
+
 
   public SendFriendRequest(userId: String) {
     this.ws.sendMessageServer({
@@ -63,15 +60,6 @@ export class FriendService extends WebSocketBaseService {
       data: userId,
     })
   }
-
-  public AcceptFriendRequest(friendId: string) {
-    this.ws.sendMessageServer({
-      path: this.wsBasePath + '/accept',
-      method: 'post',
-      data: friendId,
-    })
-  }
-
   public sendMessageToFriend(friendId: string) {
     this.ws.sendMessageServer({
       data: friendId,
@@ -80,69 +68,45 @@ export class FriendService extends WebSocketBaseService {
     });
   }
 
+  public AcceptFriendRequest(friendId: string) {
+    this.updateFriend(friendId,FriendFlag.Approved);
+  }
   public RejectFriendRequest(friendId: string) {
-    this.ws.sendMessageServer({
-      data: friendId,
-      method: 'post',
-      path: this.wsBasePath + '/reject',
-    });
+    this.updateFriend(friendId,FriendFlag.Rejected);
   }
-
   public CancelFriendRequest(friendId: string) {
+    this.updateFriend(friendId,FriendFlag.Canceled);
+  }
+  public removeFriend(friendId: string) {
+    this.updateFriend(friendId,FriendFlag.Removed);
+  }
+  public updateFriend(friendId : string,status : FriendFlag){
     this.ws.sendMessageServer({
-      data: friendId,
-      method: 'post',
-      path: this.wsBasePath + '/cancel',
+      data:{
+        friendId:friendId,
+        status:status,
+      },
+      method: 'put',
+      path: `${this.wsBasePath}/status`,
     });
   }
 
-  //#region EVENTS
-  public onFriendAddComfirmReceived(
-    handler: (friend: Friend) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath + '/add', 'confirm').Build(handler, error);
+  public onFriendPut(
+    handler:(friend:Friend) => void ,
+    error? : (error:any) => void
+  ) : Destroyable{
+    return this.ws
+    .On(`${this.wsBasePath}`,"put")
+    .Build(handler,error);
   }
 
-  public onFriendAddReceived(
-    handler: (friend: Friend) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath + '/add', 'post').Build(handler, error);
+  public onFriendDeleted(
+    handler:(friend:Friend) => void ,
+    error? : (error:any) => void
+  ){
+    return this.ws
+    .On(`${this.wsBasePath}`,"delete")
+    .Build(handler,error);
   }
 
-  onFriendDelete(
-    handler: (friendId: string) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath, 'delete').Build(handler, error);
-  }
-  public onFriendReject(
-    handler: (friendId: string) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath + '/reject', 'delete').Build(handler, error);
-  }
-
-  public onFriendCancel(
-    handler: (friendId: string) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath + '/cancel', 'delete').Build<string>(handler, error);
-  }
-
-  public onFriendChangePicture(
-    handler: (data: { friendId: string; pictureSource: string }) => void
-  ): Destroyable {
-    throw new Error('Not Implemented');
-  }
-
-  public onFriendAccept(
-    handler: (friend: Friend) => void,
-    error?: (error: any) => void
-  ): Destroyable {
-    return this.ws.On(this.wsBasePath + '/accept', 'put').Build<Friend>(handler, error);
-  }
-
-  //#endregion
 }

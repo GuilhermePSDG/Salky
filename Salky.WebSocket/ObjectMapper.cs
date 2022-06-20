@@ -12,11 +12,12 @@ namespace Salky.WebSocket
     {
         public ObjectMapper() 
         {
+            mappedTypes = new();
             throw new NotImplementedException();
         }
         public object MapProperties(Type type)
         {
-            mappedTypes = new();
+            mappedTypes.Clear();
             return SafeMapPropertiesLoopingPrevent(type) ?? throw new NullReferenceException();
         }
         private Dictionary<string, Type> mappedTypes = new();

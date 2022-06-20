@@ -58,6 +58,9 @@ namespace Salky.App.Services.Group
         }
 
 
+
+
+
         public async Task<GroupMemberDto?> AddNewMemberByFriendId(Guid CurrentUserId, Guid FriendId, Guid GroupId)
         {
             var friend = await friendRepo.GetById(CurrentUserId, FriendId, true);
