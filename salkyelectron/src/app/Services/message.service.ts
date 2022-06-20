@@ -29,13 +29,7 @@ export class MessageService extends WebSocketBaseService {
 
   private apiBaseUrl = `${environment.apiUrl}/group`;
 
-  private setImageUrl(relativePath: string) {
-    if (!relativePath.includes('http')) {
-      return `${environment.apiImageurl}/${relativePath}`;
-    } else {
-      return relativePath;
-    }
-  }
+  
 
   public getMessagesOfGroup(
     groupId: string,
@@ -47,7 +41,6 @@ export class MessageService extends WebSocketBaseService {
         `${this.apiBaseUrl}/message?groupId=${groupId}&currentPage=${nextPage}&pageSize=${pageSize}`
       )
       .pipe(take(1),map(data =>{
-        data.results.forEach(n => n.author.pictureSource =this.setImageUrl(n.author.pictureSource));
         return data;
       }));
   }
@@ -72,7 +65,6 @@ export class MessageService extends WebSocketBaseService {
   public onMessageReceived(handler: (msg: Message) => void) : Destroyable {
     return this.ws.On(this.wsBasePath, 'post').Build<Message>(msg =>{
       console.log('executando msg received')
-      msg.author.pictureSource=this.setImageUrl(msg.author.pictureSource)
       handler(msg);
     });
   }

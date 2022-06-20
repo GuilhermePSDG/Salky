@@ -1,6 +1,4 @@
-﻿using Salky.App.Services.Models;
-
-namespace Salky.App.Services
+﻿namespace Salky.App.Services
 {
     public class ImageService
     {
@@ -14,10 +12,10 @@ namespace Salky.App.Services
         {
             string fileName = this.GenerateRandomFileName();
             var extension = ExtractInfo(ref Base64);
-            var physicalPath = Path.Combine(ImageServiceConfig.FullPath, fileName + $".{extension}");
+            var physicalPath = Path.Combine(ImageServiceConfiguration.FullPath, fileName + $".{extension}");
             var buff = Convert.FromBase64String(Base64);
             File.WriteAllBytes(physicalPath, buff);
-            var relativePath = Path.Combine(ImageServiceConfig.FolderName, fileName + $".{extension}");
+            var relativePath = Path.Combine(fileName + $".{extension}");
             return relativePath.Replace(@"\","/");
         }
 
@@ -30,7 +28,7 @@ namespace Salky.App.Services
         {
             try
             {
-                var fullPath = Path.Combine(ImageServiceConfig.CurrentDirectory, relativePath);
+                var fullPath = Path.Combine(ImageServiceConfiguration.CurrentDirectory, relativePath);
                 File.Delete(fullPath);
                 return true;
             }

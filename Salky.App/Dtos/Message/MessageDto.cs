@@ -9,7 +9,7 @@ namespace Salky.App.Dtos.Message
         public Guid GroupId { get; set; }
         public string Content { get; set; }
         public DateTime SendedAt { get; set; }
-        public List<PartialContent> Embeds { get; set; }
+        public List<PartialContent> PartialContents { get; set; }
         public UserMinimalDto Author { get; set; }
     }
 }

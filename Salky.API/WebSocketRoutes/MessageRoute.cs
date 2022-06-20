@@ -1,7 +1,7 @@
 ﻿using Salky.App.Dtos.Message;
 using Salky.App.Services.Group;
 
-namespace Salky.API.WebSocketRoutes.Routes
+namespace Salky.API.WebSocketRoutes
 {
     [WebSocketRoute("group/message")]
     public class MessageRoute : WebSocketRouteBase

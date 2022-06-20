@@ -1,16 +1,15 @@
-﻿using Salky.API.WebSocketRoutes.Models;
-using Salky.App.Dtos;
+﻿using Salky.App.Dtos;
 using Salky.App.Services.Friends;
 using Salky.App.Services.User;
 using Salky.Domain.Models.FriendModels;
 
-namespace Salky.API.WebSocketRoutes.Routes
+namespace Salky.API.WebSocketRoutes
 {
     [WebSocketRoute]
     public class FriendRoute : WebSocketRouteBase
     {
         private readonly FriendService friendService;
-        public FriendRoute(FriendService friendService,  UserService userService)
+        public FriendRoute(FriendService friendService, UserService userService)
         {
             this.friendService = friendService;
         }
@@ -20,7 +19,7 @@ namespace Salky.API.WebSocketRoutes.Routes
         {
             var usrId = Claims.GetUserId().ToString();
             (await friendService.GetAll(Claims.GetUserId()))
-                .ForEach(friend => AddInPool(friend.Id.ToString(),usrId)
+                .ForEach(friend => AddInPool(friend.Id.ToString(), usrId)
             );
         }
 
@@ -36,14 +35,14 @@ namespace Salky.API.WebSocketRoutes.Routes
         public async Task SendFriendRequest(Guid UserToAddAsFriend)
         {
 
-            var friend = await this.friendService.SendFriendRequest(Claims.GetUserId(), UserToAddAsFriend);
+            var friend = await friendService.SendFriendRequest(Claims.GetUserId(), UserToAddAsFriend);
             if (friend != null)
             {
                 //Envia pro usuario que adicionou
                 AddInPool(friend.Id.ToString(), Claims.GetUserId().ToString(), UserToAddAsFriend.ToString());
                 await SendBack(friend, "friend", Method.PUT);
                 //Envia pro usuario que foi adicionado
-                var otherFriend = await this.friendService.GetById(UserToAddAsFriend, friend.Id) ?? throw new InvalidOperationException();
+                var otherFriend = await friendService.GetById(UserToAddAsFriend, friend.Id) ?? throw new InvalidOperationException();
                 await SendToOneInPool(friend.Id.ToString(), UserToAddAsFriend.ToString(), "friend", Method.PUT, otherFriend);
             }
             else
@@ -52,7 +51,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             }
         }
 
-        public record UpdateFriendRequestModel(Guid FriendId,RelationShipStatus Status);
+        public record UpdateFriendRequestModel(Guid FriendId, RelationShipStatus Status);
 
         [WsPut("status")]
         public async Task UpdateFriendRequest(UpdateFriendRequestModel updateFriendRequest)

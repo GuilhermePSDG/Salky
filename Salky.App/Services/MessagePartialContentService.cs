@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Salky.App.Services.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +11,6 @@ namespace Salky.App.Services
     public class MessagePartialContentService
     {
         public ITokenResolver TokenResolver { get; }
-        public MessagePartialContentService(ITokenResolver tokenResolver)
-        {
-            TokenResolver = tokenResolver;
-        }
         public MessagePartialContentService()
         {
             TokenResolver = new TokenResolver(Tokens);
@@ -34,7 +29,7 @@ namespace Salky.App.Services
 
         public async Task<List<PartialContent>> GenerateAsync(string Input) 
             => await Task.Run(() =>TokenResolver.Resolve(Input));
-        public List<PartialContent> Generate(string Input) 
+        public List<PartialContent> Generate(string Input)
             => TokenResolver.Resolve(Input);
         public IEnumerable<PartialContent> GenerateAsIEnumerable(string Input) 
             => TokenResolver.ResolveAsIEnumerable(Input);

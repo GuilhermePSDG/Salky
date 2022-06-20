@@ -26,12 +26,12 @@ export class MessageRenderComponent implements OnInit {
   ngOnInit(): void {
     if (this.msg.content.startsWith('##') && this.msg.content.endsWith('##')) {
       this.isHighLight = true;
-      this.msg.embeds.forEach(
+      this.msg.partialContents.forEach(
         (x) => (x.content = x.content.replace(/##/g, ''))
       );
     }
 
-    this.msg.embeds.forEach((x) => {
+    this.msg.partialContents.forEach((x) => {
       if (x.type === 'URL_GIPHY') {
         this.imgSource = this.sanitizeURL(x.content);
       } else if (x.type === 'URL_YOUTUBE_EMBED') {
@@ -65,6 +65,7 @@ export class MessageRenderComponent implements OnInit {
       ]
     );
   }
+  
   public sanitizeURL(value: string): SafeUrl {
     return this.domSaniter.bypassSecurityTrustResourceUrl(value);
   }

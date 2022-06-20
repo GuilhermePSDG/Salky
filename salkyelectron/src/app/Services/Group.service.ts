@@ -40,7 +40,7 @@ export class GroupService extends WebSocketBaseService {
     var sub3 = this.onGroupCreated((x) => this.addOrUpdateGroup(x));
     var sub4 = this.onUserAddedInGroup((x) => this.addOrUpdateGroup(x));
     var sub5 = this.onPictureChanged((q) =>
-      this.ChangeFieldOfGroup(q.id, 'pictureSource', this.setImageUrl(q.value))
+      this.ChangeFieldOfGroup(q.id, 'pictureSource', (q.value))
     );
     this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub3).AppendToDestroy(sub4).AppendToDestroy(sub5);
   }
@@ -74,8 +74,7 @@ export class GroupService extends WebSocketBaseService {
       .pipe(
         take(1),
         map((x) => {
-          var nPicture = `${environment.apiImageurl}/${x}`;
-          this.ChangeFieldOfGroup(GroupId, 'pictureSource', nPicture);
+          this.ChangeFieldOfGroup(GroupId, 'pictureSource', x);
         })
       );
   }
@@ -88,13 +87,7 @@ export class GroupService extends WebSocketBaseService {
     });
   }
 
-  private setImageUrlOfGroup(Group: Group) {
-    if (!Group.pictureSource.includes('http'))
-      Group.pictureSource = this.setImageUrl(Group.pictureSource);
-  }
-  private setImageUrl(relativePath: string) {
-    return `${environment.apiImageurl}/${relativePath}`.replace('\\', '/');
-  }
+
 
   private ChangeFieldOfGroup(
     GroupId: string,
@@ -112,7 +105,6 @@ export class GroupService extends WebSocketBaseService {
   private addOrUpdateGroup(Group: Group): void {
     var i = this.groups.findIndex((x) => x.id === Group.id);
     if (i === -1) {
-      this.setImageUrlOfGroup(Group);
       this.groups.push(Group);
       this.groupsEventEmiter.next(this.groups);
     } else {
@@ -132,7 +124,6 @@ export class GroupService extends WebSocketBaseService {
     return this.http.get<Group[]>(`${this.apiBaseUrl}`).pipe(
       take(1),
       map((f) => {
-        f.forEach((g) => this.setImageUrlOfGroup(g));
         this.groups = f;
         this.groupsEventEmiter.next(this.groups);
       })
@@ -159,7 +150,6 @@ export class GroupService extends WebSocketBaseService {
     handler: (Data: { id: string; value: string }) => void
   ): Destroyable {
     return this.ws.On(this.wsBasePath + '/change/picture', 'put').Build<any>((x) => {
-      x.data.imageSource = this.setImageUrl(x.data.imageSource);
       handler(x);
     });
   }

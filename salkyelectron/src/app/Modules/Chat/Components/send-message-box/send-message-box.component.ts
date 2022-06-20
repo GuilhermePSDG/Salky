@@ -112,8 +112,7 @@ export class SendMessageBoxComponent implements OnInit {
       this.imagesToSend.forEach((img) => {
         this.messageService.sendBase64Image(img).subscribe({
           next: (imgRelativePath : string) => {
-            var fullPath = `${environment.apiImageurl}/${imgRelativePath}`;
-            this.onSendMessageRequested.emit(fullPath);
+            this.onSendMessageRequested.emit(imgRelativePath);
           },
         });
       });

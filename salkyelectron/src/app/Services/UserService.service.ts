@@ -30,7 +30,6 @@ export class UserService {
         take(1),
         map((res : any) => {
           var usr = res.data;
-          usr.pictureSource = this.setImageUrl(usr.pictureSource);
           this.setCurrentUser(usr);
         })
       );
@@ -45,7 +44,6 @@ export class UserService {
         take(1),
         map((x) => {
           var usr = this.getUserFromStorage();
-          usr.pictureSource =this.setImageUrl(x.result);
           this.setCurrentUser(usr);
         })
       );
@@ -61,7 +59,6 @@ export class UserService {
         take(1),
         map((res: any) => {
           var usr = res.data;
-          usr.pictureSource = this.setImageUrl(usr.pictureSource);
           this.setCurrentUser(usr);
         })
       );
@@ -73,9 +70,6 @@ export class UserService {
       .pipe(
         take(1),
         map((n) => {
-          n.forEach(
-            (x) => (x.pictureSource = this.setImageUrl(x.pictureSource))
-          );
           return n;
         })
       );
@@ -98,13 +92,7 @@ export class UserService {
     return json ? true : false;
   }
 
-  private setImageUrl(relativePath: string) {
-    if (!relativePath.includes('http')) {
-      return `${environment.apiImageurl}/${relativePath}`.replace('\\', '/');
-    } else {
-      return relativePath;
-    }
-  }
+  
   private setCurrentUser(user: UserLogged): void {
     localStorage.setItem('UserLogged', JSON.stringify(user));
     this.currentUserSource.next(user);

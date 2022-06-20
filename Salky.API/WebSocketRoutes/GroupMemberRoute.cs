@@ -2,7 +2,7 @@
 using Salky.App.Services.Group;
 using Salky.App.Services.User;
 
-namespace Salky.API.WebSocketRoutes.Routes
+namespace Salky.API.WebSocketRoutes
 {
     [WebSocketRoute("group/member")]
     public class GroupMemberRoute : WebSocketRouteBase
@@ -14,9 +14,9 @@ namespace Salky.API.WebSocketRoutes.Routes
         private readonly FriendService friendService;
 
         public GroupMemberRoute(
-            GroupService groupService, 
-            UserService userService, 
-            ILogger<GroupService> log, 
+            GroupService groupService,
+            UserService userService,
+            ILogger<GroupService> log,
             GroupMemberService groupMemberService,
             FriendService friendService
             )
@@ -40,9 +40,9 @@ namespace Salky.API.WebSocketRoutes.Routes
                 if (newMember != null)
                 {
                     await SendToAllInPool(groupId.ToString(), CurrentPath, Method.POST, newMember);
-                    this.AddInPool(groupId.ToString(), newMember.UserId.ToString());
-                    var groupDto = await this.groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
-                    await SendToOneInPool(groupId.ToString(), newMember.UserId.ToString(), "group/create",Method.POST,groupDto);
+                    AddInPool(groupId.ToString(), newMember.UserId.ToString());
+                    var groupDto = await groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
+                    await SendToOneInPool(groupId.ToString(), newMember.UserId.ToString(), "group/create", Method.POST, groupDto);
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                     TryRemoveFromPool(groupId, removedMemberUsrId);
                     await SendToAllInPool(
                            PoolId: groupId,
-                           Path: CurrentPath,Method.DELETE,data
+                           Path: CurrentPath, Method.DELETE, data
                            );
                 }
                 else

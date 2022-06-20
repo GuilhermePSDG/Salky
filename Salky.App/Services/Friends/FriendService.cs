@@ -34,7 +34,6 @@ namespace Salky.App.Services.Friends
             return map(friend, UserId);
         }
 
-
         public async Task<UserFriendDto?> GetById(Guid UserId, Guid FriendId)
         {
             var friend = await friendRepo.GetById(UserId, FriendId, true);
@@ -59,17 +58,19 @@ namespace Salky.App.Services.Friends
         private UserFriendDto map(Friend friend, Guid UserId)
         {
             var other = friend.GetUserOfFriendDiferentOf(UserId);
+            
             return new UserFriendDto()
             {
                 FriendFlag = friend.FriendRequestFlag,
-                PictureSource = other.PictureSource,
+                PictureSource = ImageServiceConfiguration.CreateExternalLink(other.PictureSource),
                 RequestByCurrentUser = friend.RequestedById == UserId,
                 Id = friend.Id,
                 UserName = other.UserName,
                 UserId = other.Id,
             };
         }
-        private List<UserFriendDto> map(List<Friend> friends, Guid UserId) => friends.Select(x => map(x, UserId)).ToList();
+        private List<UserFriendDto> map(List<Friend> friends, Guid UserId)
+            => friends.Select(x => map(x, UserId)).ToList();
       
 
     }

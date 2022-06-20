@@ -1,5 +1,5 @@
 <div class="anyrendermain {{this.isHighLight ? 'high-ligh' : ''}}">
-  <div [ngSwitch]="embed.type" *ngFor="let embed of msg.embeds">
+  <div [ngSwitch]="embed.type" *ngFor="let embed of msg.partialContents">
     <img *ngSwitchCase="'URL_GIPHY'" class="imgS" [src]="this.imgSource" />
 
     <a class="hyperLink" *ngSwitchCase="'URL'" (click)="this.NavigateUrl(embed.content)">
@@ -12,6 +12,15 @@
     <span class="emoji" *ngSwitchCase="'EMOJI'">
       {{ embed.content }}
     </span>
+
+    <div *ngSwitchCase="'URL_METATAG'" class="web_site">
+      <p class="hyperLink">{{embed.content.href}}</p>
+      <!-- <img [src]="this.sanitizeURL(embed.content.picture)"> -->
+      <!-- <h3>{{embed.content.siteName}}</h3> -->
+      <!-- <h4>{{embed.content.title}}</h4> -->
+      <!-- <p>{{embed.content.description}}</p> -->
+    </div>
+
   </div>
 </div>
 <iframe *ngIf="this.youtubeEmbedUrl" class="yotubeembed" [src]="this.youtubeEmbedUrl" allowfullscreen>

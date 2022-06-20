@@ -34,16 +34,11 @@ export class FriendService extends WebSocketBaseService {
     super(ws, wsBasePath);
     this.wsBasePath = wsBasePath;
   }
-  private setImageUrl(relativePath: string) {
-    if (!relativePath.includes('http'))
-      return `${environment.apiImageurl}/${relativePath}`.replace('\\', '/');
-    else return relativePath;
-  }
+  
   public GetAllFriends(): Observable<Friend[]> {
     return this.http.get<Friend[]>(this.url).pipe(
       take(1),
       map((x) => {
-        x.forEach((n) => (n.pictureSource = this.setImageUrl(n.pictureSource)));
         return x;
       })
     );

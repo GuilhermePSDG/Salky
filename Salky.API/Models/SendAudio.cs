@@ -1,4 +1,4 @@
-﻿namespace Salky.API.WebSocketRoutes.Models
+﻿namespace Salky.API.Models
 {
     public record SendAudio(string senderIndentifier, string data);
 }

@@ -1,4 +1,4 @@
-﻿namespace Salky.API.WebSocketRoutes.Routes
+﻿namespace Salky.API.WebSocketRoutes
 {
     [WebSocketRoute]
     public class PingRoute : WebSocketRouteBase

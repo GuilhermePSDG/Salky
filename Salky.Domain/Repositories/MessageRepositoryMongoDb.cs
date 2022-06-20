@@ -70,7 +70,8 @@ namespace Salky.Domain.Repositories
         public async Task<MessageGroup?> GetById(Guid id)
         {
             var result = await collection.Find(x => x.Id == id).Limit(1).FirstOrDefaultAsync();
-            await IncludeSender(result);
+            if(result != null)
+                await IncludeSender(result);
             return result;
         }
 

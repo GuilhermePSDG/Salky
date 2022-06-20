@@ -1,4 +1,4 @@
-import { Embed } from "./Embed";
+import { PartialContent } from "./PartialContent";
 import { User } from "./Users/User";
 
 export interface Message {
@@ -7,5 +7,5 @@ export interface Message {
   content: string;
   author : User
   sendedAt: Date;
-  embeds: Embed[];
+  partialContents: PartialContent[];
 }

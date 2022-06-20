@@ -1,14 +1,13 @@
 ﻿using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Salky.App.Services
 {
     public class MetaTagExtractor
     {
+        public MetaTagExtractor()
+        {
+            throw new Exception("Low performance");
+        }
         public async Task<MetaTag?> Extract(Uri url)
         {
             var content = await FetchUrl(url);
@@ -35,22 +34,79 @@ namespace Salky.App.Services
             }
             return res.IsMinialFilled() ? res : null;
         }
-       
-
+        private IEnumerable<KeyValue> GetSiteMetaTags(HtmlDocument HtmlDocument)
+        {
+            return HtmlDocument.DocumentNode
+           .SelectNodes("//meta")
+           .Select(node => new KeyValue(node.GetAttributeValue("property", ""), node.GetAttributeValue("content", ""))).
+           Where(x => x.IsNotNullOrEmpty());
+        }
         private async Task<HttpContent> FetchUrl(Uri url)
         {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("accept-language", "pt-BR,pt;");
+            client.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7");
             return (await client.GetAsync(url)).Content;
         }
+       
 
-        private IEnumerable<KeyValue> GetSiteMetaTags(HtmlDocument HtmlDocument)
+
+        private List<string> GetAllMetaTags(Stream stream)
         {
-             return HtmlDocument.DocumentNode
-            .SelectNodes("//meta")
-            .Select(node => new KeyValue(node.GetAttributeValue("property", ""), node.GetAttributeValue("content", ""))).
-            Where(x => x.IsNotNullOrEmpty());
-        }
+            var results = new List<string>();
 
+            var init = "<meta".ToCharArray();
+            var end = ">".ToCharArray();
+            var ilegal = "</head>".ToCharArray();
+            List<char>? temp;
+            while (true)
+            {
+                temp = Next(stream, init, ilegal);
+                if (temp == null) break;
+                temp = Next(stream, end, ilegal);
+                if (temp == null) break;
+                results.Add($"<meta{new string(temp.ToArray())}>");
+            }
+            return results;
+        }
+        private List<char>? Next(Stream stream, char[] TargetMatch, char[] IlegalMatch, int Capacity = 256)
+        {
+            var memory = new List<char>(Capacity);
+            long ilegalPosition = 0;
+            long targetPosition = 0;
+            bool succeed = false;
+            while (stream.CanRead)
+            {
+                var Byte = stream.ReadByte();
+                if (Byte == -1) break;
+                var Char = (char)Byte;
+                if (Char == TargetMatch[targetPosition])
+                {
+                    targetPosition++;
+                    if (targetPosition == TargetMatch.Length)
+                    {
+                        succeed = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    targetPosition = 0;
+                }
+
+                if (Char == IlegalMatch[ilegalPosition])
+                {
+                    ilegalPosition++;
+                    if (ilegalPosition == IlegalMatch.Length)
+                        break;
+                }
+                else
+                {
+                    ilegalPosition = 0;
+                }
+
+                memory.Add(Char);
+            }
+            return succeed ? memory : null;
+        }
     }
 }

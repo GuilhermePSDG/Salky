@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Salky.App.Services.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

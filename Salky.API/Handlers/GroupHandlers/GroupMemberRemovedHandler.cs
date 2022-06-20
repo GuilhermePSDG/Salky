@@ -1,4 +1,4 @@
-﻿using Salky.API.WebSocketRoutes.Models;
+﻿using Salky.API.Models;
 using Salky.Domain.Contracts;
 using Salky.Domain.Events.GroupEvents;
 using Salky.WebSocket.Infra;

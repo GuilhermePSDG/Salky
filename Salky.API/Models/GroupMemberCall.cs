@@ -1,7 +1,7 @@
 ﻿using Salky.App.Dtos.Group;
 using Salky.Domain.Models.GroupModels;
 
-namespace Salky.API.WebSocketRoutes.Models
+namespace Salky.API.Models
 {
     public class GroupMemberCall
     {
@@ -10,9 +10,9 @@ namespace Salky.API.WebSocketRoutes.Models
             AudioState = audioState;
         }
         public string? MemberId { get; set; } = null;
-        public bool IsInCall { get;private set; } = false;
+        public bool IsInCall { get; private set; } = false;
         public string? GroupId { get; private set; } = null;
-        public AudioState AudioState { get;  set; }
+        public AudioState AudioState { get; set; }
 
 
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
@@ -20,24 +20,22 @@ namespace Salky.API.WebSocketRoutes.Models
         [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public string? PoolPath { get; private set; } = null;
 
-        /// <summary>
-        /// Todas as propiedades relacionadas a call serão setadas para null ou false
-        /// </summary>
+
         public void ZeroCallProperties()
         {
-            this.PoolPath = null;
-            this.IsInCall = false;
-            this.GroupId = null;
-            this.MemberId = null;
-            this.Roles = null;
+            PoolPath = null;
+            IsInCall = false;
+            GroupId = null;
+            MemberId = null;
+            Roles = null;
         }
-        public void FillCallProperties(string GroupId, string PoolPath, string CurrentCallMemberId,GroupRole roles)
+        public void FillCallProperties(string GroupId, string PoolPath, string CurrentCallMemberId, GroupRole roles)
         {
-            this.IsInCall = true;
+            IsInCall = true;
             this.PoolPath = PoolPath;
             this.GroupId = GroupId;
-            this.MemberId = CurrentCallMemberId;
-            this.Roles = roles;
+            MemberId = CurrentCallMemberId;
+            Roles = roles;
         }
 
 

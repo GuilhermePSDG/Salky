@@ -1,11 +1,11 @@
 ﻿
 
 using AutoMapper;
-using Salky.API.WebSocketRoutes.Models;
+using Salky.API.Models;
 using Salky.App.Services.Group;
 using Salky.WebSocket.Infra.Interfaces;
 
-namespace Salky.API.WebSocketRoutes.Routes
+namespace Salky.API.WebSocketRoutes
 {
 
 
@@ -16,7 +16,7 @@ namespace Salky.API.WebSocketRoutes.Routes
         private readonly GroupMemberService groupMemberService;
         private readonly ILogger<CallRoute> logger;
 
-        public CallRoute(GroupMemberService groupMemberService,ILogger<CallRoute> logger)
+        public CallRoute(GroupMemberService groupMemberService, ILogger<CallRoute> logger)
         {
             this.groupMemberService = groupMemberService;
             this.logger = logger;
@@ -44,7 +44,7 @@ namespace Salky.API.WebSocketRoutes.Routes
             try
             {
                 var groupid = callEntry.GroupId.ToString();
-                var member = await this.groupMemberService.GetMemberWithRole(Claims.GetUserId(),callEntry.GroupId);
+                var member = await groupMemberService.GetMemberWithRole(Claims.GetUserId(), callEntry.GroupId);
                 if (member == null)
                 {
                     await SendErrorBack(CurrentPath, "Usuario não pode entrar nesse grupo");
@@ -84,7 +84,7 @@ namespace Salky.API.WebSocketRoutes.Routes
                 TryRemoveFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
                 //Faz o envio da notificação para quem interessar
                 await SendToAllInPool(
-                    PoolId:usrCall.GroupId ?? throw new NullReferenceException(),
+                    PoolId: usrCall.GroupId ?? throw new NullReferenceException(),
                     Path: CurrentPath,
                     method: Method.DELETE,
                     data: usrCall
@@ -116,15 +116,15 @@ namespace Salky.API.WebSocketRoutes.Routes
                 }
 
                 var usrId = Claims.GetUserId().ToString();
-                foreach(var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
+                foreach (var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
                 {
                     var callState = storage.Value.Get<GroupMemberCall>();
                     if (storage.Key != usrId && callState.AudioState.CanHear)
-                        await SendToOneInPool(usr.PoolPath,storage.Key, CurrentPath, Method.REDIRECT, data);
+                        await SendToOneInPool(usr.PoolPath, storage.Key, CurrentPath, Method.REDIRECT, data);
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Erro ao enviar o audio");
                 await SendErrorBack("group/call/audio", "Erro ao enviar o audio");

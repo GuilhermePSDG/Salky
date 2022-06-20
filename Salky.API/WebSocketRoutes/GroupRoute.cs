@@ -1,10 +1,10 @@
-﻿using Salky.API.WebSocketRoutes.Models;
+﻿using Salky.API.Models;
 using Salky.App.Dtos.Group;
 using Salky.App.Services.Group;
 using Salky.App.Services.User;
 using Salky.WebSocket.Infra.Interfaces;
 
-namespace Salky.API.WebSocketRoutes.Routes
+namespace Salky.API.WebSocketRoutes
 {
     [WebSocketRoute]
     public class GroupRoute : WebSocketRouteBase
@@ -30,11 +30,11 @@ namespace Salky.API.WebSocketRoutes.Routes
             var usrId = Claims.GetUserId().ToString();
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
-                AddInPool(member.GroupId.ToString(),usrId);
+                AddInPool(member.GroupId.ToString(), usrId);
             });
         }
 
-    
+
         [WsAfterConnectionClosed]
         public async Task AfterClose()
         {
@@ -42,10 +42,10 @@ namespace Salky.API.WebSocketRoutes.Routes
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
                 TryRemoveFromPool(member.GroupId.ToString(), usrId);
-                TryRemoveFromPool(member.GroupId.ToString()+"/call", usrId);
+                TryRemoveFromPool(member.GroupId.ToString() + "/call", usrId);
             });
         }
-            
+
         private async Task CreateUserWsIfNotCreated(AudioState audioState)
         {
             if (!Storage.TryGet<GroupMemberCall>(out var usrCall))
@@ -96,7 +96,7 @@ namespace Salky.API.WebSocketRoutes.Routes
         {
             var uId = Claims.GetUserId();
             var group = await groupService.CreateNewPublicGroup(uId, GroupName);
-            var member = await this.groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
+            var member = await groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
             //PROBLEMA DE ID
             AddInPool(group.Id.ToString(), uId.ToString());
             await SendBack(group, CurrentPath, Method.POST);

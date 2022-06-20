@@ -16,20 +16,25 @@ namespace Salky.App.Mapping
        
         public SalkyMapping()
         {
-            CreateMap<UserRegisterDto, User>().ReverseMap();
-            CreateMap<UserSearchDto, User>().ReverseMap();
-            CreateMap<UserLoggedDto, User>().ReverseMap();
-            CreateMap<UserUpdateDto, User>().ReverseMap();
-            CreateMap<GroupSearchDto, Group>().ReverseMap();
-            CreateMap<User, UserMinimalDto>().ReverseMap();
-            CreateMap<Group,GroupDto>().ReverseMap();
+            CreateMap<User, UserMinimalDto>()
+                .ForMember(x => x.PictureSource, q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)));
+
+            CreateMap<User, UserRegisterDto>();
+            CreateMap<User, UserSearchDto>();
+            CreateMap<User, UserLoggedDto>()
+                .ForMember(x => x.PictureSource,q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)));
+
+
+            CreateMap<Group,GroupDto>()
+                .ForMember(x => x.PictureSource,q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)))
+                .ReverseMap();
             CreateMap<Friend,UserFriendDto>()
                 .ForMember(q => q.FriendFlag, q => q.MapFrom(n => n.FriendRequestFlag))
                 .ReverseMap();
             CreateMap<GroupConfigDto,GroupConfig>().ReverseMap();
 
             CreateMap<MessageGroup,MessageDto>()
-                .ForMember(q => q.Embeds, q => q.MapFrom(n => new MessagePartialContentService().Generate(n.Content)))
+                .ForMember(q => q.PartialContents, q => q.MapFrom(n => new MessagePartialContentService().Generate(n.Content)))
                 .ForMember(f=>f.SendedAt,q => q.MapFrom(n => n.CreatedDate))
                 .ForMember(f=>f.Author, q => q.MapFrom(n => n.Sender))
                 .ReverseMap();
@@ -37,17 +42,15 @@ namespace Salky.App.Mapping
             CreateMap<GroupMember,GroupMemberDto>()
                 .ForMember(x => x.RoleName,q => q.MapFrom(x => x.Role.RoleName))
                 .ForMember(x => x.UserName,q => q.MapFrom(x => x.User.UserName))
-                .ForMember(x => x.PictureSource,q => q.MapFrom(x => x.User.PictureSource))
+                .ForMember(x => x.PictureSource, q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.User.PictureSource)))
                 .ReverseMap();
             CreateMap<GroupMember, GroupMemberRolesDto>()
                 .ForMember(x => x.GroupRole,q => q.MapFrom(n=>n.Role))
+                .ForMember(x => x.PictureSource, q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.User.PictureSource)))
                 .ForMember(x => x.GroupRole, q => q.MapFrom(x => x.Role))
                 .ForMember(x => x.RoleName, q => q.MapFrom(x => x.Role.RoleName))
-                .ForMember(x => x.UserName, q => q.MapFrom(x => x.User.UserName))
-                .ForMember(x => x.PictureSource, q => q.MapFrom(x => x.User.PictureSource))
-                .ReverseMap();
+                .ForMember(x => x.UserName, q => q.MapFrom(x => x.User.UserName));
           
-
         }
 
     }

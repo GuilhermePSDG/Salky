@@ -1,5 +1,4 @@
-﻿using Salky.API.WebSocketRoutes.Models;
-using Salky.App.Services.Friends;
+﻿using Salky.App.Services.Friends;
 using Salky.App.Services.Group;
 using Salky.Domain.Contracts;
 using Salky.Domain.Events.UserEvents;

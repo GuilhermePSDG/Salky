@@ -43,10 +43,10 @@ export class GroupMemberService extends WebSocketBaseService {
         'id',
         value.memberId,
         'pictureSource',
-        this.setImageUrl(value.pictureSource)
+        (value.pictureSource)
       );
     });
-    this.AppendManyToDestroy(sub1,sub2,sub3);
+    this.AppendManyToDestroy(sub1, sub2, sub3);
   }
 
   public addFriendInGroup(friendId: string, groupId: string) {
@@ -77,7 +77,6 @@ export class GroupMemberService extends WebSocketBaseService {
     return this.http.get<GroupMember[]>(`${this.apiBaseUrl}/${groupId}`).pipe(
       take(1),
       map((x) => {
-        x.forEach((n) => (n.pictureSource = this.setImageUrl(n.pictureSource)));
         this.next(x);
       })
     );
@@ -85,9 +84,6 @@ export class GroupMemberService extends WebSocketBaseService {
 
   private next(GroupMembers: GroupMember[]) {
     this.Members = GroupMembers;
-    GroupMembers.forEach(
-      (x) => (x.pictureSource = this.setImageUrl(x.pictureSource))
-    );
     this.CurrentMembers.next(GroupMembers);
   }
 
@@ -97,7 +93,6 @@ export class GroupMemberService extends WebSocketBaseService {
       .pipe(
         take(1),
         map((x) => {
-          x.pictureSource = this.setImageUrl(x.pictureSource);
           this.CurrentMember.next(x);
         })
       );
@@ -109,18 +104,11 @@ export class GroupMemberService extends WebSocketBaseService {
       .pipe(
         take(1),
         map((member) => {
-          member.pictureSource = this.setImageUrl(member.pictureSource);
           return member;
         })
       );
   }
-  private setImageUrl(relativePath: string) {
-    if (!relativePath.includes('http')) {
-      return `${environment.apiImageurl}/${relativePath}`.replace('\\', '/');
-    } else {
-      return relativePath;
-    }
-  }
+
 
   private onMemberRemoved(
     handler: (data: { memberId: string; groupId: string }) => void
@@ -142,7 +130,7 @@ export class GroupMemberService extends WebSocketBaseService {
       pictureSource: string;
     }) => void
   ): Destroyable {
-    return this.ws.On(this.wsBasePath+'/change/picture', 'put').Build<any>((x) => {
+    return this.ws.On(this.wsBasePath + '/change/picture', 'put').Build<any>((x) => {
       handler(x);
     });
   }

@@ -25,8 +25,8 @@ using Salky.App.Services.User;
 using Salky.App.Services.Group;
 using Salky.App.Services.Friends;
 using MongoDB.Driver;
-using Salky.App.Services.Models;
 using Salky.WebSocket.Handler;
+using Salky.App;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +36,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-
 
 builder.Services.AddControllers()
         .AddJsonOptions(options =>
@@ -109,11 +107,11 @@ builder.Services
 var app = builder.Build();
 
 
-Directory.CreateDirectory(ImageServiceConfig.FullPath);
+Directory.CreateDirectory(ImageServiceConfiguration.FullPath);
 app.UseStaticFiles(new StaticFileOptions()
 {
-    FileProvider = new PhysicalFileProvider(ImageServiceConfig.FullPath),
-    RequestPath = new PathString($"/{ImageServiceConfig.FolderName}"),
+    FileProvider = new PhysicalFileProvider(ImageServiceConfiguration.FullPath),
+    RequestPath = new PathString($""),
 });
 
 app
@@ -143,5 +141,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
