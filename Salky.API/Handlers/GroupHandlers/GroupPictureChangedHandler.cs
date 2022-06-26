@@ -15,7 +15,7 @@ namespace Salky.API.Handlers
 
         public async void Handle(GroupPictureChanged args)
         {
-            await ConnectionMannager.SendToAllInPool(args.Id.ToString(), "group/change/picture", Method.PUT, args);
+            await ConnectionMannager.SendToAllInPool(args.Id, new MessageServer("group/change/picture", Method.PUT, Status.Success,args));
         }
     }
 }

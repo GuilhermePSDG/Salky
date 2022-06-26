@@ -4,6 +4,7 @@ using Salky.WebSocket.Infra.Models;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
+using System.Diagnostics;
 
 namespace Salky.WebSocket.Infra.Socket;
 
@@ -11,7 +12,6 @@ namespace Salky.WebSocket.Infra.Socket;
 public class SalkyWebSocket
 {
     public event EventHandler<MessageServer> OnMessageReceived = (e, f) => { };
-    public DateTime CreatedAt { get; }
     public void InvokeMessageReceived(MessageServer messageServer) => OnMessageReceived.Invoke(null, messageServer);
     public ConcurrentStorage Storage { get; } = new ConcurrentStorage();
     //
@@ -22,30 +22,24 @@ public class SalkyWebSocket
 
     public SalkyWebSocket(System.Net.WebSockets.WebSocket webSocket, List<Claim> UserClaims,string Key)
     {
-        this.CreatedAt = DateTime.UtcNow;
         this.webSocket = webSocket;
         this.UserClaims = UserClaims;
         this.Key = Key;
     }
 
-
-
+    public bool CanClose => State == WebSocketState.Open || State == WebSocketState.CloseReceived;
+    
     public string? CloseStatusDescription => webSocket.CloseStatusDescription;
     public WebSocketCloseStatus? CloseStatus => webSocket.CloseStatus;
     public WebSocketState State => webSocket.State;
     public bool ConnectionsIsOpen => State == WebSocketState.Open;
-    
-    public string? SubProtocol => throw new NotImplementedException();
-    public void Abort() => webSocket.Abort();
-    //public async Task CloseAsync(WebSocketCloseStatus closeStatus, CloseDescription statusDescription) =>  await webSocket.CloseAsync(closeStatus, statusDescription.ToString(), CancellationToken.None);
+
 
     public async Task CloseOutputAsync(WebSocketCloseStatus closeStatus, CloseDescription statusDescription) => 
         await webSocket.CloseOutputAsync(closeStatus, statusDescription.ToString(), CancellationToken.None);
    
-    public bool Disposed = false;
     public void Dispose()
     {
-        Disposed = true;
         TRY(webSocket.Dispose);
         TRY(Storage.Dispose);
         TRY(UserClaims.Clear);
@@ -66,7 +60,6 @@ public class SalkyWebSocket
         var buffer = Encoding.UTF8.GetBytes(json);
         await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None); ;
     }
-
 
     /// <summary>
     /// Send error in <see cref="MessageServer.Path"/> = "error" and <see cref="MessageServer.Method"/> = "<see cref="Method.POST"/>"

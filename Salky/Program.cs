@@ -2,20 +2,13 @@
 using StackExchange.Redis;
 using System.Text;
 
-var resMsg = await new HttpClient().GetAsync("https://stackoverflow.com/questions/33330483/request-only-meta-tags-from-a-webpage");
-var stream = resMsg.Content.ReadAsStream();
 
+var t = new teste();
 
-
-
-
-
+return;
 
 
 string AppID = "1";
-
-
-
 
 using (ConnectionMultiplexer connectionRedis = ConnectionMultiplexer.Connect("localhost:6379,password=senhadoredis"))
 {
@@ -36,9 +29,6 @@ clientRedis.KeyDelete("admin_sistema");
 //fechando a conexão com o Redis
 connectionRedis.Close();
 }
-
-
-Console.WriteLine("Hello");
 
 
 var conR = ConnectionMultiplexer.Connect("localhost:6379");
@@ -74,11 +64,11 @@ await sub.PublishAsync(channel, "Msg3");
 
 while (true) ;
 
+
 string CreateKey(params string[] values)
 {
-    return values.Aggregate((a, b) => a + ":" + b);
+    return string.Join(':', values);
 }
-
 class User
 {
     public User(string Name)
@@ -88,4 +78,18 @@ class User
     }
     public Guid Id { get; }
     public string Name { get; }
+}
+
+
+public class A
+{
+    public void methodB(string parameterA,Guid parameterB)
+    {
+
+    }
+}
+
+public class teste
+{
+    public long IamSingle => Random.Shared.NextInt64();
 }

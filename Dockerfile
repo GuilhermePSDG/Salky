@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ENV ASPNETCORE_ENVIRONMENT Development
 WORKDIR /app 
 #
 # copy csproj and restore as distinct layers
-
 COPY Salky.API/*.csproj ./SalkyAPI/
 COPY Salky.App/*.csproj ./Salky.App/
 COPY Salky.Domain/*.csproj ./Salky.Domain/

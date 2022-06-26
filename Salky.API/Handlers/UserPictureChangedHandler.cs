@@ -11,12 +11,10 @@ namespace Salky.API.Handlers
         public IPoolMannager ConnectionMannager { get; }
         public GroupMemberService GroupMemberService { get; }
         public FriendService FriendService { get; }
-
         public UserPictureChangedHandler(
             IPoolMannager connectionMannager,
             GroupMemberService groupMemberService,
             FriendService friendService
-
             )
         {
             ConnectionMannager = connectionMannager;
@@ -37,7 +35,7 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await ConnectionMannager.SendToAllInPool(info.GroupId.ToString(), "group/member/change/picture", Method.PUT, info);
+                    await ConnectionMannager.SendToAllInPool(info.GroupId, new("group/member/change/picture", Method.PUT, Status.Success,info));
                 });
           
             (await this.FriendService.GetAll(args.Id))
@@ -49,7 +47,7 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await ConnectionMannager.SendToAllInPool(info.FriendId.ToString(), "friend/change/picture", Method.PUT, info);
+                    await ConnectionMannager.SendToAllInPool(info.FriendId, new("friend/change/picture", Method.PUT,Status.Success, info));
                 }); 
             ;
         }

@@ -8,7 +8,6 @@ using Salky.WebSocket.Infra.Interfaces;
 namespace Salky.API.WebSocketRoutes
 {
 
-
     [WebSocketRoute("group/call")]
     public class CallRoute : WebSocketRouteBase
     {
@@ -21,8 +20,7 @@ namespace Salky.API.WebSocketRoutes
             this.groupMemberService = groupMemberService;
             this.logger = logger;
         }
-        [WsAfterConnectionClosed]
-        public async Task AfterClose()
+        public override async Task OnDisconnectAsync()
         {
             try
             {
@@ -37,7 +35,9 @@ namespace Salky.API.WebSocketRoutes
             {
 
             }
+            await base.OnDisconnectAsync();
         }
+      
         [WsPost]
         public async Task EntryOrCreateCall(CallEntry callEntry)
         {
@@ -60,7 +60,7 @@ namespace Salky.API.WebSocketRoutes
                 var poolPath = $"{groupid}/call";
                 callMember.FillCallProperties(groupid, poolPath, member.Id.ToString(), member.GroupRole);
                 callMember.AudioState = callEntry.AudioState;
-                AddInPool(poolPath, member.UserId.ToString());
+                AddOneInPool(poolPath, member.UserId.ToString());
                 await SendToAllInPool(groupid, CurrentPath, Method.POST, callMember);
             }
             catch (Exception ex)
@@ -81,10 +81,10 @@ namespace Salky.API.WebSocketRoutes
                     await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
                     return;
                 }
-                TryRemoveFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
+                RemoveOneFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
                 //Faz o envio da notificação para quem interessar
                 await SendToAllInPool(
-                    PoolId: usrCall.GroupId ?? throw new NullReferenceException(),
+                    PoolKey: usrCall.GroupId ?? throw new NullReferenceException(),
                     Path: CurrentPath,
                     method: Method.DELETE,
                     data: usrCall

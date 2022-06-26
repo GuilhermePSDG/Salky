@@ -20,7 +20,9 @@ namespace Salky.App.Mapping
                 .ForMember(x => x.PictureSource, q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)));
 
             CreateMap<User, UserRegisterDto>();
-            CreateMap<User, UserSearchDto>();
+            CreateMap<User, UserSearchDto>()
+                .ForMember(x => x.PictureSource,q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)));
+            ;
             CreateMap<User, UserLoggedDto>()
                 .ForMember(x => x.PictureSource,q => q.MapFrom(x => ImageServiceConfiguration.CreateExternalLink(x.PictureSource)));
 
@@ -34,7 +36,7 @@ namespace Salky.App.Mapping
             CreateMap<GroupConfigDto,GroupConfig>().ReverseMap();
 
             CreateMap<MessageGroup,MessageDto>()
-                .ForMember(q => q.PartialContents, q => q.MapFrom(n => new MessagePartialContentService().Generate(n.Content)))
+                .ForMember(q => q.PartialContents, q => q.MapFrom(n => new MessagePartialContentGenerator().Generate(n.Content)))
                 .ForMember(f=>f.SendedAt,q => q.MapFrom(n => n.CreatedDate))
                 .ForMember(f=>f.Author, q => q.MapFrom(n => n.Sender))
                 .ReverseMap();

@@ -20,7 +20,7 @@ export class UserService {
     }
   }
 
-  public login(userName: string, password: string): Observable<void> {
+  public login(userName: string, password: string): Observable<UserLogged> {
     return this.http
       .post<any>(`${this.baseUrl}/login`, {
         userName: userName,
@@ -31,6 +31,7 @@ export class UserService {
         map((res : any) => {
           var usr = res.data;
           this.setCurrentUser(usr);
+          return usr;
         })
       );
   }
@@ -49,7 +50,7 @@ export class UserService {
       );
   }
 
-  public register(userName: string, password: string): Observable<void> {
+  public register(userName: string, password: string): Observable<UserLogged> {
     return this.http
       .post<any>(`${this.baseUrl}/cadastro`, {
         userName: userName,
@@ -60,6 +61,7 @@ export class UserService {
         map((res: any) => {
           var usr = res.data;
           this.setCurrentUser(usr);
+          return usr;
         })
       );
   }

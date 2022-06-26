@@ -6,22 +6,11 @@ using System.Threading.Tasks;
 
 namespace Salky.WebSocket.Infra.Models
 {
-    public struct RoutePath
+    public class RoutePath: RoutePathBase
     {
-        public string Path { get;set; }
-        public Method Method { get;set; }
-        public RoutePath(string Path, Method method)
-        {
-            (this.Path,this.Method) = (Path,method);
-        }
-        public override string ToString()
-        {
-            return $"{Path}{Method}";
-        }
-        public string ToLower()
-        {
-            return this.ToString().ToLower();
-        }
-
+        public string PathClass { get;}
+        public string PathMethod { get;}
+        public RoutePath(string PathClass, string PathMethod, Method method):base($"{PathClass}{PathMethod}",method)
+            => (this.PathClass, this.PathMethod) = (PathClass, PathMethod);
     }
 }

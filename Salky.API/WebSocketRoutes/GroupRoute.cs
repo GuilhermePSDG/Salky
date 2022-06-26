@@ -22,46 +22,33 @@ namespace Salky.API.WebSocketRoutes
             this.groupMemberService = groupMemberService;
         }
 
-
-        [WsAfterConnectionEstablished]
-        public async Task AfterOpen()
+        public override async Task OnConnectAsync()
         {
             await CreateUserWsIfNotCreated(new AudioState(true, true));
             var usrId = Claims.GetUserId().ToString();
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
-                AddInPool(member.GroupId.ToString(), usrId);
+                AddOneInPool(member.GroupId.ToString(), usrId);
             });
+            await base.OnConnectAsync();
         }
-
-
-        [WsAfterConnectionClosed]
-        public async Task AfterClose()
+        public override async Task OnDisconnectAsync()
         {
             var usrId = Claims.GetUserId().ToString();
             (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
             {
-                TryRemoveFromPool(member.GroupId.ToString(), usrId);
-                TryRemoveFromPool(member.GroupId.ToString() + "/call", usrId);
+                RemoveOneFromPool(member.GroupId.ToString(), usrId);
+                RemoveOneFromPool(member.GroupId.ToString() + "/call", usrId);
             });
+            await base.OnDisconnectAsync();
         }
 
         private async Task CreateUserWsIfNotCreated(AudioState audioState)
         {
-            if (!Storage.TryGet<GroupMemberCall>(out var usrCall))
-            {
-                try
-                {
-                    var usr = await userService.GetUserById(Claims.GetUserId());
-                    if (usr == null) throw new NullReferenceException("Usuario não encontrado");
-                    var userCall = new GroupMemberCall(audioState);
-                    Storage.Add(userCall);
-                }
-                catch (Exception ex)
-                {
-                    log.LogError(ex, "");
-                }
-            }
+            var usr = await userService.GetUserById(Claims.GetUserId());
+            if (usr == null) throw new NullReferenceException("Usuario não encontrado");
+            var userCall = new GroupMemberCall(audioState);
+            Storage.AddOrUpdate(userCall);
         }
 
 
@@ -98,7 +85,7 @@ namespace Salky.API.WebSocketRoutes
             var group = await groupService.CreateNewPublicGroup(uId, GroupName);
             var member = await groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
             //PROBLEMA DE ID
-            AddInPool(group.Id.ToString(), uId.ToString());
+            AddOneInPool(group.Id.ToString(), uId.ToString());
             await SendBack(group, CurrentPath, Method.POST);
         }
 

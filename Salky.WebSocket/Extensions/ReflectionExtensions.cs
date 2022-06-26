@@ -6,26 +6,21 @@ namespace Salky.WebSocket.Extensions
 {
     public static class ReflectionExtensions
     {
-        public static Type[] GetAllTypesInCurrentAssembly<T>()
-        {
-            return AppDomain
-            .CurrentDomain
-            .GetAssemblies()
-            .Where(f => f.GetName().Name == AppDomain.CurrentDomain.FriendlyName)
-            .SelectMany(f => f.GetTypes())
-            .Where(x =>x.IsAssignableTo(typeof(T)))
-            .ToArray();
-        }
 
-        public static Type[] GetAllTypes<T>()
+        public static Type[] GetAllTypesInAssembly(Func<Type, bool> conditial, params string[] AssemblysName)
         {
             return AppDomain
             .CurrentDomain
             .GetAssemblies()
+            .Where(f => AssemblysName.Contains(f.GetName().Name))
             .SelectMany(f => f.GetTypes())
-            .Where(x => x.IsAssignableTo(typeof(T)))
+            .Where(conditial)
             .ToArray();
         }
+        public static Type[] GetAllTypesInCurrentAssembly(Func<Type, bool> conditial)
+            => GetAllTypesInAssembly(conditial, AppDomain.CurrentDomain.FriendlyName);
+        public static Type[] GetAllTypesInCurrentAssembly<T>() 
+            => GetAllTypesInCurrentAssembly(x => x.IsAssignableTo(typeof(T)));
 
 
         /// <summary>
@@ -38,8 +33,7 @@ namespace Salky.WebSocket.Extensions
         /// <exception cref="Exception"></exception>
         public static AtributeType GetRequiredAtribute<AtributeType>(this MemberInfo memberInfo) where AtributeType : Attribute
         {
-            var res = memberInfo.GetCustomAttribute(typeof(AtributeType));
-            if (res == null) throw new NullReferenceException($"{memberInfo.Name} do not has the custom atribute {typeof(AtributeType).FullName}");
+            var res = memberInfo.GetCustomAttribute(typeof(AtributeType)) ?? throw new NullReferenceException($"{memberInfo.Name} do not has the custom atribute {typeof(AtributeType).FullName}");
             return (AtributeType)res ?? throw new Exception($"Cannot cast {memberInfo.Name} into {typeof(AtributeType).Name}");
         }
         /// <summary>
@@ -65,11 +59,7 @@ namespace Salky.WebSocket.Extensions
                 return null;
             }
         }
-        public static object? MapProperties(this Type type)
-        {
-            var result = new Dictionary<string,object>();
-            return null;
-        }
+
     }
 
 }

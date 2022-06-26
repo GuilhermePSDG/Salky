@@ -1,26 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Salky.App.Interfaces;
 using Salky.WebSocket.Infra.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Web;
 
 namespace Salky.App.Security
 {
-    public class HttpWebSocketHandShaker : IDoHttpHandshake
+    public class HttpWebSocketHandShaker : HttpWebSocketGuardIdentityProvider
     {
         public ITokenService TokenService { get; }
         public HttpWebSocketHandShaker(ITokenService tokenService)
         {
             TokenService = tokenService;
         }
-        public void MakeOrThrow(HttpContext httpContext, out List<Claim> Claims, out string SocketKey)
+        public bool CanContinue(HttpContext httpContext, [NotNullWhen(true)] out List<Claim>? Claims, [NotNullWhen(true)] out string? SocketKey)
         {
-            var token = HttpUtility.ParseQueryString(httpContext.Request.QueryString.Value).Get("token") ?? throw new InvalidOperationException("Token not found");
-            var claims = TokenService.ValidateToken(token);
-            if (claims == null || claims.Count == 0) throw new NullReferenceException("Invalid Token");
-            var key = claims.SingleOrDefault(f => f.Type.Equals("nameid")) ?? throw new NullReferenceException("Invalid Token");
-            SocketKey = key.Value;
-            Claims = claims;
+            Claims = null;
+            SocketKey = null;
+            var token = HttpUtility.ParseQueryString(httpContext.Request.QueryString.Value).Get("token");
+            if (token == null) return false;
+            Claims = TokenService.ValidateToken(token);
+            if (Claims == null || Claims.Count == 0) return false;
+            SocketKey = Claims.SingleOrDefault(f => f.Type.Equals("nameid"))?.Value;
+            if(SocketKey == null) return false;
+            return true;
         }
     }
 }

@@ -10,7 +10,4 @@ public enum Method
     REDIRECT,
     LISTENER,
     CONFIRM,
-    //Rotas menores que 0 reservadas para uso interno
-    _CONNECTIONCLOSED = -1,
-    _AFTERCONNECTIONOPEN = -2
 }

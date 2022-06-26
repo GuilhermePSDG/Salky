@@ -27,7 +27,7 @@ export class SalkyWebSocket {
     return new Promise(() => {});
   }
 
-  private async connect(user: UserLogged): Promise<void> {
+  public async connect(user: UserLogged): Promise<void> {
     console.info('Conectando..');
     this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
     this.ws.onopen = (event: any) => this.onOpen(event);

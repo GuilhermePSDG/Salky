@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Salky.App.Services
 {
-    public class MessagePartialContentService
+    public class MessagePartialContentGenerator
     {
         public ITokenResolver TokenResolver { get; }
-        public MessagePartialContentService()
+        public MessagePartialContentGenerator()
         {
             TokenResolver = new TokenResolver(Tokens);
         }

@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 using Salky.WebSocket.Infra.Interfaces;
 using Salky.WebSocket.Infra.Models;
 using Salky.WebSocket.Infra.Socket;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace Salky.WebSocket.Handler;
 
@@ -18,7 +18,13 @@ public partial class SalkyWebSocketMiddleWare
     private readonly IServiceScopeFactory scopeFactory;
     private readonly ILogger<SalkyWebSocketMiddleWare> logger;
 
-    public SalkyWebSocketMiddleWare(RequestDelegate next, IPoolMannager connectionManager, IServiceScopeFactory scopeFactory, ILogger<SalkyWebSocketMiddleWare> logger)
+    public SalkyWebSocketMiddleWare(
+        RequestDelegate next, 
+        IPoolMannager connectionManager, 
+        IServiceScopeFactory scopeFactory, 
+        ILogger<SalkyWebSocketMiddleWare> logger
+        )
+
     {
         _next = next;
         this._connectionManager = connectionManager;
@@ -28,91 +34,68 @@ public partial class SalkyWebSocketMiddleWare
     }
 
 
-    private bool MakeHttpHandshake(HttpContext context, IServiceProvider serviceProvider, out List<Claim> Claims, out string SocketKey)
+    private bool MakeHttpHandshake(HttpContext context, IServiceProvider serviceProvider, [NotNullWhen(true)]out List<Claim>? Claims , [NotNullWhen(true)] out string? SocketKey )
     {
-        try
-        {
-            var httpHandShaker = serviceProvider.GetService(typeof(IDoHttpHandshake));
-            if (httpHandShaker != null)
-            {
-                ((IDoHttpHandshake)httpHandShaker).MakeOrThrow(context, out Claims, out SocketKey);
-            }
-            else
-            {
-                this.logger.LogWarning($"WebSocket without authentication/authorization");
-                Claims = new();
-                SocketKey = Guid.NewGuid().ToString();
-            }
-            return true;
-        }
-        catch(Exception ex)
-        {
-            this.logger.LogInformation(ex, "Http HandShake Failed");
-            Claims = null;
-            SocketKey = null;
+        Claims = null;
+        SocketKey = null;
+        var identityGuard = serviceProvider.GetService<HttpWebSocketGuardIdentityProvider>();
+        if (identityGuard != null && !identityGuard.CanContinue(context, out Claims, out SocketKey))
             return false;
-        }
+        foreach (var guard in serviceProvider.GetServices<HttpWebSocketGuard>())
+            if (!guard.CanContinue(context,Claims,SocketKey))
+                return false;
+        if (Claims == null) Claims = new();
+        if (SocketKey == null) SocketKey = Guid.NewGuid().ToString();
+        return true;
     }
    
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            this.logger.Log(LogLevel.Information, "WebSocket Connection Received");
-            SalkyWebSocket? ws = null;
-            using var scope = this.scopeFactory.CreateScope();
-            var serviceProvider = scope.ServiceProvider;
-            try
-            {
-                ws = await TryAcceptConnection(context,serviceProvider);
-                if(ws == null)
-                {
-                    this.logger.LogInformation("Connection denied.");
-                    return;
-                }
-                await AfterConnectionEstablished(ws, serviceProvider);
-                await ReceiveMessage(ws, serviceProvider);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error while invoke middleware");
-            }
-            finally
-            {
-                if (ws != null)
-                {
-                    await OnClosed(ws, serviceProvider);
-                }
-            }
-        }
-        else if (context.Request.Path.Equals("/ws.json"))
-        {
-            var routes = RouteResolver.RouteDocs();
-            var json = JsonSerializer.Serialize(routes,
-                new JsonSerializerOptions()
-                {
-                    WriteIndented = true,
-                    Converters = { new JsonStringEnumConverter() }
-                });
-            await context.Response.WriteAsync(json);
-        }
-        else
+        if (!context.WebSockets.IsWebSocketRequest)
         {
             await _next(context);
+            return;
+        }
+        this.logger.LogInformation("WebSocket Connection Received");
+        SalkyWebSocket? ws = null;
+        using var scope = this.scopeFactory.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        try
+        {
+            ws = await TryAcceptConnection(context, serviceProvider);
+            if (ws == null)
+            {
+                this.logger.LogInformation("Connection denied.");
+                return;
+            }
+            await AfterConnectionEstablished(ws, serviceProvider);
+            await ReceiveMessage(ws, serviceProvider);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error while invoke middleware");
+        }
+        finally
+        {
+            if (ws != null)
+                await OnClosed(ws, serviceProvider);
         }
     }
 
     private async Task<SalkyWebSocket?> TryAcceptConnection(HttpContext context,IServiceProvider provider)
     {
-        if (!MakeHttpHandshake(context, provider, out var claims, out var key)) return null;
+        if (!MakeHttpHandshake(context, provider, out var claims, out var key))
+            return null;
+        if (_connectionManager.TryGetSocket(key, out var removedSocket))
+        {
+            this.logger.LogInformation($"Attempt to connect, but the user is already logged, disconnecting the old connection and rejecting the actual..");
+            await removedSocket.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation, CloseDescription.DuplicatedConnection);
+            return null;
+        }
         return new SalkyWebSocket(await context.WebSockets.AcceptWebSocketAsync(), claims, key);
     }
 
-    private async Task DisconectIfConnected(string key)
-    {
-        if(!_connectionManager.TryRemove(key,out var removedSocket)) return;
-        await removedSocket.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation,CloseDescription.DuplicatedConnection);
-    }
+  
 
     private async Task ReceiveMessage(SalkyWebSocket ws,IServiceProvider provider)
     {
@@ -128,7 +111,7 @@ public partial class SalkyWebSocketMiddleWare
                 {
                     result = await ws.ReceiveAsync(buffer, CancellationToken.None);
                 }
-                catch
+                catch(Exception ex)
                 {
                     if (ws.State == WebSocketState.Aborted)
                     {
@@ -137,6 +120,7 @@ public partial class SalkyWebSocketMiddleWare
                     }
                     else
                     {
+                        this.logger.LogError(ex, "Unrecognized exception while receiving message.");
                         throw;
                     }
                 }
@@ -187,25 +171,28 @@ public partial class SalkyWebSocketMiddleWare
 
     public async Task OnClosed(SalkyWebSocket ws,IServiceProvider provider)
     {
-        if (!this._connectionManager.TryRemove(ws.Key, out _))
-            throw new Exception("Connection not removed.");
+        if (!this._connectionManager.TryRemoveSocket(ws.Key, out _))
+        {
+            this.logger.LogError("Connection not removed.");
+        }
         await provider.GetRequiredService<IRouterResolver>().AfterClose(ws,provider);
         ws.Dispose();
     }
    
     public async Task AfterConnectionEstablished(SalkyWebSocket ws, IServiceProvider provider)
     {
-        await DisconectIfConnected(ws.Key);
-        _connectionManager.Add(ws.Key, ws);
+        _connectionManager.AddSocket(ws.Key, ws);
         await provider.GetRequiredService<IRouterResolver>().AfterOpen(ws,provider);
     }
    
-
     internal async Task MessageCloseHandler(SalkyWebSocket webSocket)
     {
-        if (!Enum.TryParse<CloseDescription>(webSocket.CloseStatusDescription, true, out var parsedDescription))
-            parsedDescription = CloseDescription.Unknow;
-        await webSocket.CloseOutputAsync(webSocket.CloseStatus ?? WebSocketCloseStatus.Empty, parsedDescription);
+        if (webSocket.CanClose)
+        {
+            if (!Enum.TryParse<CloseDescription>(webSocket.CloseStatusDescription, true, out var parsedDescription))
+                parsedDescription = CloseDescription.Unknow;
+            await webSocket.CloseOutputAsync(webSocket.CloseStatus ?? WebSocketCloseStatus.Empty, parsedDescription);
+        }
     }
 
 }

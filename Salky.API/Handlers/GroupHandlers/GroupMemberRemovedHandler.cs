@@ -19,10 +19,10 @@ namespace Salky.API.Handlers.GroupHandlers
         {
             try
             {
-                if (!ConnectionMannager.TryGet(args.groupMember.UserId.ToString(), out var memberSock)) return;
+                if (!ConnectionMannager.TryGetSocket(args.groupMember.UserId.ToString(), out var memberSock)) return;
                 if (!memberSock.Storage.TryGet<GroupMemberCall>(out var usrCall)) return;
                 if (!(usrCall.IsInCall && usrCall.PoolPath != null && usrCall.PoolPath.Contains(args.groupMember.GroupId.ToString()))) return;
-                await ConnectionMannager.SendToAllInPool(usrCall.PoolPath,$"group/call", Method.DELETE, usrCall);
+                await ConnectionMannager.SendToAllInPool(usrCall.PoolPath,new MessageServer($"group/call", Method.DELETE,Status.Success, usrCall));
                 usrCall.ZeroCallProperties();
             }
             catch

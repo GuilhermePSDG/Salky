@@ -104,6 +104,8 @@
 				}
 			}
 		}
-	},
-	"defaultProject": "salkyelectron"
+  },
+  "cli": {
+    "analytics": false
+  }
 }

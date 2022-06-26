@@ -9,17 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="appsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="HtmlSanitizer" Version="7.1.512" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.4" />
-	
   </ItemGroup>
 	<ItemGroup>
 	
@@ -46,27 +41,9 @@
 	<ItemGroup>
 	  <EditorConfigFiles Remove="C:\Users\0\Documents\GitHub\Salky\Salky.API\.editorconfig" />
 	</ItemGroup>
-	<ItemGroup>
-	  <None Include="appsettings.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>appsettings.json</DependentUpon>
-	  </None>
-	  <None Include="appsettings.json">
-	    <Generator>TextTemplatingFileGenerator</Generator>
-	    <LastGenOutput>appsettings.cs</LastGenOutput>
-	  </None>
-	  <None Include="C:\Users\0\Documents\GitHub\Salky\Salky.API\.editorconfig" />
-	</ItemGroup>
+	
 	<ItemGroup>
 	  <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Compile Update="appsettings.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>appsettings.json</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 
 

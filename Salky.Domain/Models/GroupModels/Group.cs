@@ -20,7 +20,6 @@ namespace Salky.Domain.Models.GroupModels
         public List<Transference> TransfersRecords => Transferences;
         private List<Transference> Transferences { get; set; } = new();
 
-        [RegularExpression("^([a-zA-Z0-9 ]{3,24})$",ErrorMessage ="Caracteres Invalidos")]
         public string Name { get;private set; }
         public string PictureSource { get; private set; }
         public User? Owner { get; private set; }

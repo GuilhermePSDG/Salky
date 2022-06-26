@@ -4,20 +4,18 @@ namespace Salky.WebSocket.Infra.Models
 {
     public struct RouteInfo 
     {
-        public RouteInfo(MethodInfo methodInfo, Type classType, Type? parameterType, RoutePath routePath)
+        public RouteInfo(MethodInfo methodInfo, Type classType, ParameterInfo[] parameterType, RoutePath routePath)
         {
             MethodInfo = methodInfo;
             ClassType = classType;
-            ParameterType = parameterType;
+            Parameters = parameterType;
             RoutePath = routePath;
         }
-
+        
         public MethodInfo MethodInfo { get; }
         public Type ClassType { get; }
-        public Type? ParameterType { get; }
+        public ParameterInfo[] Parameters { get; }
         public RoutePath RoutePath { get;}
-      
-
 
         public object? Execute(object instance, object[] parammeters)
         {

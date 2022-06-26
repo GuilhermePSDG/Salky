@@ -9,45 +9,39 @@ namespace Salky.API.WebSocketRoutes
     public class FriendRoute : WebSocketRouteBase
     {
         private readonly FriendService friendService;
-        public FriendRoute(FriendService friendService, UserService userService)
+        public FriendRoute(FriendService friendService)
         {
             this.friendService = friendService;
         }
 
-        [WsAfterConnectionEstablished]
-        public async Task AfterOpen()
+        public override async Task OnConnectAsync()
         {
-            var usrId = Claims.GetUserId().ToString();
+            var usrId = Claims.GetUserId();
             (await friendService.GetAll(Claims.GetUserId()))
-                .ForEach(friend => AddInPool(friend.Id.ToString(), usrId)
+                .ForEach(friend => AddOneInPool(friend.Id, usrId)
             );
+            await base.OnConnectAsync();
         }
-
-        [WsAfterConnectionClosed]
-        public async Task AfterClose()
+        public override async Task OnDisconnectAsync()
         {
-            var usrId = Claims.GetUserId().ToString();
+            var usrId = Claims.GetUserId();
             (await friendService.GetAll(Claims.GetUserId()))
-                .ForEach(friend => TryRemoveFromPool(friend.Id.ToString(), usrId));
+                .ForEach(friend => RemoveOneFromPool(friend.Id, usrId));
+            await base.OnDisconnectAsync();
         }
 
         [WsPost("add")]
         public async Task SendFriendRequest(Guid UserToAddAsFriend)
         {
-
             var friend = await friendService.SendFriendRequest(Claims.GetUserId(), UserToAddAsFriend);
             if (friend != null)
             {
+                AddManyInPool(friend.Id, Claims.GetUserId(), UserToAddAsFriend);
                 //Envia pro usuario que adicionou
-                AddInPool(friend.Id.ToString(), Claims.GetUserId().ToString(), UserToAddAsFriend.ToString());
                 await SendBack(friend, "friend", Method.PUT);
                 //Envia pro usuario que foi adicionado
                 var otherFriend = await friendService.GetById(UserToAddAsFriend, friend.Id) ?? throw new InvalidOperationException();
-                await SendToOneInPool(friend.Id.ToString(), UserToAddAsFriend.ToString(), "friend", Method.PUT, otherFriend);
-            }
-            else
-            {
-
+                await SendToOneInPool(friend.Id, UserToAddAsFriend, "friend", Method.PUT, otherFriend);
             }
         }
 
@@ -67,18 +61,17 @@ namespace Salky.API.WebSocketRoutes
                 }
                 if (status == RelationShipStatus.Removed || status == RelationShipStatus.Canceled || status == RelationShipStatus.Rejected)
                 {
-                    await SendToAllInPool(FriendId.ToString(), "friend", Method.DELETE, friend);
-                    DeletePool(FriendId.ToString());
+                    await SendToAllInPool(FriendId, "friend", Method.DELETE, friend);
+                    DeletePool(FriendId);
                     return;
                 }
-                await SendToAllInPool(FriendId.ToString(), "friend", Method.PUT, friend);
+                await SendToAllInPool(FriendId, "friend", Method.PUT, friend);
             }
             catch
             {
                 await SendErrorBack(CurrentPath, "Erro ao atualizar amigos.");
             }
         }
-
 
     }
 

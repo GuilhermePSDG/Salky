@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
+  UntypedFormBuilder,
   FormControl,
-  FormGroup,
+  UntypedFormGroup,
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+import { UserLogged } from 'src/app/Models/Users/UserLogged';
 import { LoaddingService } from 'src/app/Services/loadding.service';
+import { Destroyable } from 'src/app/Services/SalkyEvents';
+import { SalkyWebSocket } from 'src/app/Services/SalykWsClient.service';
 import { ShowInfoService } from 'src/app/Services/show-info.service';
 import { UserService } from 'src/app/Services/UserService.service';
 
@@ -19,7 +22,7 @@ import { UserService } from 'src/app/Services/UserService.service';
   styleUrls: ['./login-or-register.component.scss'],
 })
 export class LoginOrRegisterComponent implements OnInit {
-  form: FormGroup;
+  form: UntypedFormGroup;
   public geralError?: string;
   mode: 'login' | 'register';
 
@@ -45,7 +48,8 @@ export class LoginOrRegisterComponent implements OnInit {
     private userService: UserService,
     private loaddinService: LoaddingService,
     private show: ShowInfoService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
+    private ws: SalkyWebSocket,
     private router: Router
   ) {
     this.mode = router.url.includes('auth/register') ? 'register' : 'login';
@@ -54,7 +58,7 @@ export class LoginOrRegisterComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
-  ngOnInit(): void {}
+  ngOnInit(): void { }
   public login() {
     this.doAuth((a, b) => this.userService.login(a, b));
   }
@@ -62,7 +66,7 @@ export class LoginOrRegisterComponent implements OnInit {
     this.doAuth((a, b) => this.userService.register(a, b));
   }
   public doAuth(
-    authMethod: (username: string, password: string) => Observable<void>
+    authMethod: (username: string, password: string) => Observable<UserLogged>
   ) {
     this.loaddinService.Show();
     authMethod(
@@ -70,7 +74,17 @@ export class LoginOrRegisterComponent implements OnInit {
       this.form.controls['password'].value
     )
       .subscribe({
-        next: (s) => this.router.navigateByUrl(''),
+        next: (usr) => {
+          var list: Destroyable[] = [];
+          list.push(this.ws.On("open", "*").Build<any>(x => {
+            list.forEach(x => x.destroy());
+            this.router.navigateByUrl('')
+          }));
+          list.push(this.ws.On('close', '*').Build<any>(x => {
+            list.forEach(x => x.destroy());
+          }));
+          this.ws.connect(usr);
+        },
         error: (err: any) => {
           this.geralError = err?.error?.message;
           if (err.status === 0) {

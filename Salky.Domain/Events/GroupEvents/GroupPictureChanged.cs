@@ -10,5 +10,4 @@ namespace Salky.Domain.Events.GroupEvents
         }
     }
 
-
 }

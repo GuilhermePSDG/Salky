@@ -93,7 +93,6 @@ builder.Services.AddScoped<GroupMessageService>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<GroupMemberService>();
 builder.Services.AddScoped<FriendService>();
-builder.Services.AddScoped<FriendMessageService>();
 builder.Services.AddScoped<ImageService>();
 builder.UseLocalSqlite<SalkyDbContext>();
 builder.Services.AddCors();
@@ -102,7 +101,7 @@ builder.Services.RegisterDomainEventsHandlers();
 
 builder.Services
     .UseSalkyWebSocketRouter()
-    .UseSalkyHttpHandShakerMiddleWare<HttpWebSocketHandShaker>();
+    .UseHttpHandShake<HttpWebSocketHandShaker>();
 
 var app = builder.Build();
 
@@ -120,9 +119,12 @@ app
 
 //Dispatcher.InstanceFactory = () => app.Services.CreateScope().ServiceProvider.GetRequiredService<IDispatcher>();
 // Configure the HTTP request pipeline.
+
+
+Environment.SetEnvironmentVariable("JWTKEY", "JwtHighSecuritySecret");
+
 if (app.Environment.IsDevelopment())
 {
-    Environment.SetEnvironmentVariable("JWTKEY", "JwtHighSecuritySecret");
     app.UseSwagger();
     app.UseSwaggerUI();
 }

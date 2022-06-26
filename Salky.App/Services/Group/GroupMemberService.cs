@@ -57,10 +57,6 @@ namespace Salky.App.Services.Group
             return mapper.Map<GroupMemberRolesDto>(result);
         }
 
-
-
-
-
         public async Task<GroupMemberDto?> AddNewMemberByFriendId(Guid CurrentUserId, Guid FriendId, Guid GroupId)
         {
             var friend = await friendRepo.GetById(CurrentUserId, FriendId, true);
@@ -72,7 +68,6 @@ namespace Salky.App.Services.Group
             }
             return null;
         }
-       
         private async Task<GroupMemberDto?> AddNewMember(Guid CurrentUserId, Guid UserToAddInGroupId, Guid GroupId)
         {
             var group = await groupRepository.GetGroupByIdWithMembersWithTracking(GroupId);
@@ -86,7 +81,6 @@ namespace Salky.App.Services.Group
             }
             return null;
         }
-
         public async Task<GroupMemberDto?> RemoveGroupMember(Guid UserId, Guid MemberToRemoveId)
         {
             var MemberToRemove = await memberRepo.GetMemberById(MemberToRemoveId);
@@ -100,8 +94,6 @@ namespace Salky.App.Services.Group
             }
             return null;
         }
-       
-
 
     }
 }
