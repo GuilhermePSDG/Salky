@@ -89,8 +89,8 @@ builder.Services.AddCors();
 builder.Services.RegisterDomainEventsHandlers();
 builder.Services.AddSalkyWebSocket(op =>
 {
-    op.MapRoutes();
     op.SetAuthGuard<HttpWebSocketHandShaker>();
+    op.MapRoutes();
 });
 
 var app = builder.Build();

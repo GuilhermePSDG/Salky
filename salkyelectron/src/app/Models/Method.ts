@@ -1,0 +1,1 @@
+export declare type Method = "get" | "post" | 'put' | 'delete' | 'redirect' | 'listener' | '*';

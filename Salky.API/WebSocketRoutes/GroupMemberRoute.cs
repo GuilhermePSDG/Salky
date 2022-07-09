@@ -40,7 +40,7 @@ namespace Salky.API.WebSocketRoutes
                 if (newMember != null)
                 {
                     await SendToAllInPool(groupId.ToString(), CurrentPath, Method.POST, newMember);
-                    AddOneInPool(groupId.ToString(), newMember.UserId.ToString());
+                    await AddOneInPool(groupId.ToString(), newMember.UserId.ToString());
                     var groupDto = await groupService.GetById(newMember.UserId, newMember.GroupId) ?? throw new InvalidOperationException();
                     await SendToOneInPool(groupId.ToString(), newMember.UserId.ToString(), "group/create", Method.POST, groupDto);
                 }
@@ -69,7 +69,7 @@ namespace Salky.API.WebSocketRoutes
                     var removedMemberUsrId = removedMember.UserId.ToString();
                     var data = new RemoveMember(removedMember.Id, removedMember.GroupId);
                     await SendToOneInPool(groupId, removedMemberUsrId, "group", Method.DELETE, groupId);
-                    RemoveOneFromPool(groupId, removedMemberUsrId);
+                    await RemoveOneFromPool(groupId, removedMemberUsrId);
                     await SendToAllInPool(
                            PoolKey: groupId,
                            Path: CurrentPath, Method.DELETE, data

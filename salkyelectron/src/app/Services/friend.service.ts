@@ -44,9 +44,6 @@ export class FriendService extends WebSocketBaseService {
     );
   }
 
-  
-
-
 
   public SendFriendRequest(userId: String) {
     this.ws.sendMessageServer({

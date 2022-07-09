@@ -2,14 +2,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 @import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import "color.scss";
+
 * {
   font-family: "Roboto", sans-serif;
   // font-family: "Inter", sans-serif;
   font-size: 14px;
   color: white;
-}
-
-html {
   scroll-behavior: smooth;
 }
 
@@ -53,6 +51,7 @@ button {
   white-space: nowrap;
   text-align: initial;
   transition: all 0.3s;
+
   &:hover {
     background-color: rgb(46, 46, 46);
   }
@@ -71,10 +70,12 @@ button {
   word-break: keep-all;
   cursor: pointer;
 }
+
 .btn:hover,
 .btn.active {
   background: rgb(54, 83, 95);
 }
+
 .btn:disabled {
   cursor: not-allowed;
   background: rgb(31, 47, 54);
@@ -83,12 +84,15 @@ button {
 
 .btn-success {
   background-color: rgba(0, 255, 63, 0.25);
+
   &:hover {
     background-color: rgba(0, 255, 63, 0.35);
   }
+
   &.active {
     background-color: rgba(13, 13, 26, 0.55);
   }
+
   &:disabled {
     background-color: rgba(0, 88, 22, 0.35);
   }
@@ -96,10 +100,12 @@ button {
 
 .btn-dark {
   background-color: rgba(13, 13, 26, 0.25);
+
   &:hover,
   &.active {
     background-color: rgba(13, 13, 26, 0.55);
   }
+
   &:disabled {
     background-color: rgba(13, 13, 26, 0.55);
   }
@@ -107,10 +113,12 @@ button {
 
 .btn-danger {
   background-color: rgba(255, 0, 0, 0.25);
+
   &:hover,
   &.active {
     background-color: rgba(255, 0, 0, 0.35);
   }
+
   &:disabled {
     background-color: rgba(97, 0, 0, 0.35);
   }
@@ -124,17 +132,20 @@ button {
   text-align: center;
   transition: all 0.4s;
   font-size: 1.7em;
+
   &:hover {
     &::after {
       color: rgb(255, 0, 0);
     }
   }
+
   &::after {
     content: "🞭";
     color: #c90000;
     transition: all 0.4s;
   }
 }
+
 .btn-confirm {
   font-size: 1.4em;
   font-weight: 900;
@@ -152,6 +163,7 @@ button {
   min-width: 75px;
   padding: 9px 10px;
 }
+
 .input {
   color: white;
   width: 100%;
@@ -162,15 +174,17 @@ button {
   transition: all 0.2s;
   min-height: 40px;
   width: calc(100% - 30px);
-  border:1px solid transparent;
+  border: 1px solid transparent;
 
-  &:focus{
-    transform:scale(1.02);
+  &:focus {
+    transform: scale(1.02);
   }
-  &.alert{
-    border:1px solid red !important;
+
+  &.alert {
+    border: 1px solid red !important;
   }
 }
+
 .emoji {
   font-size: 25px;
   cursor: default;
@@ -179,15 +193,19 @@ button {
 .poRela {
   position: relative;
 }
+
 .max-height-100P {
   max-height: 100%;
 }
+
 .poAbso {
   position: absolute;
 }
+
 .text-low-opacity {
   opacity: 60%;
 }
+
 .d-flex {
   display: flex;
 }
@@ -209,6 +227,7 @@ button {
   font-weight: 500;
   cursor: pointer;
 }
+
 ///--------- ICONS - ICONS -----------//
 
 .icon-trash {
@@ -223,27 +242,33 @@ button {
 .giphy {
   max-width: 300px;
 }
+
 .imgS {
   max-width: 300px;
 }
 
 
 app-left-bar .imgContainer {
-  &:hover,.active {
-    .ImageContainer-Circle{
+
+  &:hover,
+  .active {
+    .ImageContainer-Circle {
       border-radius: 40% !important;
     }
   }
 }
+
 app-left-bar .imgContainer.active {
-    .ImageContainer-Circle{
-      border-radius: 40% !important;
-    }
+  .ImageContainer-Circle {
+    border-radius: 40% !important;
+  }
 }
+
 @media (max-width: 760px) {
   .yotubeembed {
     width: 200px;
   }
+
   .imgS {
     width: 200px;
   }
@@ -343,6 +368,7 @@ video {
   font: inherit;
   vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
 article,
 aside,
@@ -357,17 +383,21 @@ nav,
 section {
   display: block;
 }
+
 body {
   line-height: 1;
 }
+
 ol,
 ul {
   list-style: none;
 }
+
 blockquote,
 q {
   quotes: none;
 }
+
 blockquote:before,
 blockquote:after,
 q:before,
@@ -375,6 +405,7 @@ q:after {
   content: "";
   content: none;
 }
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -479,8 +510,7 @@ input[type="tel"],
 input[type="text"],
 input[type="time"],
 input[type="url"],
-input[type="week"] {
-}
+input[type="week"] {}
 
 /* Button Controls
 -----------------------------------------------*/
@@ -494,8 +524,7 @@ input[type="radio"] {
 /* File Uploads
 -----------------------------------------------*/
 
-input[type="file"] {
-}
+input[type="file"] {}
 
 /* Search Input
 -----------------------------------------------*/
@@ -544,8 +573,7 @@ textarea {
 /* Selects
 -----------------------------------------------*/
 
-select {
-}
+select {}
 
 select[multiple] {
   /* Move the label to the top */
@@ -557,6 +585,7 @@ select[multiple] {
 .tooltip {
   position: relative;
 }
+
 .tooltip:before,
 .tooltip:after {
   display: block;
@@ -564,6 +593,7 @@ select[multiple] {
   pointer-events: none;
   position: absolute;
 }
+
 .tooltip:after {
   border-right: 6px solid transparent;
   border-bottom: 6px solid rgba(0, 0, 0, 0.75);
@@ -574,6 +604,7 @@ select[multiple] {
   left: 20px;
   width: 0;
 }
+
 .tooltip:before {
   background: rgba(0, 0, 0, 0.75);
   border-radius: 2px;
@@ -593,6 +624,7 @@ select[multiple] {
   transform: translate3d(0, -10px, 0);
   transition: all 0.15s ease-in-out;
 }
+
 .tooltip:hover:after,
 .tooltip:hover:before {
   opacity: 1;

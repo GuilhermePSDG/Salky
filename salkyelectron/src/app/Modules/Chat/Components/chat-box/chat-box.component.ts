@@ -56,7 +56,7 @@ export class ChatBoxComponent
     private router: Router,
     private groupService: GroupService,
     private memberService: GroupMemberService
-  ) { 
+  ) {
     super();
   }
 
@@ -116,8 +116,8 @@ export class ChatBoxComponent
   scrollToBottom(): void {
     try {
       if (this.chatBoxMessage)
-        this.chatBoxMessage.first.nativeElement.scrollTop =
-          this.chatBoxMessage.first.nativeElement.scrollHeight;
+        this.chatBoxMessage.first.nativeElement.scroll(0,
+          this.chatBoxMessage.first.nativeElement.scrollHeight * 10);
     } catch (err) { }
   }
 
@@ -191,13 +191,13 @@ export class ChatBoxComponent
       .subscribe({
         next: (msgs) => {
           if (msgs && msgs.results.length > 0) {
+            msgs.results = msgs.results.concat(this.MessageResults.results);
+            this.MessageResults = msgs;
             if (scrollMode === 'unset') {
               this.scroll.onIncress = () => { };
             } else {
               this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
             }
-            msgs.results = msgs.results.concat(this.MessageResults.results);
-            this.MessageResults = msgs;
           }
         },
       })

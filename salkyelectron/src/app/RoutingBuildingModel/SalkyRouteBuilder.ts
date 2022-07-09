@@ -15,6 +15,7 @@
 //   }
 
 import { Subscription } from 'rxjs';
+import { Method } from '../Models/Method';
 import { Destroyable } from '../Services/SalkyEvents';
 import { SalkyWebSocket } from '../Services/SalykWsClient.service';
 
@@ -82,7 +83,7 @@ interface RouteBuilderOn {
 }
 export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
   private routeName: string = '';
-  private method: string = '';
+  private method?: Method;
 
   context: SalkyWebSocket;
   private constructor(context: SalkyWebSocket) {
@@ -90,6 +91,7 @@ export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
   }
 
   Build<T>(next: (data: T) => void, error?: (err: any) => void): Destroyable {
+    if(!this.method) throw new Error("Method cannot be null");
     return this.context.events.on<T>(this.routeName, this.method,next,error,)
   }
 
@@ -97,9 +99,9 @@ export class SalkyRouteBuilder implements RouteBuilderOn, RouteBuilderDo {
     return new SalkyRouteBuilder(context);
   }
 
-  On(routeName: string, method: string): RouteBuilderDo {
+  On(routeName: string, method: Method): RouteBuilderDo {
     this.routeName = routeName.toLowerCase();
-    this.method = method.toLowerCase();
+    this.method = method;
     return this;
   }
 }

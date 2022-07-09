@@ -27,7 +27,7 @@ namespace Salky.API.WebSocketRoutes
                     await SendErrorBack(CurrentPath, "Não foi possivel adicionar a mensagem");
                     return;
                 }
-                await SendToAllInPool(msgResult.GroupId.ToString(), CurrentPath, Method.POST, msgResult);
+                var n = await SendToAllInPool(msgResult.GroupId.ToString(), CurrentPath, Method.POST, msgResult);
             }
             catch
             {

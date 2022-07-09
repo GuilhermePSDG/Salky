@@ -1,3 +1,5 @@
+import { Method } from "./Method";
+
 export enum MessageStatus {
   Success = 10,
   Error = -10,
@@ -6,16 +8,7 @@ export enum MessageStatus {
 }
 export interface MessageServer {
   path: string;
-  method:
-    | 'get'
-    | 'get_response'
-    | 'post'
-    | 'put'
-    | 'delete'
-    | 'redirect'
-    | 'listener'
-    | 'confirm'
-    | '*';
+  method: Method,
   status?: MessageStatus;
   data?: any;
 }

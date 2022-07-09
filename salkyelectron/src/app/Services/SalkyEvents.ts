@@ -1,4 +1,5 @@
 import { MessageServer } from "../Models/MessageWsServer";
+import { Method } from "../Models/Method";
 
 interface Handler {
     id: any;
@@ -81,7 +82,7 @@ export class SalkyEvents {
     public on<T>
         (
             path: string,
-            method: string,
+            method: Method,
             sucess?: (data: T) => void,
             error?: (data: T) => void,
     ): Destroyable {

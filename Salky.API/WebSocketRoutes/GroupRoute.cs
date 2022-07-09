@@ -9,13 +9,15 @@ namespace Salky.API.WebSocketRoutes
     public class GroupRoute : WebSocketRouteBase
     {
         private readonly GroupService groupService;
+        private readonly IConnectionMannager mannager;
         private readonly UserService userService;
         private readonly ILogger<GroupService> log;
         private readonly GroupMemberService groupMemberService;
 
-        public GroupRoute(GroupService groupService, UserService userService, ILogger<GroupService> log, GroupMemberService groupMemberService)
+        public GroupRoute(GroupService groupService, IConnectionMannager mannager,UserService userService, ILogger<GroupService> log, GroupMemberService groupMemberService)
         {
             this.groupService = groupService;
+            this.mannager = mannager;
             this.userService = userService;
             this.log = log;
             this.groupMemberService = groupMemberService;
@@ -25,19 +27,19 @@ namespace Salky.API.WebSocketRoutes
         {
             await CreateUserWsIfNotCreated(new AudioState(true, true));
             var usrId = Claims.GetUserId().ToString();
-            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
+            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(async member =>
             {
-                AddOneInPool(member.GroupId.ToString(), usrId);
+                var r = await AddOneInPool(member.GroupId.ToString(), usrId);
             });
             await base.OnConnectAsync();
         }
         public override async Task OnDisconnectAsync()
         {
             var usrId = Claims.GetUserId().ToString();
-            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(member =>
+            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(async member =>
             {
-                RemoveOneFromPool(member.GroupId.ToString(), usrId);
-                RemoveOneFromPool(member.GroupId.ToString() + "/call", usrId);
+                var r1 =await  RemoveOneFromPool(member.GroupId.ToString(), usrId);
+                var r2 =await  RemoveOneFromPool(member.GroupId.ToString() + "/call", usrId);
             });
             await base.OnDisconnectAsync();
         }
