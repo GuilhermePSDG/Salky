@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Salky.WebSocket.Handler;
 using System.Security.Claims;
 
 namespace Salky.API

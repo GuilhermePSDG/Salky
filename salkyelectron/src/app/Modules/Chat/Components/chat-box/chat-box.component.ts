@@ -122,9 +122,6 @@ export class ChatBoxComponent
   }
 
   groupPictureChangedRequested(event: any) {
-    console.log('event');
-    console.log(event);
-    console.log(event.files[0]);
     Converter.BlobToBase64(event.files[0], (base64) => {
       if (!this.group?.id) return;
       this.groupService.ChangeGroupPicture(this.group.id, base64).subscribe({

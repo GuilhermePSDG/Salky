@@ -1,4 +1,5 @@
-﻿using Salky.Domain.Models.GenericsModels;
+﻿using Microsoft.EntityFrameworkCore;
+using Salky.Domain.Models.GenericsModels;
 using Salky.Domain.Models.GroupModels;
 using Salky.Domain.Models.UserModels;
 using System.ComponentModel.DataAnnotations.Schema;

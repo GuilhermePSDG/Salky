@@ -4,6 +4,7 @@ using Salky.WebSocket.Infra.Socket;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Salky.WebSocket.Models;
+using Salky.WebSocket.Exceptions;
 
 namespace Salky.WebSocket;
 
@@ -14,7 +15,7 @@ public class WebSocketMannager : IWebSocketMannager
     public void AddSocket(Key id, SalkyWebSocket salkyWebSocket)
     {
         if (!connections.TryAdd(id, salkyWebSocket))
-            throw new InvalidOperationException($"{nameof(SalkyWebSocket)} is already connected, remove before add.");
+            throw new DuplicatedConnectionKeyException($"{nameof(SalkyWebSocket)} is already connected, remove before add.");
     }
     public void AddOrUpdate(Key id, SalkyWebSocket salkyWebSocket)
     {

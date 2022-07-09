@@ -13,6 +13,9 @@ namespace Salky.WebSocket.Models
         public static implicit operator Key(string PoolKey) => new(PoolKey);
         public static implicit operator Key(Guid PoolKey) => new(PoolKey);
         public static implicit operator string(Key PoolKey) => PoolKey._key;
+        public string Value => _key;
+
+
 
         public override string ToString() => _key;
         public override int GetHashCode() => _key.GetHashCode();

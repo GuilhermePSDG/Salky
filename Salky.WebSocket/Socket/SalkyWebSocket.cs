@@ -26,7 +26,10 @@ public class SalkyWebSocket
         this.UserClaims = UserClaims;
         this.Key = Key;
     }
+    public SalkyWebSocket()
+    {
 
+    }    
     public bool CanClose => State == WebSocketState.Open || State == WebSocketState.CloseReceived;
     
     public string? CloseStatusDescription => webSocket.CloseStatusDescription;

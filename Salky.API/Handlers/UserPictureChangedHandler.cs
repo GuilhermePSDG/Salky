@@ -2,29 +2,28 @@
 using Salky.App.Services.Group;
 using Salky.Domain.Contracts;
 using Salky.Domain.Events.UserEvents;
-using Salky.WebSocket.Infra.Interfaces;
 
 namespace Salky.API.Handlers
 {
     public class UserPictureChangedHandler : IHandler<UserPictureChanged>
     {
-        public IPoolMannager ConnectionMannager { get; }
-        public GroupMemberService GroupMemberService { get; }
-        public FriendService FriendService { get; }
+        private readonly IConnectionPoolMannager connectionMannager;
+        private readonly GroupMemberService groupMemberService;
+        private readonly FriendService friendService;
         public UserPictureChangedHandler(
-            IPoolMannager connectionMannager,
+            IConnectionPoolMannager connectionMannager,
             GroupMemberService groupMemberService,
             FriendService friendService
             )
         {
-            ConnectionMannager = connectionMannager;
-            GroupMemberService = groupMemberService;
-            FriendService = friendService;
+            this.connectionMannager = connectionMannager;
+            this.groupMemberService = groupMemberService;
+            this.friendService = friendService;
         }
 
         public async void Handle(UserPictureChanged args)
         {
-            (await GroupMemberService.GetAllMembersOfUser(args.Id))
+            (await groupMemberService.GetAllMembersOfUser(args.Id))
                 .Select(x => new 
                 { 
                     GroupId = x.GroupId.ToString() , 
@@ -35,10 +34,10 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await ConnectionMannager.SendToAllInPool(info.GroupId, new("group/member/change/picture", Method.PUT, Status.Success,info));
+                    await connectionMannager.SendToAll(info.GroupId, new("group/member/change/picture", Method.PUT, Status.Success,info));
                 });
           
-            (await this.FriendService.GetAll(args.Id))
+            (await this.friendService.GetAll(args.Id))
                 .Select(x => new
                 {
                     FriendId = x.Id.ToString(),
@@ -47,7 +46,7 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await ConnectionMannager.SendToAllInPool(info.FriendId, new("friend/change/picture", Method.PUT,Status.Success, info));
+                    await connectionMannager.SendToAll(info.FriendId, new("friend/change/picture", Method.PUT,Status.Success, info));
                 }); 
             ;
         }

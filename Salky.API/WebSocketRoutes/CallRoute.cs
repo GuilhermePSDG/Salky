@@ -3,7 +3,6 @@
 using AutoMapper;
 using Salky.API.Models;
 using Salky.App.Services.Group;
-using Salky.WebSocket.Infra.Interfaces;
 
 namespace Salky.API.WebSocketRoutes
 {
@@ -24,6 +23,7 @@ namespace Salky.API.WebSocketRoutes
         {
             try
             {
+                
                 var usrCall = Storage.Get<GroupMemberCall>();
                 if (usrCall.IsInCall && usrCall.PoolPath != null)
                 {
@@ -60,7 +60,7 @@ namespace Salky.API.WebSocketRoutes
                 var poolPath = $"{groupid}/call";
                 callMember.FillCallProperties(groupid, poolPath, member.Id.ToString(), member.GroupRole);
                 callMember.AudioState = callEntry.AudioState;
-                AddOneInPool(poolPath, member.UserId.ToString());
+                await AddOneInPool(poolPath, member.UserId.ToString());
                 await SendToAllInPool(groupid, CurrentPath, Method.POST, callMember);
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace Salky.API.WebSocketRoutes
                     await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
                     return;
                 }
-                RemoveOneFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
+                await RemoveOneFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
                 //Faz o envio da notificação para quem interessar
                 await SendToAllInPool(
                     PoolKey: usrCall.GroupId ?? throw new NullReferenceException(),
@@ -101,54 +101,56 @@ namespace Salky.API.WebSocketRoutes
         [WsRedirect]
         public async Task SendAudio(string data)
         {
-            try
-            {
-                var usr = Storage.Get<GroupMemberCall>();
-                if (!usr.IsInCall || usr.PoolPath == null || usr.GroupId == null)
-                {
-                    await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
-                    return;
-                }
-                if (!usr.AudioState.CanTalk)
-                {
-                    await SendErrorBack(CurrentPath, "Usuario está mutado.");
-                    return;
-                }
+            this.logger.LogError(new NotImplementedException(), nameof(CallRoute.SendAudio));
+            //try
+            //{
+            //    var usr = Storage.Get<GroupMemberCall>();
+            //    if (!usr.IsInCall || usr.PoolPath == null || usr.GroupId == null)
+            //    {
+            //        await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
+            //        return;
+            //    }
+            //    if (!usr.AudioState.CanTalk)
+            //    {
+            //        await SendErrorBack(CurrentPath, "Usuario está mutado.");
+            //        return;
+            //    }
 
-                var usrId = Claims.GetUserId().ToString();
-                foreach (var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
-                {
-                    var callState = storage.Value.Get<GroupMemberCall>();
-                    if (storage.Key != usrId && callState.AudioState.CanHear)
-                        await SendToOneInPool(usr.PoolPath, storage.Key, CurrentPath, Method.REDIRECT, data);
-                }
+            //    var usrId = Claims.GetUserId().ToString();
+            //    foreach (var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
+            //    {
+            //        var callState = storage.Value.Get<GroupMemberCall>();
+            //        if (storage.Key != usrId && callState.AudioState.CanHear)
+            //            await SendToOneInPool(usr.PoolPath, storage.Key, CurrentPath, Method.REDIRECT, data);
+            //    }
 
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao enviar o audio");
-                await SendErrorBack("group/call/audio", "Erro ao enviar o audio");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, "Erro ao enviar o audio");
+            //    await SendErrorBack("group/call/audio", "Erro ao enviar o audio");
+            //}
         }
         [WsGet("all")]
         public async Task GetUsersOfCall(Guid GroupId)
         {
-            if (await groupMemberService.UserMakePartOfGroup(Claims.GetUserId(), GroupId))
-            {
-                var poolPath = $"{GroupId}/call";
-                var usrs = RootConnectionMannager
-                    .GetStorageOfManyInPool(poolPath)
-                    .Select(x => x.Value.Get<GroupMemberCall>())
-                    .ToList();
-                await SendBack(usrs, CurrentPath, Method.GET_RESPONSE);
-            }
-            else
-            {
-                await SendErrorBack(CurrentPath, "Usuario não tem acceso nesta chamada.");
-            }
+            this.logger.LogError(new NotImplementedException(), nameof(CallRoute.GetUsersOfCall));
+            //if (await groupMemberService.UserMakePartOfGroup(Claims.GetUserId(), GroupId))
+            //{
+            //    var poolPath = $"{GroupId}/call";
+            //    var usrs = RootConnectionMannager
+            //        .GetStorageOfManyInPool(poolPath)
+            //        .Select(x => x.Value.Get<GroupMemberCall>())
+            //        .ToList();
+            //    await SendBack(usrs, CurrentPath, Method.GET);
+            //}
+            //else
+            //{
+            //    await SendErrorBack(CurrentPath, "Usuario não tem acceso nesta chamada.");
+            //}
         }
         [WsGet]
-        public async Task GetSelfUser() => await SendBack(Storage.Get<GroupMemberCall>(), CurrentPath, Method.GET_RESPONSE);
+        public async Task GetSelfUser() => await SendBack(Storage.Get<GroupMemberCall>(), CurrentPath, Method.GET);
         [WsPut]
         public async Task UpdateAudioInfo(AudioState userUiInfo)
         {

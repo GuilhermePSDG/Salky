@@ -1,12 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
-using Salky.App.Security;
 using Salky.Domain;
 using Salky.Domain.Contracts;
-using Salky.WebSocket.Handler;
-using Salky.WebSocket.Infra.Interfaces;
-using System.Reflection;
 
 namespace Salky.API
 {

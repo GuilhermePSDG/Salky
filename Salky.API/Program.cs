@@ -1,31 +1,19 @@
-﻿global using Salky.App.Services;
-global using Salky.WebSocket.Infra.Models;
-global using Salky.WebSocket.Infra.Routing;
-global using Salky.WebSocket.Infra.Routing.Atributes;
-global using Salky.WebSocket.Infra.Socket;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Salky.App.Interfaces;
 using System.Text;
 using System.Text.Json.Serialization;
 using Salky.API;
-using Salky.WebSocket.Extensions;
 using Salky.App.Security;
 using Newtonsoft.Json.Converters;
 using Salky.Domain.Repositories;
 using Salky.Domain.Contracts;
 using Salky.Domain.Contexts;
-using Salky.Domain.Models.UserModels;
 using Microsoft.Extensions.FileProviders;
-using System.Net;
-using Salky.Domain;
 using Salky.App.Services.User;
 using Salky.App.Services.Group;
 using Salky.App.Services.Friends;
 using MongoDB.Driver;
-using Salky.WebSocket.Handler;
 using Salky.App;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -97,14 +85,15 @@ builder.Services.AddScoped<ImageService>();
 builder.UseLocalSqlite<SalkyDbContext>();
 builder.Services.AddCors();
 
-builder.Services.RegisterDomainEventsHandlers();
 
-builder.Services
-    .UseSalkyWebSocketRouter()
-    .UseHttpHandShake<HttpWebSocketHandShaker>();
+builder.Services.RegisterDomainEventsHandlers();
+builder.Services.AddSalkyWebSocket(op =>
+{
+    op.MapRoutes();
+    op.SetAuthGuard<HttpWebSocketHandShaker>();
+});
 
 var app = builder.Build();
-
 
 Directory.CreateDirectory(ImageServiceConfiguration.FullPath);
 app.UseStaticFiles(new StaticFileOptions()
@@ -113,9 +102,7 @@ app.UseStaticFiles(new StaticFileOptions()
     RequestPath = new PathString($""),
 });
 
-app
-    .UseWebSockets()
-    .UseMiddleware<SalkyWebSocketMiddleWare>();
+app.UseSalkyWebSocket();
 
 //Dispatcher.InstanceFactory = () => app.Services.CreateScope().ServiceProvider.GetRequiredService<IDispatcher>();
 // Configure the HTTP request pipeline.
@@ -135,6 +122,7 @@ else
 //app.MigrateDatabase<SalkyDbContext>();
 
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
 
 
 app.UseHttpsRedirection();

@@ -1,11 +1,42 @@
-﻿using Salky.WebSocket.Infra.Models;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
+using System;
 using System.Text;
 
+//ConnectionMultiplexer asd = ConnectionMultiplexer.Connect("localhost:6379");
+//var handler = new RedisPoolMannager(null);
+//handler.AddSocket("teste", new());
 
-var t = new teste();
+//int i = 0;
+//bool toAdd = true;
+//while (true)
+//{
+//    try
+//    {
+//        await Task.Delay(500);
+//        if (toAdd)
+//        {
+//            handler.AddSocket(i.ToString(), new());
+//        }
+//        else
+//        {
+//            handler.TryRemoveSocket(i.ToString(), out _);
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine(ex.Message);
+//    }
+//    i++;
+//    if (i == 30)
+//    {
+//        i = 0;
+//        toAdd = !toAdd;
+//    }
+//}
 
-return;
+
+//return;
+
 
 
 string AppID = "1";
@@ -62,9 +93,6 @@ await sub.UnsubscribeAsync(channel, h1);
 Console.WriteLine("Handler 1 out");
 await sub.PublishAsync(channel, "Msg3");
 
-while (true) ;
-
-
 string CreateKey(params string[] values)
 {
     return string.Join(':', values);
@@ -78,18 +106,4 @@ class User
     }
     public Guid Id { get; }
     public string Name { get; }
-}
-
-
-public class A
-{
-    public void methodB(string parameterA,Guid parameterB)
-    {
-
-    }
-}
-
-public class teste
-{
-    public long IamSingle => Random.Shared.NextInt64();
 }

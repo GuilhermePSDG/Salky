@@ -31,6 +31,7 @@ namespace Salky.Domain.Contexts
         {
 
             base.OnModelCreating(modelBuilder);
+           
             modelBuilder.ApplyConfiguration(new FriendConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());

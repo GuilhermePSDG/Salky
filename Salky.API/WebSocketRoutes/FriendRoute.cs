@@ -2,6 +2,7 @@
 using Salky.App.Services.Friends;
 using Salky.App.Services.User;
 using Salky.Domain.Models.FriendModels;
+using Salky.WebSockets.Router.Routing.Atributes;
 
 namespace Salky.API.WebSocketRoutes
 {

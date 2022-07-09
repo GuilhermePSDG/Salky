@@ -2,7 +2,6 @@
 using Salky.App.Dtos.Group;
 using Salky.App.Services.Group;
 using Salky.App.Services.User;
-using Salky.WebSocket.Infra.Interfaces;
 
 namespace Salky.API.WebSocketRoutes
 {
@@ -10,7 +9,7 @@ namespace Salky.API.WebSocketRoutes
     public class GroupRoute : WebSocketRouteBase
     {
         private readonly GroupService groupService;
-        public UserService userService;
+        private readonly UserService userService;
         private readonly ILogger<GroupService> log;
         private readonly GroupMemberService groupMemberService;
 
@@ -84,8 +83,7 @@ namespace Salky.API.WebSocketRoutes
             var uId = Claims.GetUserId();
             var group = await groupService.CreateNewPublicGroup(uId, GroupName);
             var member = await groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
-            //PROBLEMA DE ID
-            AddOneInPool(group.Id.ToString(), uId.ToString());
+            await AddOneInPool(group.Id.ToString(), uId.ToString());
             await SendBack(group, CurrentPath, Method.POST);
         }
 
@@ -98,14 +96,14 @@ namespace Salky.API.WebSocketRoutes
                 if (removed)
                 {
                     await SendToAllInPool(GroupId.ToString(), CurrentPath, Method.DELETE, GroupId);
-                    DeletePool(GroupId.ToString());
+                    await DeletePool(GroupId.ToString());
                 }
                 else
                 {
                     await SendErrorBack(CurrentPath, "Não foi possível remover o grupo");
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 await SendErrorBack(CurrentPath, "Erro ao remover o grupo");
             }

@@ -1,115 +1,133 @@
-﻿using Salky.WebSocket.Infra.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using Salky.WebSocket.Exceptions;
+using Salky.WebSocket.Infra.Interfaces;
 using Salky.WebSocket.Infra.Models;
 using Salky.WebSocket.Infra.Socket;
 using Salky.WebSocket.Models;
 using StackExchange.Redis;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Salky.WebSocket
 {
-
-
-    public class RedisHandlerTest : IPoolMannager
+    public class RedisWebSocketMannager 
     {
-        public string ConnectionPoolId => throw new NotImplementedException();
-       
-        public void AddSocket(Key Key, SalkyWebSocket ws)
-        {
-            //1 - Verificar no redis se já não tem essa chave
-            //     caso exista, vai lançar uma exceção
-            //     também será preciso enviar uma ordem para desconectar
-            //     a outra instancia
-            //2 - Adicionar o socket em tabela hash
-            //3 - Adicionar a referencia do usuario
-            //     com a pool no redis
-            var db = connection.GetDatabase();
-            if(db.SetContains($"connections:", Key.ToString()))
-            {
+        private ConcurrentDictionary<Key, SalkyWebSocket> wsConns = new ConcurrentDictionary<Key, SalkyWebSocket>();
+        private ConnectionMultiplexer redis_conn;
+        private IDatabase redis_db;
+        private ISubscriber redis_sub;
 
+        public ILogger<RedisWebSocketMannager> Logger { get; }
+
+        public RedisWebSocketMannager(ILogger<RedisWebSocketMannager> logger, ConnectionMultiplexer connection)
+        {
+            this.redis_conn = connection;
+            this.redis_db = redis_conn.GetDatabase();
+            this.redis_sub = redis_conn.GetSubscriber();
+            Logger = logger;
+        }
+
+        private RedisChannel GetDisconnectChannel(Key Key) => $"disconect:{Key}";
+
+        //ESTÁ FUNÇÃO TERA QUE SER MODIFICADA NO CONTRATO
+        // public bool TryDisconnectSocket(Key Key)
+        public bool TryDisconnectSocket(Key Key)
+        {
+            if(this.wsConns.TryRemove(Key,out var rmWs))
+            {
+                rmWs.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation,CloseDescription.DuplicatedConnection).Wait();
+                var removed = redis_db.SetRemove("connections", Key.ToString());
+                if (!removed) this.Logger.LogWarning("Connetion not removed from redis");
+                redis_sub.Unsubscribe(GetDisconnectChannel(Key));
+                return true;
             }
-            
-            throw new NotImplementedException();
+            if (HasRedisConnection(Key))
+            {
+                var receiversCount = redis_db.Publish(GetDisconnectChannel(Key),"");
+                if(receiversCount == 0) this.Logger.LogWarning("No one listen for user disconnection..");
+                return true;
+            }
+            return false;
         }
-        public int AddManyInPool(Key PoolKey, Key[] ClientsKey)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="ws"></param>
+        /// <returns><see langword="true"/> if added , <see langword="false"/> if is alredy present</returns>
+        public bool TryAddSocket(Key Key, SalkyWebSocket ws)
         {
-            throw new NotImplementedException();
+            if(!this.wsConns.TryAdd(Key, ws))
+                return false;
+            if (!redis_db.SetAdd("connections", Key.ToString()))
+            {
+                //Dificil chegar aqui
+                //talvez se o usuario ficar tentando entrar muitas vezes ao mesmo tempo.
+                //Poderia dar lock, mas talvez fique uma bosta
+                //Ou não, já que o concurrenty dictionary deve dar lock também
+                if (!wsConns.Remove(Key, out _)) Logger.LogWarning("Unable to roolback the connection added");
+                return false;
+            }
+            redis_sub.Subscribe($"disconect:{Key}", DisconnnectConnectionMessageHandler);
+            return true;
         }
-        public bool AddOneInPool(Key PoolKey, Key ClientKey)
+       
+        public bool ContainsSocketKey(Key Key) => HasLocalConnection(Key) || HasRedisConnection(Key);
+
+        private void DisconnnectConnectionMessageHandler(RedisChannel channel, RedisValue Content)
         {
-            throw new NotImplementedException();
+            var usrId = channel.ToString().Split(':').Last();
+            if (!TryDisconnectSocket(usrId)) 
+                this.Logger.LogWarning("Message to remove reiceved, but cannot remove.");
         }
-        public bool ContainsSocketKey(Key Key)
-        {
-            throw new NotImplementedException();
-        }
-        public IEnumerable<KeyValuePair<string, Storage>> GetStorageOfManyInPool(Key PoolKey)
-        {
-            throw new NotImplementedException();
-        }
-        public int RemoveAllFromPool(Key PoolKey)
-        {
-            throw new NotImplementedException();
-        }
-        public int RemoveOneFromPool(Key PoolKey, Key ClientKey)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<int> SendToAllInPool(Key PoolKey, MessageServer message)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<bool> SendToOneInPool(Key PoolKey, Key ClientKey, MessageServer message)
-        {
-            throw new NotImplementedException();
-        }
+
+        private bool HasRedisConnection(string usrId) => redis_conn.GetDatabase().SetContains("connections", usrId);
+        private bool HasLocalConnection(string usrId) => wsConns.ContainsKey(usrId);
+
+
+        //Não da pra implementar este metodo
+        //Até da, mas seria alterando o SalkyWebSocket pra um contrato
+        //E criar outro, só que ao invez de de ele realmente chamar a função
+        //Vai verificar se ele é uma conexão ws legitima, se for só chama a funcao do socket original
+        //Se não envia uma mensagem com o comando da funçao chamada ..
         public bool TryGetSocket(Key Key, [MaybeNullWhen(false)] out SalkyWebSocket ws)
         {
             throw new NotImplementedException();
         }
-        public bool TryRemoveSocket(Key Key, [MaybeNullWhen(false)] out SalkyWebSocket ws)
+    }
+
+    public class Subscription
+    {
+        private Action<ConnectionMultiplexer> _unsubscribe;
+        public Subscription(Action<ConnectionMultiplexer> Unsubscribe)
         {
-            throw new NotImplementedException();
+            this._unsubscribe = Unsubscribe;
         }
-
-    
-      
-        private ConnectionMultiplexer connection;
-        public RedisHandlerTest()
+        public void Unsubscribe(ConnectionMultiplexer context)
         {
-            this.connection = ConnectionMultiplexer.Connect("localhost:6379");
-
+            this._unsubscribe(context);
         }
-        
+    }
 
-        public async Task SendMessage(MessageServer msg, string channel)
+    public static class RedisExtensions
+    {
+        public static Subscription CreateSubscription<T>(this ConnectionMultiplexer connection,RedisChannel Channel,Action<T> handler)
         {
-            var db = this.connection.GetDatabase();
-            await db.PublishAsync(channel, JsonSerializer.Serialize(msg));
-        }
-
-
-
-        public async Task AddListener(Action<MessageServer> Handler, string channel, string ConnectionIndentifier)
-        {
-            var sub = connection.GetSubscriber();
-
-            await sub.SubscribeAsync(channel, (channel, value) =>
+            Action<RedisChannel, RedisValue> _handler = (channel, value) =>
             {
-                try
-                {
-                    var msg = JsonSerializer.Deserialize<MessageServer>(value.ToString()) ?? throw new NullReferenceException();
-                    Handler(msg);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            });
+                var msg = JsonSerializer.Deserialize<T>(value.ToString()) ?? throw new NullReferenceException();
+                handler(msg);
+            };
+            connection.GetSubscriber().Subscribe(Channel, _handler);
+            return new((con) => con.GetSubscriber().Unsubscribe(Channel,_handler));
         }
 
     }
