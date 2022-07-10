@@ -64,6 +64,7 @@ namespace Salky.App.Security
             var token = tokenHandler.CreateToken(tokenDescription);
             return new AuthToken(tokenHandler.WriteToken(token), expireDate);
         }
+
         private List<Claim> ClaimsFromUser(User user)
         {
             return new List<Claim>

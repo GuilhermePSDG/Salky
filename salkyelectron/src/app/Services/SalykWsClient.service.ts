@@ -29,7 +29,9 @@ export class SalkyWebSocket {
 
   public async connect(user: UserLogged): Promise<void> {
     console.info('Conectando..');
-    this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
+    console.log(user.token);
+    this.ws = new WebSocket(environment.webSocketUrl, ["Authorization", user.token])
+    // this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
     this.ws.onopen = (event: any) => this.onOpen(event);
     this.ws.onerror = (event: any) => this.onError(event);
     this.ws.onclose = (event: any) => this.onClose(event);

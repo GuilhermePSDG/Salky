@@ -1,5 +1,5 @@
 import {
-  AfterContentChecked, AfterViewInit,
+  AfterContentChecked, AfterContentInit, AfterViewInit,
   Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -25,7 +25,7 @@ import { EventsDestroyables } from "src/app/Services/WebSocketBaseService";
 })
 export class ChatBoxComponent
   extends EventsDestroyables
-  implements OnInit, AfterViewInit, AfterContentChecked {
+  implements OnInit, AfterViewInit, AfterContentChecked, AfterContentInit,AfterViewInit {
   @ViewChild('spanGroupName') spanGroupName?: ElementRef;
   @ViewChildren('chatBoxMessage') chatBoxMessage?: QueryList<any>;
 
@@ -61,18 +61,23 @@ export class ChatBoxComponent
   }
 
   ngAfterContentInit(): void {
+   
+
+    this.scrollToBottom();
     this.scroll = new ScrollEventListener(
       () => this.chatBoxMessage?.first?.nativeElement
     );
-    this.scroll.onUserScroll = (distanceFromTop, TotalHeigh) => {
-      if (distanceFromTop < TotalHeigh * 0.2) {
-        this.getNextMessages('unset');
-      }
-    };
-    this.scroll.onIncress = () => this.scrollToBottom();
+    setTimeout(() => {
+      this.scroll.onUserScroll = (distanceFromTop, TotalHeigh) => {
+        if (distanceFromTop < TotalHeigh * 0.2) {
+          this.getNextMessages('unset');
+        }
+      };
+    }, 1000)
   }
 
   async ngOnInit() {
+
     var sub1 = this.messageService.onMessageReceived((msg) => this.receiveMessage(msg));
     var sub2 = this.messageService.onMessageDeleted((r) =>
       this.deleteMessage(r.groupId, r.messageId)
@@ -98,7 +103,7 @@ export class ChatBoxComponent
         }
       }
     });
-    this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub3).AppendToDestroy(sub4).AppendToDestroy(sub5);
+    this.AppendManyToDestroy(sub1, sub2, sub3, sub4, sub5);
     this.LoggedUser = this.localStorageService.CurrentUser;
   }
 
@@ -107,18 +112,33 @@ export class ChatBoxComponent
   }
 
   ngAfterViewChecked() { }
-  ngAfterContentChecked(): void { }
+  ngAfterContentChecked(): void {
+  }
 
   ngAfterViewInit(): void {
+    console.log("init")
+    console.log(this.chatBoxMessage);
+    if (this.chatBoxMessage) {
+      console.log("ok")
+      // this.chatBoxMessage.notifyOnChanges();
+      this.chatBoxMessage.changes.subscribe({
+        next:(value) =>{
+          console.log('changes');
+          console.log(value);
+        }
+      })
+    }
     this.scrollToBottom();
   }
 
-  scrollToBottom(): void {
-    try {
-      if (this.chatBoxMessage)
-        this.chatBoxMessage.first.nativeElement.scroll(0,
-          this.chatBoxMessage.first.nativeElement.scrollHeight * 10);
-    } catch (err) { }
+  scrollToBottom(delay = 100): void {
+    setTimeout(() => {
+      try {
+        if (this.chatBoxMessage)
+          this.chatBoxMessage.first.nativeElement.scroll(0,
+            this.chatBoxMessage.first.nativeElement.scrollHeight * 10);
+      } catch (err) { }
+    }, delay);
   }
 
   groupPictureChangedRequested(event: any) {
@@ -193,10 +213,8 @@ export class ChatBoxComponent
           if (msgs && msgs.results.length > 0) {
             msgs.results = msgs.results.concat(this.MessageResults.results);
             this.MessageResults = msgs;
-            if (scrollMode === 'unset') {
-              this.scroll.onIncress = () => { };
-            } else {
-              this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
+            if (scrollMode === 'goDown') {
+              this.scrollToBottom();
             }
           }
         },
@@ -211,16 +229,13 @@ export class ChatBoxComponent
       .getMessagesOfGroup(this.group?.id, -1, this.MessageResults.pageSize)
       .subscribe({
         next: (msgs) => {
-          this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
           this.MessageResults = msgs;
-          this.getNextMessages('goDown');
-          this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
+          this.scrollToBottom(250);
         },
       });
   }
 
   public deleteMessage(groupId: string, messageId: string) {
-    this.scroll.onIncress = () => { };
     if (!this.group?.id) return;
     var i = this.MessageResults.results.findIndex(
       (x) => x.id === messageId && x.groupId === groupId
@@ -232,9 +247,9 @@ export class ChatBoxComponent
     console.log("Message received");
     if (!this.group?.id) return;
     if (msg.groupId === this.group?.id) {
-      this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
       this.MessageResults.results.push(msg);
-      this.scroll.DoOnNextHeightIncress(() => this.scrollToBottom());
+      this.scrollToBottom(50);
+      this.scrollToBottom(250);
     }
   }
 

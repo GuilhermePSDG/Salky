@@ -89,9 +89,11 @@ builder.Services.AddCors();
 builder.Services.RegisterDomainEventsHandlers();
 builder.Services.AddSalkyWebSocket(op =>
 {
-    op.SetAuthGuard<HttpWebSocketHandShaker>();
+    //op.SetAuthGuard<HttpWebSocketHandShaker>();
+    op.UseAspNetAuth(x => x.First(f => f.Type == "nameid"));
     op.MapRoutes();
 });
+
 
 var app = builder.Build();
 
@@ -131,7 +133,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-
 
 app.Run();
