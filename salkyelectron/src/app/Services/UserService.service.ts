@@ -28,7 +28,7 @@ export class UserService {
       })
       .pipe(
         take(1),
-        map((res : any) => {
+        map((res: any) => {
           var usr = res.data;
           this.setCurrentUser(usr);
           return usr;
@@ -94,7 +94,7 @@ export class UserService {
     return json ? true : false;
   }
 
-  
+
   private setCurrentUser(user: UserLogged): void {
     localStorage.setItem('UserLogged', JSON.stringify(user));
     this.currentUserSource.next(user);

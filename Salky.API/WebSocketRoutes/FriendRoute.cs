@@ -37,7 +37,7 @@ namespace Salky.API.WebSocketRoutes
             var friend = await friendService.SendFriendRequest(Claims.GetUserId(), UserToAddAsFriend);
             if (friend != null)
             {
-                AddManyInPool(friend.Id, Claims.GetUserId(), UserToAddAsFriend);
+                await AddManyInPool(friend.Id, Claims.GetUserId(), UserToAddAsFriend);
                 //Envia pro usuario que adicionou
                 await SendBack(friend, "friend", Method.PUT);
                 //Envia pro usuario que foi adicionado
@@ -63,7 +63,7 @@ namespace Salky.API.WebSocketRoutes
                 if (status == RelationShipStatus.Removed || status == RelationShipStatus.Canceled || status == RelationShipStatus.Rejected)
                 {
                     await SendToAllInPool(FriendId, "friend", Method.DELETE, friend);
-                    DeletePool(FriendId);
+                    await DeletePool(FriendId);
                     return;
                 }
                 await SendToAllInPool(FriendId, "friend", Method.PUT, friend);

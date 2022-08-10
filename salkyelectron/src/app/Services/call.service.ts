@@ -25,7 +25,7 @@ export class CallService extends WebSocketBaseService {
      ws: SalkyWebSocket,
   ) {
     var basepath = 'group/call';
-    super(ws,basepath);
+    super(ws);
     this.BasePath=basepath;
     this.UserCall = {
       audioState: this.AudioState,

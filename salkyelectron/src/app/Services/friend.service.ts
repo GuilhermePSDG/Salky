@@ -31,7 +31,7 @@ export class FriendService extends WebSocketBaseService {
     ws: SalkyWebSocket
   ) {
     var wsBasePath = "friend";
-    super(ws, wsBasePath);
+    super(ws);
     this.wsBasePath = wsBasePath;
   }
   

@@ -27,7 +27,7 @@ export class GroupMemberService extends WebSocketBaseService {
 
   constructor(private http: HttpClient, ws: SalkyWebSocket) {
     var wsBasePath = 'group/member'
-    super(ws, wsBasePath)
+    super(ws)
     this.wsBasePath = wsBasePath;
   }
   public setEvents() {

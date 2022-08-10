@@ -68,8 +68,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordMannager, PasswordHasher>();
-builder.Services.AddScoped<IFriendRepository,FriendRepository>();
-builder.Services.AddScoped<IUserRepository,UserRepository>();
+builder.Services.AddScoped<IFriendRepository, FriendRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<MongoClient>(x => new MongoClient(builder.Configuration.GetConnectionString("MongoClient")));
 builder.Services.AddScoped<IMessageGroupRepository, MessageRepositoryMongoDb>();
 builder.Services.AddScoped<IMessageFriendRepository, MessageFriendRepository>();
@@ -89,8 +89,8 @@ builder.Services.AddCors();
 builder.Services.RegisterDomainEventsHandlers();
 builder.Services.AddSalkyWebSocket(op =>
 {
-    //op.SetAuthGuard<HttpWebSocketHandShaker>();
-    op.UseAspNetAuth(x => x.First(f => f.Type == "nameid"));
+    op.SetAuthGuard<HttpWebSocketHandShaker>();
+    //op.UseAspNetAuth(x => x.First(f => f.Type == "nameid"));
     op.MapRoutes();
 });
 

@@ -23,7 +23,7 @@ export class GroupService extends WebSocketBaseService {
     ws: SalkyWebSocket
   ) {
     var wsBasePath = 'group';
-    super(ws,wsBasePath);
+    super(ws);
     this.wsBasePath = wsBasePath;
     this.setGroups().subscribe();
 

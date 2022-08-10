@@ -10,7 +10,7 @@ import { SalkyEvents } from './SalkyEvents';
   providedIn: 'root',
 })
 export class SalkyWebSocket {
-  public events: SalkyEvents = new SalkyEvents(true);
+  public events: SalkyEvents = new SalkyEvents();
 
   protected ws: WebSocket = {} as WebSocket;
 
@@ -24,14 +24,14 @@ export class SalkyWebSocket {
   public connectIfnot(user: UserLogged): Promise<void> {
     if (!this.ws || (this.ws.readyState != 1 && this.ws.readyState != 0))
       return this.connect(user);
-    return new Promise(() => {});
+    return new Promise(() => { });
   }
 
   public async connect(user: UserLogged): Promise<void> {
     console.info('Conectando..');
     console.log(user.token);
-    this.ws = new WebSocket(environment.webSocketUrl, ["Authorization", user.token])
-    // this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
+    // this.ws = new WebSocket(environment.webSocketUrl, ["Authorization", user.token])
+    this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
     this.ws.onopen = (event: any) => this.onOpen(event);
     this.ws.onerror = (event: any) => this.onError(event);
     this.ws.onclose = (event: any) => this.onClose(event);
@@ -40,7 +40,7 @@ export class SalkyWebSocket {
 
   public close() {
     console.info('WebSocket Close Method Called');
-    this.ws.close();
+    // this.ws.close();
   }
 
   public On(routeName: string, method: string) {

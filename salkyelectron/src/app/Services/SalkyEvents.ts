@@ -22,33 +22,14 @@ export interface Destroyable {
 
 export class SalkyEvents {
     public events: Map<string, Route>;
-    constructor(private EnablePreventDuplicated: boolean) {
+    constructor() {
         this.events = new Map<string, Route>();
     }
     private createRouteKey(path: string, method: string): string {
         return `${path}${method}`.toLowerCase().trim();
     }
     private generateHandlerKey(): string {
-
-        if (this.EnablePreventDuplicated)
-        {
-            // Error.stackTraceLimit = 1000;
-            return new Error().stack?.toString() ?? Math.random().toString();
-        }
-      
-        else
-            return Math.random().toString();
-    }
-
-    private preventDuplicatedIfActive(route: Route) {
-        if (!this.EnablePreventDuplicated) return;
-        var stack = new Error().stack?.toString();
-        route.handlers.forEach(x => {
-            if (x.id === stack) {
-                console.warn(`ALERT - Preveting removing route.. P:${route.path} M:${route.method}`);
-                this.removeHandlerByIdWithRoute(x.id,route);
-            }
-        });
+        return Math.random().toString();
     }
 
     private createRouteIfNot(routeKey: string, method: string, path: string) {
@@ -91,23 +72,21 @@ export class SalkyEvents {
         this.createRouteIfNot(routeKey, method, path);
         var route = this.events.get(routeKey);
         if (!route) throw new Error("");
-        this.preventDuplicatedIfActive(route);
         route.handlers.push({
             sucess: sucess,
             error: error,
             id: singleKey,
         });
         return {
-            destroy: () => this.removeHandlerByIdWithKey(singleKey,routeKey)
+            destroy: () => this.removeHandlerByIdWithKey(singleKey, routeKey)
         };
     }
 
     public clear() {
-        console.log("cleared");
         this.events.clear();
     }
 
-    private removeHandlerByIdWithRoute(handlerId: string, route : Route) {
+    private removeHandlerByIdWithRoute(handlerId: string, route: Route) {
         var i = route.handlers.findIndex(x => x.id === handlerId);
         if (i === -1) return;
         route.handlers.splice(i, 1);
@@ -115,8 +94,8 @@ export class SalkyEvents {
 
     private removeHandlerByIdWithKey(handlerId: string, routeKey: string) {
         var route = this.events.get(routeKey);
-        if(!route)return;
-        this.removeHandlerByIdWithRoute(handlerId,route);
+        if (!route) return;
+        this.removeHandlerByIdWithRoute(handlerId, route);
     }
 
 

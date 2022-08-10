@@ -31,24 +31,12 @@ export class EventsDestroyables {
 
 export class WebSocketBaseService extends EventsDestroyables {
 
-    constructor(public ws: SalkyWebSocket, private DeleteRouteIfStartWith: string | null = null) {
+    constructor(public ws: SalkyWebSocket) {
         super();
     }
     public override Destroy(): void {
-        this.destroyStartWith();
         super.Destroy();
     }
-    private destroyStartWith() {
-        if (this.DeleteRouteIfStartWith) {
-            this.DeleteRouteIfStartWith = this.DeleteRouteIfStartWith.toLowerCase();
-            this.ws.events.events.forEach((value, key) => {
-                if (this.DeleteRouteIfStartWith)
-                    if (value.path.toLowerCase().startsWith(this.DeleteRouteIfStartWith)) {
-                        console.warn("destroying start with");
-                        this.ws.events.events.delete(key);
-                    };
-            });
-        }
-    }
+  
 }
 

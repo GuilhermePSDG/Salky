@@ -23,7 +23,7 @@ export class MessageService extends WebSocketBaseService {
 
   constructor(private http: HttpClient,  ws: SalkyWebSocket) {
     var basePath = "group/message";
-    super(ws,basePath);
+    super(ws);
     this.wsBasePath = basePath;
   }
 
