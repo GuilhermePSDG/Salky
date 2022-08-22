@@ -36,7 +36,6 @@ builder.Services.AddControllers()
             options.SerializerSettings.Converters.Add(new StringEnumConverter());
         }
         );
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           .AddJwtBearer(options =>
           {
@@ -49,29 +48,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                   ValidateLifetime = true,
               };
           });
-//builder.Services.AddIdentityCore<User>(options =>
-//{
-//    options.Password.RequireDigit = false;
-//    options.Password.RequireNonAlphanumeric = false;
-//    options.Password.RequireLowercase = false;
-//    options.Password.RequireUppercase = false;
-//    options.Password.RequiredLength = 2;
-//    options.User.RequireUniqueEmail = false;
-//})
-//    //.AddRoles<Role>()
-//    //.AddRoleManager<RoleManager<Role>>()
-//    //.AddSignInManager<SignInManager<User>>()
-//    //.AddRoleValidator<RoleValidator<Role>>()
-//    //.AddEntityFrameworkStores<SalkyDbContext>()
-//    .AddDefaultTokenProviders();
+
+builder.Services.UseLocalRouteStorage();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordMannager, PasswordHasher>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<MongoClient>(x => new MongoClient(builder.Configuration.GetConnectionString("MongoClient")));
-builder.Services.AddScoped<IMessageGroupRepository, MessageRepositoryMongoDb>();
+//builder.Services.AddScoped<MongoClient>(x => new MongoClient(builder.Configuration.GetConnectionString("MongoClient")));
+//builder.Services.AddScoped<IMessageGroupRepository, MessageRepositoryMongoDb>();
+builder.Services.AddScoped<IMessageGroupRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageFriendRepository, MessageFriendRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
@@ -87,11 +74,11 @@ builder.Services.AddCors();
 
 
 builder.Services.RegisterDomainEventsHandlers();
-builder.Services.AddSalkyWebSocket(op =>
+builder.Services.AddSalkyWebSocket(salkyOptions =>
 {
-    op.SetAuthGuard<HttpWebSocketHandShaker>();
-    //op.UseAspNetAuth(x => x.First(f => f.Type == "nameid"));
-    op.MapRoutes();
+    salkyOptions.SetAuthGuard<HttpWebSocketHandShaker>();
+    salkyOptions.UseRouter();
+    salkyOptions.UseDefaultConnectionMannager(conMOpt => conMOpt.UseFullyDeepConnectionRemotion());
 });
 
 
@@ -119,9 +106,8 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-
+    app.MigrateDatabase<SalkyDbContext>();
 }
-//app.MigrateDatabase<SalkyDbContext>();
 
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 

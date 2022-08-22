@@ -11,22 +11,16 @@ using System.Threading.Tasks;
 
 namespace Salky.Domain.Repositories
 {
-    public class MessageFriendRepository : RepositoryBase<FriendMessage>,IMessageFriendRepository
+    public class MessageFriendRepository : RepositoryBase<FriendMessage>, IMessageFriendRepository
     {
-   
-        public MessageFriendRepository(SalkyDbContext db):base(db)
+
+        public MessageFriendRepository(SalkyDbContext db) : base(db)
         {
 
         }
-        public async Task<PaginationResult<FriendMessage>> GetAll(Guid friendId, int currentPage, int pageSize)
+        public Task<PaginationResult<FriendMessage>> GetAll(Guid friendId, int currentPage, int pageSize)
         {
-
-            return await PaginationResult<FriendMessage>
-               .CreateNewAsync(
-                GetBaseQuery(true)
-                .Where(x => x.FriendId == friendId),
-                currentPage,
-                pageSize);
+            return Task.FromResult(new PaginationResult<FriendMessage>(GetBaseQuery(true).Where(x => x.FriendId == friendId), currentPage, pageSize));
         }
 
         public async Task<FriendMessage?> GetById(Guid id)

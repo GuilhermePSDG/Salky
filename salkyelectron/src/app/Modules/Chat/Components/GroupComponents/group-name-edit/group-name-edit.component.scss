@@ -1,0 +1,45 @@
+.cancel-edit{
+    margin-left: 4px;
+    &:after{
+      font-size: 17px;
+    }
+  }
+.groupNameArea {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    .in {
+      margin-left: 50px;
+      font-size: 24px;
+      font-weight: 900;
+      word-break: keep-all;
+      white-space: nowrap;
+      border: none;
+      outline: none;
+      min-width: 25px;
+      padding: 0 15px;
+      cursor: default;
+    }
+    .in br {
+      display: none !important;
+    }
+    .in div {
+      display: none !important;
+    }
+    .in-active {
+      word-break: keep-all;
+      cursor: text;
+      background: rgba(109, 109, 109, 0.387);
+    }
+    .in-alert {
+      border: 1px solid red;
+    }
+    .icon {
+      $size: 14px;
+      fill: white;
+      margin-left: 10px;
+      cursor: pointer;
+      width: $size;
+      height: $size;
+    }
+  }

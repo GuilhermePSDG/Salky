@@ -24,7 +24,6 @@ namespace Salky.Domain.Models.GroupModels
         public Guid RoleId { get; set; }
 
         /// <summary>
-        /// I never lie, i swear 😁
         /// </summary>
         /// <param name="messageGroup"></param>
         /// <returns><see langword="true"/> if can, otherwise <see langword="false"/> </returns>

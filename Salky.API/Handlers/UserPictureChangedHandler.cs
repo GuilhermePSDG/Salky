@@ -24,9 +24,9 @@ namespace Salky.API.Handlers
         public async void Handle(UserPictureChanged args)
         {
             (await groupMemberService.GetAllMembersOfUser(args.Id))
-                .Select(x => new 
-                { 
-                    GroupId = x.GroupId.ToString() , 
+                .Select(x => new
+                {
+                    GroupId = x.GroupId.ToString(),
                     MemberId = x.Id,
                     PictureSource = args.Value,
                 }
@@ -34,9 +34,9 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await connectionMannager.SendToAll(info.GroupId, new("group/member/change/picture", Method.PUT, Status.Success,info));
+                    await connectionMannager.SendToAllInPool(info.GroupId, new("group/member/change/picture", Method.PUT, Status.Success, info));
                 });
-          
+
             (await this.friendService.GetAll(args.Id))
                 .Select(x => new
                 {
@@ -46,8 +46,8 @@ namespace Salky.API.Handlers
                 .ToList()
                 .ForEach(async info =>
                 {
-                    await connectionMannager.SendToAll(info.FriendId, new("friend/change/picture", Method.PUT,Status.Success, info));
-                }); 
+                    await connectionMannager.SendToAllInPool(info.FriendId, new("friend/change/picture", Method.PUT, Status.Success, info));
+                });
             ;
         }
     }

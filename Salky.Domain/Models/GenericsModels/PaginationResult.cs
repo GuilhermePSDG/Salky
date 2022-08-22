@@ -9,40 +9,53 @@ namespace Salky.Domain.Models.GenericsModels
 {
 
 
-    public class PaginationResult<T> : Pagination
+    public class PaginationResult<T>
     {
-        public List<T> Results { get; set; } = new();
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public int TotalCount { get; set; }
+        public int TotalPages { get; set; }
+        public List<T> Results;
 
-        public PaginationResult() { }
-        public PaginationResult(int currentPage, int pageSize, long totalCount) : base( currentPage, totalCount,pageSize) 
-        { }
-
-        public PaginationResult(int currentPage, int pageSize, long totalCount,List<T> results) : this(currentPage,pageSize,totalCount)
+        public PaginationResult(IQueryable<T> source, int pageIndex, int pageSize)
         {
-            this.SetResults(results);
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            TotalCount = source.Count();
+            TotalPages = (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+            Results = (source.Skip(PageIndex * PageSize).Take(PageSize)).ToList();
         }
-        public void SetResults(List<T> results)
+        public PaginationResult()
         {
-            Results = results;
-        }
 
-        public static async Task<PaginationResult<T>> CreateNewAsync(IQueryable<T> query, int currentPage, int PageSize)
-        {
-            var paginationRes = new PaginationResult<T>(currentPage, PageSize, query.Count());
-            var result = await query
-                .Skip((paginationRes.CurrentPage - 1) * paginationRes.PageSize)
-                .Take(paginationRes.PageSize)
-                .ToListAsync();
-            paginationRes.SetResults(result);
-            return paginationRes;
         }
 
-      
+        public bool HasPreviousPage
+        {
+            get
+            {
+                return (PageIndex > 0);
+            }
+        }
+
+        public bool HasNextPage
+        {
+            get
+            {
+                return (PageIndex + 1 < TotalPages);
+            }
+        }
+
 
         public PaginationResult<F> CastTo<F>(Func<T, F> converter)
         {
-            var result = new PaginationResult<F>(CurrentPage, PageSize, TotalCount);
-            result.SetResults(Results.Select(x => converter(x)).ToList());
+            var result = new PaginationResult<F>();
+            result.PageIndex = PageIndex;
+            result.PageSize = PageSize;
+            result.TotalCount = TotalCount;
+            result.TotalPages = TotalPages;
+            result.Results = this.Results.Select(x => converter(x)).ToList();
             return result;
         }
 

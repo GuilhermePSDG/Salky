@@ -18,13 +18,12 @@ namespace Salky.Domain
             {
 
             }
-            public Message(Guid SenderId,string content)
+            public Message(Guid SenderId, string content)
             {
                 this.SenderId = SenderId;
                 this.Content = content;
             }
             public Guid SenderId { get; set; }
-            [NotMapped]
             public User? Sender { get; set; }
             //
             public string Content { get; set; }

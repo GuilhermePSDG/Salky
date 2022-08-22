@@ -20,8 +20,6 @@ namespace Salky.API.Handlers.GroupHandlers
         {
             try
             {
-                this.logger.LogError(new NotImplementedException(), "");
-
                 //if (!ConnectionMannager.TryGetSocket(args.groupMember.UserId.ToString(), out var memberSock)) return;
                 //if (!memberSock.Storage.TryGet<GroupMemberCall>(out var usrCall)) return;
                 //if (!(usrCall.IsInCall && usrCall.PoolPath != null && usrCall.PoolPath.Contains(args.groupMember.GroupId.ToString()))) return;

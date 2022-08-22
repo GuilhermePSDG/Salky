@@ -24,7 +24,7 @@ namespace Salky.App.Services.Friends
         public async Task<UserFriendDto?> SendFriendRequest(Guid UserId, Guid OtherUserId)
         {
             var frieds = await friendRepo.GetByUsersId(UserId, OtherUserId);
-            if (frieds != null) return await TryUpdateFriendRequest(UserId, frieds.Id,RelationShipStatus.Pending);
+            if (frieds != null) return await TryUpdateFriendRequest(UserId, frieds.Id, RelationShipStatus.Pending);
             //
             if (!useRepo.Exist(OtherUserId)) return null;
             var friend = Friend.CreateFriend(UserId, OtherUserId);
@@ -51,14 +51,14 @@ namespace Salky.App.Services.Friends
             await friendRepo.EnsureSaveChangesAsync();
             if (friend.RequestedBy == null || friend.RequestedTo == null)
                 return await GetById(UserId, FriendId);
-            else 
+            else
                 return map(friend, UserId);
         }
 
         private UserFriendDto map(Friend friend, Guid UserId)
         {
             var other = friend.GetUserOfFriendDiferentOf(UserId);
-            
+
             return new UserFriendDto()
             {
                 FriendFlag = friend.FriendRequestFlag,
@@ -71,7 +71,7 @@ namespace Salky.App.Services.Friends
         }
         private List<UserFriendDto> map(List<Friend> friends, Guid UserId)
             => friends.Select(x => map(x, UserId)).ToList();
-      
+
 
     }
 }

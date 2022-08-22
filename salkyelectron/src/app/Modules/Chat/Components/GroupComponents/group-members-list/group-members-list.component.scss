@@ -1,0 +1,84 @@
+@import "../../../../../../color.scss";
+
+
+* {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -o-user-select: none;
+}
+.userInfo span {
+  color: rgb(99, 99, 99);
+}
+
+.container {
+  $width: 160px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: $medium;
+  max-height: 100%;
+  width: $width;
+  height: 100%;
+  .listing {
+    width: $width;
+    overflow-y: auto;
+    height: 100%;
+    overflow-x: hidden;
+    .userInfo {
+      width: calc($width - 23px * 2);
+      cursor: pointer;
+      display: inline-flex;
+      border-bottom: 1px solid #ffffff0a;
+      padding: 7px 23px;
+      justify-items: start;
+      align-items: center;
+      .userName {
+        color: white;
+        margin-left: 10px;
+      }
+
+      .imgContainer {
+        display: flex;
+        flex-direction: column;
+        $size: 10px;
+        .userStatus {
+          position: absolute;
+          width: $size;
+          height: $size;
+          bottom: 1px;
+          right: 1px;
+          background-color: rgb(104, 104, 104);
+          border-radius: 50%;
+        }
+      }
+    }
+    .userInfo:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+}
+
+@media (max-width: 740px) {
+  .container {
+    $width: 95px;
+    width: $width;
+    .listing {
+      width: $width;
+
+      .userInfo {
+        width: calc($width - 23px * 2);
+
+        flex-direction: column;
+        .userName {
+          margin: 0;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

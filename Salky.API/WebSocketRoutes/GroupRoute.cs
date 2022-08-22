@@ -3,10 +3,12 @@ using Salky.App.Dtos.Group;
 using Salky.App.Services.Group;
 using Salky.App.Services.User;
 
+
+
 namespace Salky.API.WebSocketRoutes
 {
-    [WebSocketRoute]
-    public class GroupRoute : WebSocketRouteBase
+    [WebSocketRoute("group")]
+    public class GroupRoute : WebSocketRouteBaseCustom
     {
         private readonly GroupService groupService;
         private readonly IConnectionMannager mannager;
@@ -14,7 +16,7 @@ namespace Salky.API.WebSocketRoutes
         private readonly ILogger<GroupService> log;
         private readonly GroupMemberService groupMemberService;
 
-        public GroupRoute(GroupService groupService, IConnectionMannager mannager,UserService userService, ILogger<GroupService> log, GroupMemberService groupMemberService)
+        public GroupRoute(GroupService groupService, IConnectionMannager mannager, UserService userService, ILogger<GroupService> log, GroupMemberService groupMemberService)
         {
             this.groupService = groupService;
             this.mannager = mannager;
@@ -23,33 +25,48 @@ namespace Salky.API.WebSocketRoutes
             this.groupMemberService = groupMemberService;
         }
 
-        public override async Task OnConnectAsync()
-        {
-            await CreateUserWsIfNotCreated(new AudioState(true, true));
-            var usrId = Claims.GetUserId().ToString();
-            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(async member =>
-            {
-                var r = await AddOneInPool(member.GroupId.ToString(), usrId);
-            });
-            await base.OnConnectAsync();
-        }
         public override async Task OnDisconnectAsync()
         {
-            var usrId = Claims.GetUserId().ToString();
-            (await groupMemberService.GetAllMembersOfUser(Claims.GetUserId())).ForEach(async member =>
+            if (UserStorage.Get("GROUP_LISTEN_ID") is Guid groupId)
             {
-                var r1 =await  RemoveOneFromPool(member.GroupId.ToString(), usrId);
-                var r2 =await  RemoveOneFromPool(member.GroupId.ToString() + "/call", usrId);
-            });
+                await RemoveOneFromPool(groupId, User.UserId);
+                UserStorage.Remove("GROUP_LISTEN_ID");
+            }
             await base.OnDisconnectAsync();
         }
 
-        private async Task CreateUserWsIfNotCreated(AudioState audioState)
+        [WsListener("entry")]
+        public async Task ListenerGroup(Guid GroupId)
         {
-            var usr = await userService.GetUserById(Claims.GetUserId());
-            if (usr == null) throw new NullReferenceException("Usuario não encontrado");
-            var userCall = new GroupMemberCall(audioState);
-            Storage.AddOrUpdate(userCall);
+            if (!await this.groupMemberService.UserMakePartOfGroup(Guid.Parse(User.UserId), GroupId))
+            {
+                await SendErrorBack(CurrentRoutePath.Path, "User do not make part of group", CurrentRouteMethod);
+                return;
+            }
+            if (IsInPool(GroupId, User.UserId))
+            {
+                await SendErrorBack(CurrentRoutePath.Path, "User is alredy in pool", CurrentRouteMethod);
+                return;
+            }
+            if (!await AddOneInPool(GroupId, User.UserId))
+            {
+                await SendErrorBack(CurrentRoutePath.Path, "Unable to add listener", CurrentRouteMethod);
+            }
+            UserStorage.AddOrUpdate("GROUP_LISTEN_ID", GroupId);
+            //await SendBack("", CurrentPath, CurrentRouteMethod, Status.Success);
+        }
+        [WsListener("leave")]
+        public async Task RemoveListener(Guid GroupId)
+        {
+            if (await RemoveOneFromPool(GroupId, User.UserId) == 1)
+            {
+                UserStorage.Remove("GROUP_LISTEN_ID");
+                //await SendBack("", CurrentPath, CurrentRouteMethod, Status.Success);
+            }
+            else
+            {
+                await SendErrorBack(CurrentRoutePath.Path, "Unable to remove listener", CurrentRouteMethod);
+            }
         }
 
 
@@ -59,7 +76,6 @@ namespace Salky.API.WebSocketRoutes
         {
             try
             {
-                log.LogInformation("Mudando nome do grupo");
                 changeName.Deconstruct(out var GroupId, out var NewGroupName);
                 var groupDto = await groupService.ChangeGroupName(Claims.GetUserId(), GroupId, NewGroupName);
                 if (groupDto == null)
@@ -84,8 +100,6 @@ namespace Salky.API.WebSocketRoutes
         {
             var uId = Claims.GetUserId();
             var group = await groupService.CreateNewPublicGroup(uId, GroupName);
-            var member = await groupMemberService.GetMemberWithRole(uId, group.Id) ?? throw new InvalidOperationException();
-            await AddOneInPool(group.Id.ToString(), uId.ToString());
             await SendBack(group, CurrentPath, Method.POST);
         }
 
@@ -98,7 +112,7 @@ namespace Salky.API.WebSocketRoutes
                 if (removed)
                 {
                     await SendToAllInPool(GroupId.ToString(), CurrentPath, Method.DELETE, GroupId);
-                    await DeletePool(GroupId.ToString());
+                    await DeletePool(GroupId);
                 }
                 else
                 {

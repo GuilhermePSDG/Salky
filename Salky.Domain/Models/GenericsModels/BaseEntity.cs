@@ -8,6 +8,6 @@ namespace Salky.Domain.Models.GenericsModels
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [BsonId]
         public Guid Id { get; set; }
-        public DateTime CreatedDate { get; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

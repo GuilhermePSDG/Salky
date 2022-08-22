@@ -21,7 +21,7 @@ namespace Salky.Domain.Repositories
 
         public IUserRepository UserRepo { get; }
 
-        public MessageRepositoryMongoDb(IUserRepository UserRepo,MongoClient client)
+        public MessageRepositoryMongoDb(IUserRepository UserRepo, MongoClient client)
         {
             this.client = client;
             this.db = this.client.GetDatabase(DataBaseName);
@@ -47,30 +47,30 @@ namespace Salky.Domain.Repositories
 
         public async Task<PaginationResult<MessageGroup>> GetByGroupId(Guid groupId, int currentPage, int pageSize)
         {
-
-            try
-            {
-                var count = await collection.CountDocumentsAsync(x => x.GroupId == groupId);
-                var pagination = new PaginationResult<MessageGroup>(currentPage, pageSize, (int)count);
-                var res = await collection
-                    .Find(msg => msg.GroupId == groupId)
-                    .Skip((pagination.CurrentPage - 1) * pagination.PageSize)
-                    .Limit(pagination.PageSize)
-                    .ToListAsync();
-                IncludeSender(res);
-                pagination.SetResults(res);
-                return pagination;
-            }catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                throw;
-            }
+            throw new NotImplementedException();
+            //try
+            //{
+            //    var count = await collection.CountDocumentsAsync(x => x.GroupId == groupId);
+            //    var pagination = new PaginationResult<MessageGroup>(currentPage, pageSize, (int)count);
+            //    var res = await collection
+            //        .Find(msg => msg.GroupId == groupId)
+            //        .Skip((pagination.CurrentPage - 1) * pagination.PageSize)
+            //        .Limit(pagination.PageSize)
+            //        .ToListAsync();
+            //    IncludeSender(res);
+            //    pagination.SetResults(res);
+            //    return pagination;
+            //}catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.ToString());
+            //    throw;
+            //}
         }
 
         public async Task<MessageGroup?> GetById(Guid id)
         {
             var result = await collection.Find(x => x.Id == id).Limit(1).FirstOrDefaultAsync();
-            if(result != null)
+            if (result != null)
                 await IncludeSender(result);
             return result;
         }
@@ -101,7 +101,7 @@ namespace Salky.Domain.Repositories
         public async Task<int> EnsureSaveChangesAsync()
         {
             var c = await this.SaveChangesAsync();
-            if(c == 0) throw new UnableToSaveChangesException();
+            if (c == 0) throw new UnableToSaveChangesException();
             return c;
         }
     }

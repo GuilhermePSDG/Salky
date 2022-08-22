@@ -13,8 +13,8 @@ namespace Salky.Domain.Models.UserModels
     public class User /*: IdentityUser<Guid>*/
     {
         public static string UserNameRegexPattern = @"^[A-Za-z0-9]{3,32}$";
-        public static System.Text.RegularExpressions.Regex UserNameRegex = new (UserNameRegexPattern);
-        public User(string UserName,string PassWordHash)
+        public static System.Text.RegularExpressions.Regex UserNameRegex = new(UserNameRegexPattern);
+        public User(string UserName, string PassWordHash)
         {
             this.UserName = UserName;
             this.NormalizedUserName = this.UserName.ToUpper();
@@ -36,7 +36,7 @@ namespace Salky.Domain.Models.UserModels
         }
 
 
-        [Required(),MinLength(3),MaxLength(32),RegularExpression(@"^[A-Za-z0-9]{3,32}$")]
+        [Required(), MinLength(3), MaxLength(32), RegularExpression(@"^[A-Za-z0-9]{3,32}$")]
         public string UserName { get; private set; }
         public string NormalizedUserName { get; private set; }
         public Guid Id { get; private set; }
@@ -47,13 +47,13 @@ namespace Salky.Domain.Models.UserModels
         public List<Notification> Notifications { get; private set; }
         public virtual List<Friend> SentFriendRequests { get; private set; }
         public virtual List<Friend> ReceievedFriendRequests { get; private set; }
-
-        public void ChangePicture(string PictureSource,out UserPictureChanged @event)
+        public List<MessageGroup> MessageGroupsSended { get; set; }
+        public void ChangePicture(string PictureSource, out UserPictureChanged @event)
         {
             this.PictureSource = PictureSource;
-            @event = new UserPictureChanged(this.Id,PictureSource);
+            @event = new UserPictureChanged(this.Id, PictureSource);
         }
-        
+
         public string PassWordHash { get; set; }
     }
 }

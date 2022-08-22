@@ -26,6 +26,9 @@ namespace Salky.Domain.Migrations
                     b.Property<DateTime?>("BecameFriendsTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("FriendRequestFlag")
                         .HasColumnType("INTEGER");
 
@@ -59,6 +62,9 @@ namespace Salky.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("FriendId")
                         .HasColumnType("TEXT");
 
@@ -71,6 +77,8 @@ namespace Salky.Domain.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FriendId");
+
+                    b.HasIndex("SenderId");
 
                     b.ToTable("MessagesFriend");
                 });
@@ -107,6 +115,9 @@ namespace Salky.Domain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("TEXT");
 
@@ -141,6 +152,9 @@ namespace Salky.Domain.Migrations
                     b.Property<bool>("CanUnMuteMicrofoneOfOtherUser")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("GroupRoleId")
                         .HasColumnType("TEXT");
 
@@ -167,6 +181,9 @@ namespace Salky.Domain.Migrations
                     b.Property<bool>("CanSendMessage")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("GroupRoleId")
                         .HasColumnType("TEXT");
 
@@ -185,6 +202,9 @@ namespace Salky.Domain.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ConfigId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -213,6 +233,9 @@ namespace Salky.Domain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("MaxUser")
                         .HasColumnType("INTEGER");
 
@@ -225,6 +248,9 @@ namespace Salky.Domain.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GroupId")
@@ -268,6 +294,9 @@ namespace Salky.Domain.Migrations
                     b.Property<bool>("CanRemoveOtherUsers")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("GroupRoleId")
                         .HasColumnType("TEXT");
 
@@ -283,6 +312,9 @@ namespace Salky.Domain.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GroupId")
@@ -313,6 +345,9 @@ namespace Salky.Domain.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GroupId")
@@ -393,7 +428,15 @@ namespace Salky.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Salky.Domain.Models.UserModels.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Friend");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Salky.Domain.Models.GenericsModels.Notification", b =>
@@ -506,7 +549,15 @@ namespace Salky.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Salky.Domain.Models.UserModels.User", "Sender")
+                        .WithMany("MessageGroupsSended")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Group");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Salky.Domain.Models.FriendModels.Friend", b =>
@@ -542,6 +593,8 @@ namespace Salky.Domain.Migrations
             modelBuilder.Entity("Salky.Domain.Models.UserModels.User", b =>
                 {
                     b.Navigation("Groups");
+
+                    b.Navigation("MessageGroupsSended");
 
                     b.Navigation("Notifications");
 

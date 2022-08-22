@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ChatBoxComponent } from './Components/chat-box/chat-box.component';
 import { MainComponent } from './main/main.component';
-import { LogoutComponent } from './Components/logout/logout.component';
-import { FriendsComponent } from './Components/friends/friends.component';
+import { FriendsComponent } from './Pages/friends/friends.component';
+import { GroupComponent } from './Pages/Group/group.component';
+import { LogoutComponent } from './Pages/logout/logout.component';
 
 const routes: Routes = [
   {
@@ -12,7 +12,7 @@ const routes: Routes = [
     children: [
       {
         path: 'group/:id',
-        component: ChatBoxComponent,
+        component: GroupComponent,
       },
       {
         path: 'friends',
@@ -20,6 +20,7 @@ const routes: Routes = [
       },
     ],
   },
+  { path: 'user/logout', component: LogoutComponent },
 
 
   { path: '**', redirectTo: '' },

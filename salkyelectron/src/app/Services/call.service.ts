@@ -22,16 +22,16 @@ export class CallService extends WebSocketBaseService {
   constructor(
     private audioService: AudioService,
     usrService: UserService,
-     ws: SalkyWebSocket,
+    ws: SalkyWebSocket,
   ) {
     var basepath = 'group/call';
     super(ws);
-    this.BasePath=basepath;
+    this.BasePath = basepath;
     this.UserCall = {
       audioState: this.AudioState,
       isInCall: false,
-      groupId: '',
-      memberId: '',
+      callId: '',
+      userId: '',
     } as CallMember;
 
     var sub1 = usrService.currentUser$.subscribe({
@@ -42,23 +42,21 @@ export class CallService extends WebSocketBaseService {
     var sub2 = this.audioState$.subscribe({
       next: (x) => (this.UserCall.audioState = x),
     });
-    this.audioService.onMicrofoneOutPut = (blob) => {
-      blob.arrayBuffer().then((buff) => this.sendAudioToCall(buff));
-    };
+    this.audioService.onMicrofoneOutPut = (data) => this.sendAudioToCall(data);
     var sub4 = this.onAudioReceived((base64) => {
       if (this.canReproduceAudio) {
-        var buffer = Converter.stringToArrayBuffer(atob(base64));
-        var blob = new Blob([new Uint8Array(buffer, 0, buffer.byteLength)]);
-        this.audioService.ReproduceAudio(blob);
+        this.audioService.ReproduceAudio(base64);
       }
     });
     this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub4);
+    this.syncAudioState();
   }
- 
+
+
   public entryInCall(groupId: string): void {
     var data = {
       groupId: groupId,
-      audioState: this.UserCall.audioState,
+      // audioState: this.UserCall.audioState,
     };
     this.ws.sendMessageServer({
       data: data,
@@ -98,12 +96,11 @@ export class CallService extends WebSocketBaseService {
     return this.UserCall.isInCall && !this.UserCall.audioState.headPhoneMuted;
   }
 
-  private sendAudioToCall(data: ArrayBuffer) {
+  private sendAudioToCall(data: any) {
     if (this.canSendAudio) {
-      var base64 = btoa(Converter.arrayBufferToString(data));
       this.ws.sendMessageServer({
         method: 'redirect',
-        data: base64,
+        data: data,
         path: this.BasePath,
       });
     }
@@ -125,7 +122,7 @@ export class CallService extends WebSocketBaseService {
     if (!this.AudioState.microFoneMuted && this.AudioState.headPhoneMuted) {
       this.AudioState.headPhoneMuted = false;
     }
-    this.changeAudioState();
+    this.syncAudioState();
   }
 
   ChangeHeadPhoneState() {
@@ -133,10 +130,10 @@ export class CallService extends WebSocketBaseService {
     if (this.AudioState.headPhoneMuted) {
       this.AudioState.microFoneMuted = true;
     }
-    this.changeAudioState();
+    this.syncAudioState();
   }
 
-  private changeAudioState() {
+  private syncAudioState() {
     this.ws.sendMessageServer({
       data: this.AudioState,
       method: 'put',
@@ -150,7 +147,7 @@ export class CallService extends WebSocketBaseService {
     handler: (Base64: string) => void,
     error?: (err: any) => void
   ): Destroyable {
-    return this.ws.On(this.BasePath, 'redirect').Build(handler, error);
+    return this.ws.On(this.BasePath, 'redirect').Build((x: any) => handler(x), error);
   }
   public onUserQuitCall(handler: (UserCall: CallMember) => void): Destroyable {
     return this.ws.On(this.BasePath, 'delete').Build(handler);
@@ -167,7 +164,7 @@ export class CallService extends WebSocketBaseService {
   public onAllUsersInCallReceived(
     handler: (users: CallMember[]) => void
   ): Destroyable {
-    return this.ws.On(`${this.BasePath}/all`, 'get_response').Build(handler);
+    return this.ws.On(`${this.BasePath}/all`, 'get').Build(handler);
   }
   //#endregion
 }

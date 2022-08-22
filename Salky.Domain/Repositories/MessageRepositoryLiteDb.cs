@@ -27,16 +27,17 @@ namespace Salky.Domain.Repositories
         }
         public async Task<PaginationResult<MessageGroup>> GetByGroupId(Guid groupId, int currentPage, int pageSize)
         {
-            using(var db = new LiteDatabase(ConnectionString))
-            {
-                var col = db.GetCollection<MessageGroup>();
-                var count = col.Count(x => x.GroupId == groupId);
-                var pagination = new PaginationResult<MessageGroup>(currentPage, pageSize, count);
-                var res = col.Find(msg => msg.GroupId == groupId, ((pagination.CurrentPage - 1) * pagination.PageSize), pagination.PageSize).ToList();
-                IncludeSender(res);
-                pagination.SetResults(res);
-                return await Task.FromResult(pagination);
-            }
+            throw new NotImplementedException();
+            //using(var db = new LiteDatabase(ConnectionString))
+            //{
+            //    var col = db.GetCollection<MessageGroup>();
+            //    var count = col.Count(x => x.GroupId == groupId);
+            //    var pagination = new PaginationResult<MessageGroup>(currentPage, pageSize, count);
+            //    var res = col.Find(msg => msg.GroupId == groupId, ((pagination.CurrentPage - 1) * pagination.PageSize), pagination.PageSize).ToList();
+            //    IncludeSender(res);
+            //    pagination.SetResults(res);
+            //    return await Task.FromResult(pagination);
+            //}
         }
         private void IncludeSender(List<MessageGroup> msg)
         {
@@ -76,7 +77,7 @@ namespace Salky.Domain.Repositories
             }
         }
 
-        public  void Remove(MessageGroup entity)
+        public void Remove(MessageGroup entity)
         {
             using (var db = new LiteDatabase(ConnectionString))
             {

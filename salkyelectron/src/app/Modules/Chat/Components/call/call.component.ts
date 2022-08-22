@@ -25,7 +25,7 @@ export class CallComponent extends EventsDestroyables implements OnInit {
   public get loggedUserIsInCall(): boolean {
     return (
       this.callMembers.findIndex(
-        (x) => x.isInCall && x.memberId === this.CurrentMember?.id
+        (x) => x.isInCall && x.userId === this.CurrentMember?.userId
       ) !== -1
     );
   }
@@ -44,40 +44,31 @@ export class CallComponent extends EventsDestroyables implements OnInit {
   }
 
   ngOnInit(): void {
-    this.AppendToDestroy(this.callService.onAllUsersInCallReceived((x) => (this.callMembers = x)));
+    this.AppendToDestroy(this.callService.onAllUsersInCallReceived((x) => {
+      (this.callMembers = x)
+    }));
     this.AppendToDestroy(this.callService.onUserQuitCall((x) => this.removeUser(x)));
     this.AppendToDestroy(this.callService.onUserEntryCall((x) => this.addUserCall(x)));
     this.AppendToDestroy(this.callService.onPutUserCall((x) => this.updateUserCall(x)));
   }
 
-  public getMember(UserCall : UserCall) : GroupMember | undefined{
-    return this.GroupMembers.find(x => x.id === UserCall.memberId);
+  public getMember(UserCall: UserCall): GroupMember | undefined {
+    return this.GroupMembers.find(x => x.userId === UserCall.userId);
   }
 
   private addUserCall(userCall: UserCall) {
     if (this.groupId) {
-      if (this.groupId === userCall.groupId) {
+      if (this.groupId === userCall.callId) {
         this.callMembers.push(userCall);
-      }
-    }
-  }
-  private addOrUpdate(userCall: UserCall) {
-    if (this.groupId) {
-      if (this.groupId === userCall.groupId) {
-        var index = this.callMembers.findIndex(
-          (f) => f.memberId === userCall.memberId
-        );
-        if (index === -1) this.callMembers.push(userCall);
-        else this.callMembers[index] = userCall;
       }
     }
   }
 
   private updateUserCall(userCall: UserCall) {
     if (this.groupId) {
-      if (this.groupId === userCall.groupId) {
+      if (this.groupId === userCall.callId) {
         var index = this.callMembers.findIndex(
-          (usr) => usr.memberId === userCall.memberId
+          (usr) => usr.userId === userCall.userId
         );
         if (index !== -1) {
           this.callMembers[index] = userCall;
@@ -88,9 +79,9 @@ export class CallComponent extends EventsDestroyables implements OnInit {
 
   private removeUser(userCall: UserCall) {
     if (this.groupId) {
-      if (this.groupId === userCall.groupId) {
+      if (this.groupId === userCall.callId) {
         var index = this.callMembers.findIndex(
-          (usr) => usr.memberId === userCall.memberId
+          (usr) => usr.userId === userCall.userId
         );
         if (index !== -1) {
           this.callMembers.splice(index, 1);
@@ -98,4 +89,5 @@ export class CallComponent extends EventsDestroyables implements OnInit {
       }
     }
   }
+
 }

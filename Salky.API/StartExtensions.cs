@@ -48,8 +48,9 @@ namespace Salky.API
 
         public static WebApplicationBuilder UseLocalSqlite<T>(this WebApplicationBuilder builder) where T : DbContext
         {
-            var ConStr = builder.Configuration.GetConnectionString("LocalSqlite") ;
-            builder.Services.AddDbContext<T>(x =>  x
+            var ConStr = builder.Configuration.GetConnectionString("LocalSqlite");
+            Console.WriteLine("CONNECITON STRING : "+ConStr);
+            builder.Services.AddDbContext<T>(x => x
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
                 .UseSqlite(ConStr));
             return builder;

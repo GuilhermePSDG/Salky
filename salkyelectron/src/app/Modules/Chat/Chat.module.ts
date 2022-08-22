@@ -2,10 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MainComponent } from './main/main.component';
-import { ChatBoxComponent } from './Components/chat-box/chat-box.component';
 import { ContactsListComponent } from './Components/left-bar/left-bar.component';
-import { AddGroupFormComponent } from './Components/add-group-form/add-group-form.component';
-import { AddUserInGroupComponent } from './Components/add-user-in-group/add-user-in-group.component';
+import { AddGroupFormComponent } from './Components/GroupComponents/add-group-form/add-group-form.component';
+import { AddUserInGroupComponent } from './Components/GroupComponents/add-user-in-group/add-user-in-group.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,34 +12,39 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { LogoutComponent } from './Components/logout/logout.component';
 import { ToggleComponent } from 'src/app/Components/toggle/toggle.component';
-import { LeaveComponent } from 'src/app/Modules/Chat/Components/buttons/User/leave/leave.component';
+import { LeaveComponent } from 'src/app/Modules/Chat/Components/UserComponents/leave/leave.component';
 import { ChatRoutingModule } from './Chat-routing.module';
 import { CallComponent } from './Components/call/call.component';
-import { EmojisComponent } from './Components/emojis/emojis.component';
-import { FriendListComponent } from './Components/friend-list/friend-list.component';
-import { GifComponent } from './Components/gif/gif.component';
-import { GroupMemberListComponent } from './Components/group-members-list/group-members-list.component';
-import { MessageRenderComponent } from './Components/message-render/message-render.component';
+import { FriendListComponent } from './Components/FriendsComponents/friend-list/friend-list.component';
+import { GifComponent } from './Components/GroupComponents/gif/gif.component';
+import { GroupMemberListComponent } from './Components/GroupComponents/group-members-list/group-members-list.component';
+import { MessageRenderComponent } from './Components/GroupComponents/message-render/message-render.component';
 import { ModalComponent } from '../../Components/modal/modal.component';
 import { RoundedPictureComponent } from './Components/Picture/rounded-picture.component';
 import { ScrenCaptureComponent } from './Components/scren-capture/scren-capture.component';
-import { SearchUserComponent } from './Components/search-user/search-user.component';
-import { SendMessageBoxComponent } from './Components/send-message-box/send-message-box.component';
+import { SearchUserComponent } from './Components/UserComponents/search-user/search-user.component';
+import { SendMessageBoxComponent } from './Components/GroupComponents/send-message-input/send-message-input.component';
 import { AddGroupComponent } from './Components/add-friend-or-group/add-friend-or-group.component';
-import { FriendsComponent } from './Components/friends/friends.component';
-import { EntrarComponent } from './Components/buttons/Call/entrar/entrar.component';
-import { HeadSetComponent } from './Components/buttons/Call/head-set/head-set.component';
-import { MicrofoneComponent } from './Components/buttons/Call/microfone/microfone.component';
-import { SairComponent } from './Components/buttons/Call/sair/sair.component';
-import { ConfigButtonComponent } from './Components/buttons/Config/config-button/config-button.component';
-import { AcceptComponent } from './Components/buttons/Friends/accept/accept.component';
-import { CancelComponent } from './Components/buttons/Friends/cancel/cancel.component';
-import { DeleteComponent } from './Components/buttons/Friends/delete/delete.component';
-import { DeniedComponent } from './Components/buttons/Friends/denied/denied.component';
+
+import { AcceptComponent } from './Components/FriendsComponents/Buttons/accept/accept.component';
+import { CancelComponent } from './Components/FriendsComponents/Buttons/cancel/cancel.component';
 import { ContextMenuComponent } from 'src/app/Components/context-menu/context-menu.component';
 import { ShowInfoComponent } from 'src/app/Components/show-info/show-info.component';
+import { GrupoEditDisplayComponent } from './Components/GroupComponents/group-name-edit/group-name-edit.component';
+import { EntrarComponent } from './Components/call/buttons/entrar/entrar.component';
+import { HeadSetComponent } from './Components/call/buttons/head-set/head-set.component';
+import { MicrofoneComponent } from './Components/call/buttons/microfone/microfone.component';
+import { SairComponent } from './Components/call/buttons/sair/sair.component';
+import { DeniedComponent } from './Components/FriendsComponents/Buttons/denied/denied.component'
+import { DeleteComponent } from './Components/FriendsComponents/Buttons/delete/delete.component'
+import { EmojisComponent } from './Components/GroupComponents/emojis/emojis.component';
+import { ConfigButtonComponent } from './Components/ConfigComponents/config-button/config-button.component';
+import { FriendsComponent } from './Pages/friends/friends.component';
+import { GroupComponent } from './Pages/Group/group.component';
+import { LogoutComponent } from './Pages/logout/logout.component';
+
+
 
 @NgModule({
   imports: [
@@ -56,7 +60,10 @@ import { ShowInfoComponent } from 'src/app/Components/show-info/show-info.compon
   ],
 
   declarations: [
-    ChatBoxComponent,
+    DeleteComponent,
+    DeniedComponent,
+    GroupComponent,
+    EntrarComponent,
     SendMessageBoxComponent,
     ContactsListComponent,
     RoundedPictureComponent,
@@ -68,7 +75,6 @@ import { ShowInfoComponent } from 'src/app/Components/show-info/show-info.compon
     MicrofoneComponent,
     HeadSetComponent,
     ConfigButtonComponent,
-    EntrarComponent,
     SairComponent,
     CallComponent,
     MainComponent,
@@ -80,14 +86,13 @@ import { ShowInfoComponent } from 'src/app/Components/show-info/show-info.compon
     GroupMemberListComponent,
     AddUserInGroupComponent,
     FriendListComponent,
-    DeleteComponent,
     AcceptComponent,
     CancelComponent,
-    DeniedComponent,
     ToggleComponent,
     ContextMenuComponent,
     LeaveComponent,
-    FriendsComponent
+    FriendsComponent,
+    GrupoEditDisplayComponent
   ],
 })
-export class ChatModule {}
+export class ChatModule { }

@@ -23,7 +23,7 @@ import { EventsDestroyables } from 'src/app/Services/WebSocketBaseService';
   templateUrl: './left-bar.component.html',
   styleUrls: ['./left-bar.component.scss'],
 })
-export class ContactsListComponent extends EventsDestroyables implements OnInit,OnDestroy  {
+export class ContactsListComponent extends EventsDestroyables implements OnInit, OnDestroy {
   public selectedGroup?: Group;
   public _ContextMenuSelectedGroup?: Group;
   public currentUser: UserLogged = {} as UserLogged;
@@ -43,14 +43,13 @@ export class ContactsListComponent extends EventsDestroyables implements OnInit,
   ngOnDestroy(): void {
     this.Destroy();
   }
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     var sub1 = this.userService.currentUser$.subscribe({
-      next:(usr) =>{
+      next: (usr) => {
         this.currentUser = usr;
       }
     })
     this.groupMemberService.setEvents();
-    this.audioService.START();
     this.AppendToDestroy(sub1);
   }
 
@@ -71,7 +70,7 @@ export class ContactsListComponent extends EventsDestroyables implements OnInit,
       });
     }
   }
-  changeUserPicture(event : any){
+  changeUserPicture(event: any) {
     Converter.BlobToBase64(event.files[0], (base64) => {
       this.userService.ChangeUserPicture(base64).subscribe();
     });
@@ -84,9 +83,9 @@ export class ContactsListComponent extends EventsDestroyables implements OnInit,
   public get CanDeleteGroup(): boolean {
     return (
       this._ContextMenuSelectedGroup?.id ===
-        this._contextMenuSelectedMember?.groupId &&
+      this._contextMenuSelectedMember?.groupId &&
       this._contextMenuSelectedMember?.userId ===
-        this._ContextMenuSelectedGroup?.ownerId
+      this._ContextMenuSelectedGroup?.ownerId
     );
   }
 

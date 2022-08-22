@@ -1,165 +1,200 @@
-﻿
-
-using AutoMapper;
-using Salky.API.Models;
+﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 using Salky.App.Services.Group;
+using Salky.App.Storage;
+using Salky.WebSockets.Exensions;
 
 namespace Salky.API.WebSocketRoutes
 {
 
     [WebSocketRoute("group/call")]
-    public class CallRoute : WebSocketRouteBase
+    public class CalRoute : WebSocketRouteBaseCustom
     {
-        //
-        private readonly GroupMemberService groupMemberService;
-        private readonly ILogger<CallRoute> logger;
+        private UserCall? ___usrCall;
+        private UserCall CurrentUserCall => ___usrCall ??= this.UserStorage.GetOrCreate("call:state", () => UserCall.Default(this.User.UserId));
+        private Call? CurrentCall => CurrentUserCall.IsInCall ? RootStorage.GetOrCreate($"call:{CurrentUserCall.CallId}", () => new Call()) : null;
 
-        public CallRoute(GroupMemberService groupMemberService, ILogger<CallRoute> logger)
+        private readonly ILogger<CalRoute> logger;
+        private readonly GroupMemberService groupMemberService;
+        public CalRoute(ILogger<CalRoute> logger, GroupMemberService groupMemberService)
         {
-            this.groupMemberService = groupMemberService;
             this.logger = logger;
+            this.groupMemberService = groupMemberService;
         }
         public override async Task OnDisconnectAsync()
         {
-            try
-            {
-                
-                var usrCall = Storage.Get<GroupMemberCall>();
-                if (usrCall.IsInCall && usrCall.PoolPath != null)
-                {
-                    await SendToAllInPool(usrCall.PoolPath, "group/call", Method.DELETE, usrCall);
-                    usrCall.ZeroCallProperties();
-                }
-            }
-            finally
-            {
-
-            }
+            if (CurrentUserCall.IsInCall)
+                await __leaveCall();
             await base.OnDisconnectAsync();
         }
-      
+        #region Entry or leave
+        public record EntryCallObject(Guid GroupId);
         [WsPost]
-        public async Task EntryOrCreateCall(CallEntry callEntry)
+        public async Task EntryCall(EntryCallObject EntryCallObject)
         {
-            try
+            EntryCallObject.Deconstruct(out var GroupId);
+            if (!await groupMemberService.UserMakePartOfGroup(Guid.Parse(User.UserId), GroupId))
             {
-                var groupid = callEntry.GroupId.ToString();
-                var member = await groupMemberService.GetMemberWithRole(Claims.GetUserId(), callEntry.GroupId);
-                if (member == null)
-                {
-                    await SendErrorBack(CurrentPath, "Usuario não pode entrar nesse grupo");
-                    return;
-                }
-                if (!member.GroupRole.CallPermisions.CanEntryInCall)
-                {
-                    await SendErrorBack(CurrentPath, "Usuario não pode entrar nesse grupo");
-                    return;
-                }
-                var callMember = Storage.Get<GroupMemberCall>();
-                if (callMember.IsInCall) await QuitFromCall();
-                var poolPath = $"{groupid}/call";
-                callMember.FillCallProperties(groupid, poolPath, member.Id.ToString(), member.GroupRole);
-                callMember.AudioState = callEntry.AudioState;
-                await AddOneInPool(poolPath, member.UserId.ToString());
-                await SendToAllInPool(groupid, CurrentPath, Method.POST, callMember);
+                await SendErrorBack(CurrentPath, "User do not make part of group", CurrentRouteMethod);
+                return;
             }
-            catch (Exception ex)
+            if (CurrentUserCall.IsInCall)
             {
-                logger.LogError(ex, "Erro ao entrar na chamada");
-                await SendErrorBack(CurrentPath, "Erro ao entrar na chamada " + ex.Message);
+                await this.__leaveCall();
             }
+            CurrentUserCall.CallId = GroupId.ToString();
+            CurrentCall!.UsersInCall.Add(this.User.UserId, this.CurrentUserCall);
+            await AddOneInPool($"call:{CurrentUserCall.CallId}", this.User.UserId);
+            await SendToAllInPool(GroupId, new(CurrentRoutePath.Path, CurrentRoutePath.Method, Status.Success, this.CurrentUserCall));
         }
         [WsDelete]
-        public async Task QuitFromCall()
+        public async Task LeaveCall()
+        {
+            if (!CurrentUserCall.IsInCall)
+            {
+                await SendErrorBack(CurrentPath, "User is not in a call", CurrentRouteMethod);
+                return;
+            }
+            await __leaveCall();
+        }
+        private async Task __leaveCall()
+        {
+            var GroupId = CurrentUserCall.CallId;
+            CurrentCall!.UsersInCall.Remove(this.User.UserId);
+            await RemoveOneFromPool($"call:{CurrentUserCall.CallId}", this.User.UserId);
+            await SendToAllInPool(GroupId, new("group/call", Method.DELETE, Status.Success, this.CurrentUserCall));
+            CurrentUserCall.CallId = null;
+        }
+        #endregion
+
+
+        [WsGet("all")]
+        public async Task AllMembers(Guid GroupId)
         {
             try
             {
-                //Recupera o usuario e verifica se está em uma call
-                var usrCall = Storage.Get<GroupMemberCall>();
-                if (!usrCall.IsInCall)
-                {
-                    await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
+                if (!await this.groupMemberService.UserMakePartOfGroup(Guid.Parse(this.User.UserId), GroupId))
                     return;
+
+                var _call = RootStorage.Get($"call:{GroupId}");
+                if (_call is Call call)
+                {
+                    var usrs = call.UsersInCall.Values.Where(x => x != null && x.IsInCall)
+                    .ToList();
+                    await SendBack(usrs, CurrentPath, CurrentRouteMethod);
                 }
-                await RemoveOneFromPool(usrCall.PoolPath ?? throw new NullReferenceException(), Claims.GetUserId().ToString());
-                //Faz o envio da notificação para quem interessar
-                await SendToAllInPool(
-                    PoolKey: usrCall.GroupId ?? throw new NullReferenceException(),
-                    Path: CurrentPath,
-                    method: Method.DELETE,
-                    data: usrCall
-                    );
-                //Zera as propiedades que indicam em qual call os usuario está
-                usrCall.ZeroCallProperties();
+                else
+                {
+                    await SendBack(new List<UserCall>(), CurrentPath, CurrentRouteMethod);
+                }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Erro ao sair da chamada");
-                await SendErrorBack(CurrentPath, "Erro ao sair da chamada " + ex.Message);
+                this.logger.LogError(ex, "");
             }
         }
+
+        #region Audio
+
+
         [WsRedirect]
-        public async Task SendAudio(string data)
+        public async Task SendAudio(object data)
         {
-            this.logger.LogError(new NotImplementedException(), nameof(CallRoute.SendAudio));
-            //try
-            //{
-            //    var usr = Storage.Get<GroupMemberCall>();
-            //    if (!usr.IsInCall || usr.PoolPath == null || usr.GroupId == null)
-            //    {
-            //        await SendErrorBack(CurrentPath, "Usuario não está em uma chamada");
-            //        return;
-            //    }
-            //    if (!usr.AudioState.CanTalk)
-            //    {
-            //        await SendErrorBack(CurrentPath, "Usuario está mutado.");
-            //        return;
-            //    }
+            if (!CurrentUserCall.IsInCall)
+            {
+                await SendErrorBack(CurrentPath, "User is not in a call", CurrentRouteMethod);
+                return;
+            }
+            if (!CurrentUserCall.AudioState.CanSpeak)
+            {
+                await SendErrorBack(CurrentPath, "User can not speak", CurrentRouteMethod);
+                return;
+            }
 
-            //    var usrId = Claims.GetUserId().ToString();
-            //    foreach (var storage in RootConnectionMannager.GetStorageOfManyInPool(usr.PoolPath))
-            //    {
-            //        var callState = storage.Value.Get<GroupMemberCall>();
-            //        if (storage.Key != usrId && callState.AudioState.CanHear)
-            //            await SendToOneInPool(usr.PoolPath, storage.Key, CurrentPath, Method.REDIRECT, data);
-            //    }
+            var filtredCallMembers = CurrentCall!.UsersInCall.Values
+                .Where(x => x != null && x.IsInCall && x.AudioState.CanHear && x.UserId != this.User.UserId)
+                .Select(x => (Key)x.UserId)
+                .ToArray();
+            await SendToManyInPool($"call:{CurrentUserCall.CallId}", filtredCallMembers, new MessageServer(CurrentPath, CurrentRouteMethod, Status.Success, data));
+        }
 
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Erro ao enviar o audio");
-            //    await SendErrorBack("group/call/audio", "Erro ao enviar o audio");
-            //}
-        }
-        [WsGet("all")]
-        public async Task GetUsersOfCall(Guid GroupId)
-        {
-            this.logger.LogError(new NotImplementedException(), nameof(CallRoute.GetUsersOfCall));
-            //if (await groupMemberService.UserMakePartOfGroup(Claims.GetUserId(), GroupId))
-            //{
-            //    var poolPath = $"{GroupId}/call";
-            //    var usrs = RootConnectionMannager
-            //        .GetStorageOfManyInPool(poolPath)
-            //        .Select(x => x.Value.Get<GroupMemberCall>())
-            //        .ToList();
-            //    await SendBack(usrs, CurrentPath, Method.GET);
-            //}
-            //else
-            //{
-            //    await SendErrorBack(CurrentPath, "Usuario não tem acceso nesta chamada.");
-            //}
-        }
-        [WsGet]
-        public async Task GetSelfUser() => await SendBack(Storage.Get<GroupMemberCall>(), CurrentPath, Method.GET);
+        #endregion
+
         [WsPut]
-        public async Task UpdateAudioInfo(AudioState userUiInfo)
+        public void UpdateAudioState(AudioState audioState)
         {
-            var usrCall = Storage.Get<GroupMemberCall>();
-            usrCall.AudioState = userUiInfo;
-            if (usrCall.IsInCall && usrCall.GroupId != null)
-                await SendToAllInPool(usrCall.GroupId.ToString(), CurrentPath, Method.PUT, usrCall);
-            Storage.AddOrUpdate(usrCall);
+            CurrentUserCall.AudioState = audioState;
+            if (!CurrentUserCall.IsInCall) return;
+            SendToAllInPool(CurrentUserCall.CallId, new(CurrentPath, CurrentRouteMethod, Status.Success, CurrentUserCall));
         }
-
     }
+
+    public class Call
+    {
+        public Dictionary<string, UserCall> UsersInCall = new();
+    }
+
+    public class UserCall
+    {
+        public AudioState AudioState { get; set; }
+        public string UserId { get; set; }
+
+        private string? _callId = null;
+
+        public UserCall(string UserId, AudioState audio)
+        {
+            this.UserId = UserId;
+            AudioState = audio;
+        }
+        public string CallId
+        {
+            get => _callId!;
+            set => _callId = value;
+        }
+        public bool IsInCall { get => _callId != null; set { } }
+        public static UserCall Default(string UserId) => new(UserId, new AudioState(false, false));
+    }
+
+    public class AudioState
+    {
+        public AudioState(bool microfoneMuted, bool headsetMuted)
+        {
+            MicroFoneMuted = microfoneMuted;
+            HeadPhoneMuted = headsetMuted;
+        }
+        public AudioState()
+        {
+
+        }
+        public bool MicroFoneMuted
+        {
+            get => ___MicrofoneMuted;
+            set
+            {
+                if (!value)
+                    HeadPhoneMuted = false;
+                ___MicrofoneMuted = value;
+
+            }
+        }
+        public bool HeadPhoneMuted
+        {
+            get => ___HeadsetMuted;
+            set
+            {
+                if (value)
+                    MicroFoneMuted = true;
+                ___HeadsetMuted = value;
+            }
+        }
+        [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+        private bool ___MicrofoneMuted;
+        [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+        private bool ___HeadsetMuted;
+        [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+        public bool CanSpeak => !MicroFoneMuted && !HeadPhoneMuted;
+        [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+        public bool CanHear => !HeadPhoneMuted;
+    }
+
 }

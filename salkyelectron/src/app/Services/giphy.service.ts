@@ -44,7 +44,7 @@ export class GiphyService {
     Query: string,
     lastPage: Pagination
   ): Observable<PaginationResult<Gif>> {
-    var requiredOffset = (lastPage.currentPage+1) * this.SearchPageCount;
+    var requiredOffset = (lastPage.pageIndex+1) * this.SearchPageCount;
     let params = new HttpParams()
       .set('api_key', environment.giphyApiKey)
       .set('q', Query)
@@ -64,7 +64,7 @@ export class GiphyService {
           } as PaginationResult<Gif>;
           var offSet = res.pagination.offset;
           result.lastPage = result.totalCount / res.pagination.count;
-          result.currentPage = offSet / result.pageSize;
+          result.pageIndex = offSet / result.pageSize;
           return result;
         })
       );

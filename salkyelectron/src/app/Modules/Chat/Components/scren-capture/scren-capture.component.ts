@@ -28,10 +28,6 @@ export class ScrenCaptureComponent implements OnInit {
   ngOnInit(): void {
 
     this.selectSource({id : 1 , name : "desktop"})
-
-    console.log("ok");
-    console.log(this.mediaRecorder);
-
     if (
       this.videoSelectBtn &&
       this.startBtn &&

@@ -16,7 +16,7 @@ export class GroupService extends WebSocketBaseService {
   public groupsObservable = this.groupsEventEmiter.asObservable();
   private groups: Group[] = [];
   private apiBaseUrl = `${environment.apiUrl}/group`;
-  private wsBasePath = '';
+  private wsBasePath;
   constructor(
     private router: Router,
     private http: HttpClient,
@@ -31,6 +31,8 @@ export class GroupService extends WebSocketBaseService {
       this.ChangeFieldOfGroup(x.groupId, 'name', x.newGroupName)
     );
     var sub2 = this.onGroupDeleted((groupId) => {
+      console.log('group delete handler invoked')
+      console.log(groupId)
       this.removeGroup(groupId);
       if (this.router.url.includes(groupId)) {
         this.router.navigateByUrl('');
@@ -42,7 +44,34 @@ export class GroupService extends WebSocketBaseService {
     var sub5 = this.onPictureChanged((q) =>
       this.ChangeFieldOfGroup(q.id, 'pictureSource', (q.value))
     );
-    this.AppendToDestroy(sub1).AppendToDestroy(sub2).AppendToDestroy(sub3).AppendToDestroy(sub4).AppendToDestroy(sub5);
+    this.AppendManyToDestroy(sub1, sub2, sub3, sub4, sub5);
+  }
+
+
+  currentGroupListenerId?: string;
+  public startListenerGroup(groupId?: string) {
+    if (this.currentGroupListenerId) {
+      this.stopListenerGroup(this.currentGroupListenerId)
+    }
+    if (!groupId) {
+      this.currentGroupListenerId = undefined;
+      return;
+    }
+    this.currentGroupListenerId = groupId;
+    this.ws.sendMessageServer({
+      method: 'listener',
+      path: 'group/entry',
+      data: groupId,
+    });
+  }
+
+
+  private stopListenerGroup(groupId: string) {
+    this.ws.sendMessageServer({
+      method: 'listener',
+      path: 'group/leave',
+      data: groupId,
+    });
   }
 
   deleteGroup(GroupId: string) {
@@ -87,8 +116,6 @@ export class GroupService extends WebSocketBaseService {
     });
   }
 
-
-
   private ChangeFieldOfGroup(
     GroupId: string,
     Field: keyof Group,
@@ -123,8 +150,8 @@ export class GroupService extends WebSocketBaseService {
   private setGroups(): Observable<void> {
     return this.http.get<Group[]>(`${this.apiBaseUrl}`).pipe(
       take(1),
-      map((f) => {
-        this.groups = f;
+      map((data) => {
+        this.groups = data;
         this.groupsEventEmiter.next(this.groups);
       })
     );
@@ -138,7 +165,7 @@ export class GroupService extends WebSocketBaseService {
     });
   }
 
-  private onGroupNameChanged(
+  public onGroupNameChanged(
     handler: (newName: { groupId: string; newGroupName: string }) => void
   ): Destroyable {
     return this.ws

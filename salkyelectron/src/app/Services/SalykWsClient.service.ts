@@ -28,8 +28,7 @@ export class SalkyWebSocket {
   }
 
   public async connect(user: UserLogged): Promise<void> {
-    console.info('Conectando..');
-    console.log(user.token);
+    // console.info('Conectando..');
     // this.ws = new WebSocket(environment.webSocketUrl, ["Authorization", user.token])
     this.ws = new WebSocket(`${environment.webSocketUrl}?token=${user.token}`);
     this.ws.onopen = (event: any) => this.onOpen(event);
@@ -39,8 +38,8 @@ export class SalkyWebSocket {
   }
 
   public close() {
-    console.info('WebSocket Close Method Called');
-    // this.ws.close();
+    // console.info('WebSocket Close Method Called');
+    this.ws.close();
   }
 
   public On(routeName: string, method: string) {
@@ -48,19 +47,19 @@ export class SalkyWebSocket {
   }
 
   public sendMessageServer(message: MessageServer) {
-    console.log('Messaged sended : ' + JSON.stringify(message));
+    // console.log('Messaged sended : ' + JSON.stringify(message));
     if (this.ws.readyState === 1) this.ws.send(JSON.stringify(message));
   }
 
   protected onMessage(event: MessageEvent<any>): void {
     var msgServer = JSON.parse(event.data) as MessageServer;
-    console.log('Messaged Received : ' + JSON.stringify(msgServer));
+    //  console.log('Messaged Received : ' + JSON.stringify(msgServer));
     this.ExecuteEvents(msgServer);
   }
 
   public async onOpen(event: any): Promise<void> {
-    console.info('Connection Open');
-    console.log(event);
+    // console.info('Connection Open');
+    // console.log(event);
     this.ExecuteEvents({
       path: 'open',
       method: '*',
@@ -75,13 +74,13 @@ export class SalkyWebSocket {
       path: 'error',
       data: event,
     });
-    console.error('Socket error');
-    console.error(event);
+    // console.error('Socket error');
+    // console.error(event);
   }
 
   public async onClose(event: any): Promise<void> {
-    console.info('WebSocket Connection Closed');
-    console.info(event);
+    // console.info('WebSocket Connection Closed');
+    // console.info(event);
     this.ExecuteEvents({
       method: '*',
       path: 'close',

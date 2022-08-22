@@ -52,7 +52,7 @@ export class LoginOrRegisterComponent implements OnInit {
     private ws: SalkyWebSocket,
     private router: Router
   ) {
-    this.mode = router.url.includes('auth/register') ? 'register' : 'login';
+    this.mode = router.url.includes('register') ? 'register' : 'login';
     this.form = fb.group({
       username: ['', [Validators.pattern('^[A-Za-z0-9]{3,32}$')]],
       password: ['', [Validators.required, Validators.minLength(6)]],

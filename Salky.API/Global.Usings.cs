@@ -1,5 +1,4 @@
 ﻿global using Salky.WebSockets.Enums;
-global using Salky.WebSockets.Exensions;
 global using Salky.WebSockets.Router.Routing;
 global using Salky.WebSockets.Router.Routing.Atributes;
 global using Salky.App.Services;

@@ -20,14 +20,13 @@ namespace Salky.API.WebSocketRoutes
         {
             try
             {
-                var currentUsrId = Claims.GetUserId();
-                var msgResult = await messageService.AddMessage(currentUsrId, msg.GroupId, msg.Content);
+                var msgResult = await messageService.AddMessage(Guid.Parse(User.UserId), msg.GroupId, msg.Content);
                 if (msgResult == null)
                 {
                     await SendErrorBack(CurrentPath, "Não foi possivel adicionar a mensagem");
                     return;
                 }
-                var n = await SendToAllInPool(msgResult.GroupId.ToString(), CurrentPath, Method.POST, msgResult);
+                var n = await SendToAllInPool(msgResult.GroupId, CurrentPath, Method.POST, msgResult);
             }
             catch
             {
@@ -43,7 +42,7 @@ namespace Salky.API.WebSocketRoutes
                 var removedMsg = await messageService.RemoveMessage(Claims.GetUserId(), messageId);
                 if (removedMsg != null)
                 {
-                    await SendToAllInPool(removedMsg.GroupId.ToString(), CurrentPath, Method.DELETE, new
+                    await SendToAllInPool(removedMsg.GroupId, CurrentPath, Method.DELETE, new
                     {
                         removedMsg.GroupId,
                         MessageId = removedMsg.Id

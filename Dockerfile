@@ -6,7 +6,7 @@ WORKDIR /app
 COPY Salky.API/*.csproj ./SalkyAPI/
 COPY Salky.App/*.csproj ./Salky.App/
 COPY Salky.Domain/*.csproj ./Salky.Domain/
-COPY Salky.WebSocket/*.csproj ./Salky.WebSocket/
+#COPY Salky.WebSocket/*.csproj ./Salky.WebSocket/
 #
 WORKDIR /app/SalkyAPI
 RUN dotnet restore
@@ -14,9 +14,10 @@ RUN dotnet restore
 # copy everything else and build app
 
 COPY Salky.API/. ./SalkyAPI/
+COPY Salky.API/appsettings.json ./appsettings.json
 COPY Salky.App/. ./Salky.App/
 COPY Salky.Domain/. ./Salky.Domain/
-COPY Salky.WebSocket/. ./Salky.WebSocket/
+#COPY Salky.WebSocket/. ./Salky.WebSocket/
 #   
 WORKDIR /app/SalkyAPI
 RUN dotnet publish -c Release -o out 
