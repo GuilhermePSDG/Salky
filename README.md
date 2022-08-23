@@ -20,7 +20,7 @@
     - RestApi escrita em `C#` para algumas operações como cadastro/login e consulta de dados
     - Para a comunicação via `WebSocket` utiliza o pacote [Salky.WebSockets](https://github.com/GuilhermePSDG/Salky.WebSockets)
     - Para armazenar as mensagens está sendo usado MongoDb, para os demais dados o `Entity FrameWork`, que permite a utilização de diversos bancos de dados `SQL`
-    - Está sendo utilizado somente o padrão Repository, porém pretendo utilizar o CQRS também no futuro, que vai permitir um maior desacoplamento e escala
+   
 - Frot End
   - Foi escrito em Angular
 
