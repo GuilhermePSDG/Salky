@@ -13,7 +13,8 @@
 - [ ] `Varios canais/chats por grupo`
 - [ ] `Configurações de grupo`
 
- >[Clique para acessar o aplicativo](https://roaring-empanada-489899.netlify.app)
+
+
 
 ## Como funciona
 - Back End
