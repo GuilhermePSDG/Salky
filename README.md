@@ -9,11 +9,6 @@
 - [x] Comunicação por texto
 - [x] Comunicação por voz (Requer melhorias)
 - [x] Gifs/Emoji
-- [ ] `Chat privado (entre amigos)`
-- [ ] `Varios canais/chats por grupo`
-- [ ] `Configurações de grupo`
-
-
 
 
 ## Como funciona
@@ -27,4 +22,4 @@
 
 <br>
 
-<h4 align="center"> 🚧 Projeto em construção 🚧 </h4>
+
